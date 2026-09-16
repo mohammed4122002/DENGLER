@@ -4,19 +4,29 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { saveStats, type ActionState } from "@/app/actions/admin";
+import type { Dictionary, Locale } from "@/lib/i18n";
 import type { SiteStat } from "@/lib/types";
 
 const INITIAL: ActionState = { status: "idle" };
 
-export function StatsForm({ stats }: { stats: SiteStat[] }) {
+export function StatsForm({
+  stats,
+  locale,
+  t,
+}: {
+  stats: SiteStat[];
+  locale: Locale;
+  t: Dictionary;
+}) {
   const [state, formAction] = useActionState(saveStats, INITIAL);
 
   return (
     <form action={formAction} className="space-y-7">
+      <input type="hidden" name="locale" value={locale} />
       {stats.map((stat) => (
         <div key={stat.id} className="grid gap-x-8 gap-y-5 sm:grid-cols-[10rem_1fr]">
           <label className="block">
-            <span className="eyebrow block">Value</span>
+            <span className="eyebrow block">{t.admin.value}</span>
             <input
               name={`value_${stat.id}`}
               defaultValue={stat.value}
@@ -25,7 +35,7 @@ export function StatsForm({ stats }: { stats: SiteStat[] }) {
             />
           </label>
           <label className="block">
-            <span className="eyebrow block">Label</span>
+            <span className="eyebrow block">{t.admin.label}</span>
             <input
               name={`label_${stat.id}`}
               defaultValue={stat.label}
@@ -37,7 +47,7 @@ export function StatsForm({ stats }: { stats: SiteStat[] }) {
       ))}
 
       <div className="flex flex-wrap items-center gap-5 border-t border-hairline pt-6">
-        <SaveButton />
+        <SubmitButton label={t.admin.saveFigures} saving={t.admin.saving} />
         {state.status !== "idle" && state.message && (
           <p
             role="status"
@@ -53,7 +63,7 @@ export function StatsForm({ stats }: { stats: SiteStat[] }) {
   );
 }
 
-function SaveButton() {
+function SubmitButton({ label, saving }: { label: string; saving: string }) {
   const { pending } = useFormStatus();
   return (
     <button
@@ -61,7 +71,7 @@ function SaveButton() {
       disabled={pending}
       className="btn btn-solid !py-3 !px-7 disabled:opacity-60"
     >
-      {pending ? "Saving…" : "Save figures"}
+      {pending ? saving : label}
     </button>
   );
 }

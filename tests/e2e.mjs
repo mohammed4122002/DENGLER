@@ -15,6 +15,9 @@
  *   · the investment rail actually sticks (regressed once already, via a
  *     stray `overflow-x` on <body>)
  *   · the admin flow: guard → sign in → publish → create → lead → sign out
+ *   · both language trees: routing, redirects, `dir`/`lang`, hreflang, the
+ *     switcher preserving path and filters, and Arabic content actually being
+ *     Arabic rather than an untranslated fallback
  *
  * Set BASE_URL to point at a different server (default http://127.0.0.1:3100).
  * The admin section runs only when ADMIN_PASSWORD is set, matching the server.
@@ -51,7 +54,7 @@ const shot = async (page, name) => {
   if (SHOT_DIR) await page.screenshot({ path: `${SHOT_DIR}/${name}.png` });
 };
 
-const PUBLIC_ROUTES = [
+const PATHS = [
   "/",
   "/properties",
   "/villas",
@@ -67,6 +70,16 @@ const PUBLIC_ROUTES = [
   "/properties/dengler-seascape-resort-maldives",
   "/properties/dengler-jumeirah-bay-plot",
 ];
+
+const LOCALES = ["en", "ar"];
+
+/** Every public route, in every language. */
+const PUBLIC_ROUTES = LOCALES.flatMap((locale) =>
+  PATHS.map((path) => (path === "/" ? `/${locale}` : `/${locale}${path}`)),
+);
+
+/** Matches at least one Arabic letter. */
+const ARABIC = /[\u0600-\u06FF]/;
 
 const browser = await chromium.launch({ executablePath: EXECUTABLE });
 
@@ -85,16 +98,16 @@ const browser = await chromium.launch({ executablePath: EXECUTABLE });
         return null;
       });
     if (res && res.status() >= 400) fail(`${route}: HTTP ${res.status()}`);
-    await page.waitForTimeout(route === "/" ? 4200 : 800);
+    await page.waitForTimeout(/^\/(en|ar)$/.test(route) ? 4200 : 800);
 
     if ((await page.locator("h1").count()) === 0) fail(`${route}: no <h1> on the page`);
-    if (SHOT_DIR && ["/", "/properties", "/investments"].includes(route)) {
+    if (SHOT_DIR && ["/en", "/ar", "/ar/properties", "/ar/investments"].includes(route)) {
       await shot(page, `route${route.replace(/\//g, "_") || "_home"}`);
     }
   }
 
   // 404 handling
-  const missing = await page.goto(`${BASE}/properties/does-not-exist`, { waitUntil: "domcontentloaded" });
+  const missing = await page.goto(`${BASE}/en/properties/does-not-exist`, { waitUntil: "domcontentloaded" });
   if (missing.status() !== 404) fail(`Unknown property slug returned ${missing.status()}, expected 404`);
 
   await page.close();
@@ -107,7 +120,7 @@ const browser = await chromium.launch({ executablePath: EXECUTABLE });
   const page = await (await browser.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
   watch(page, "search ");
 
-  await page.goto(`${BASE}/properties`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/en/properties`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1000);
 
   await page.selectOption("#filter-type", "hotel");
@@ -135,7 +148,7 @@ const browser = await chromium.launch({ executablePath: EXECUTABLE });
   const page = await (await browser.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
   watch(page, "form ");
 
-  await page.goto(`${BASE}/contact`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/en/contact`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(900);
 
   await page.fill('input[name="name"]', "Q");
@@ -166,7 +179,7 @@ const browser = await chromium.launch({ executablePath: EXECUTABLE });
   const page = await (await browser.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
   watch(page, "gallery ");
 
-  await page.goto(`${BASE}/properties/dengler-seascape-resort-maldives`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/en/properties/dengler-seascape-resort-maldives`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1200);
   await page.getByRole("button", { name: /gallery full screen/i }).click();
   await page.waitForTimeout(800);
@@ -185,7 +198,7 @@ const browser = await chromium.launch({ executablePath: EXECUTABLE });
  * ------------------------------------------------------------------ */
 {
   const page = await (await browser.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
-  await page.goto(`${BASE}/properties/dengler-cap-ferrat-villa`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/en/properties/dengler-cap-ferrat-villa`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1500);
 
   // Scroll the whole document: reveal animations grow the page as they run, so
@@ -234,7 +247,7 @@ for (const [width, height, label] of [
 
   for (const route of PUBLIC_ROUTES) {
     await page.goto(BASE + route, { waitUntil: "domcontentloaded", timeout: 45000 });
-    await page.waitForTimeout(route === "/" ? 3200 : 700);
+    await page.waitForTimeout(/^\/(en|ar)$/.test(route) ? 3200 : 700);
 
     const result = await page.evaluate(async () => {
       for (let y = 0; y < document.body.scrollHeight; y += 700) {
@@ -253,7 +266,7 @@ for (const [width, height, label] of [
   }
 
   if (width === 390) {
-    await page.goto(`${BASE}/properties`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE}/en/properties`, { waitUntil: "domcontentloaded" });
     await page.getByRole("button", { name: /open menu/i }).click();
     await page.waitForTimeout(700);
     if ((await page.locator("#mobile-menu").count()) === 0) fail("Mobile menu did not open");
@@ -264,29 +277,161 @@ for (const [width, height, label] of [
 }
 
 /* ------------------------------------------------------------------ *
- * 7. Admin flow (only when the server has ADMIN_PASSWORD set)
+ * 7. Bilingual routing, direction and content
+ * ------------------------------------------------------------------ */
+{
+  const page = await (await browser.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
+  watch(page, "i18n ");
+
+  // Unprefixed paths redirect into a locale.
+  for (const [from, expected] of [["/", "/en"], ["/properties", "/en/properties"]]) {
+    const res = await page.goto(BASE + from, { waitUntil: "domcontentloaded" });
+    if (!new URL(page.url()).pathname.startsWith(expected)) {
+      fail(`${from} did not redirect into a locale (landed on ${page.url()})`);
+    }
+    if (res && res.status() >= 400) fail(`${from}: HTTP ${res.status()}`);
+  }
+
+  // Accept-Language decides the locale for a first-time visitor.
+  const arabicFirst = await browser.newContext({
+    viewport: { width: 1440, height: 900 },
+    locale: "ar-AE",
+    extraHTTPHeaders: { "Accept-Language": "ar-AE,ar;q=0.9,en;q=0.5" },
+  });
+  const arPage = await arabicFirst.newPage();
+  await arPage.goto(BASE, { waitUntil: "domcontentloaded" });
+  if (!new URL(arPage.url()).pathname.startsWith("/ar")) {
+    fail(`An Arabic Accept-Language landed on ${arPage.url()}, expected /ar`);
+  }
+  await arabicFirst.close();
+
+  // Document direction, language and hreflang.
+  for (const [route, dir, lang] of [
+    ["/en/properties", "ltr", "en"],
+    ["/ar/properties", "rtl", "ar"],
+  ]) {
+    await page.goto(BASE + route, { waitUntil: "domcontentloaded" });
+    await page.waitForTimeout(900);
+
+    const doc = await page.evaluate(() => ({
+      dir: document.documentElement.dir,
+      lang: document.documentElement.lang,
+      alternates: [...document.querySelectorAll('link[rel="alternate"][hreflang]')].map(
+        (el) => `${el.getAttribute("hreflang")}:${new URL(el.href).pathname}`,
+      ),
+      canonical: document.querySelector('link[rel="canonical"]')?.getAttribute("href") ?? null,
+    }));
+
+    if (doc.dir !== dir) fail(`${route}: <html dir> is "${doc.dir}", expected "${dir}"`);
+    if (!doc.lang.startsWith(lang)) {
+      fail(`${route}: <html lang> is "${doc.lang}", expected to start with "${lang}"`);
+    }
+    for (const want of ["en:/en/properties", "ar:/ar/properties", "x-default:/en/properties"]) {
+      if (!doc.alternates.includes(want)) {
+        fail(`${route}: missing hreflang ${want} (has ${doc.alternates.join(", ") || "none"})`);
+      }
+    }
+    if (!doc.canonical?.endsWith(route)) {
+      fail(`${route}: canonical is ${doc.canonical}, expected to end with ${route}`);
+    }
+  }
+
+  // The Arabic site must actually be in Arabic — headings, navigation and
+  // property copy, not just the chrome.
+  await page.goto(`${BASE}/ar/properties/dengler-palm-residence-dubai`, {
+    waitUntil: "domcontentloaded",
+  });
+  await page.waitForTimeout(1200);
+  for (const [label, text] of [
+    ["<h1>", await page.locator("h1").first().innerText()],
+    ["nav", await page.locator("header nav ul").first().innerText()],
+    ["description", await page.locator("p.whitespace-pre-line").first().innerText()],
+    ["features", await page.locator("ul li").nth(2).innerText()],
+  ]) {
+    if (!ARABIC.test(text)) {
+      fail(`Arabic detail page: ${label} is not Arabic — "${text.slice(0, 60)}"`);
+    }
+  }
+
+  // Prices keep Latin digits and Arabic compact notation.
+  const priceText = await page.locator("h1 ~ * .tabular-nums, .tabular-nums").first().innerText();
+  if (!/[0-9]/.test(priceText)) {
+    fail(`Arabic price is not using Latin digits: "${priceText}"`);
+  }
+  await shot(page, "ar-detail");
+
+  // The switcher preserves the path and the query string.
+  await page.goto(`${BASE}/en/properties?type=hotel&sort=roi_desc`, {
+    waitUntil: "domcontentloaded",
+  });
+  await page.waitForTimeout(1500);
+  await page.getByRole("group", { name: /switch language|تغيير اللغة/i })
+    .getByRole("link", { name: "العربية" })
+    .first()
+    .click();
+  await page.waitForTimeout(2000);
+
+  const switched = new URL(page.url());
+  if (switched.pathname !== "/ar/properties") {
+    fail(`Switching language lost the path: ${switched.pathname}`);
+  }
+  if (switched.searchParams.get("type") !== "hotel" || switched.searchParams.get("sort") !== "roi_desc") {
+    fail(`Switching language lost the filters: ${switched.search}`);
+  }
+  await shot(page, "ar-properties");
+
+  // …and back again, still carrying them.
+  await page.getByRole("group", { name: /switch language|تغيير اللغة/i })
+    .getByRole("link", { name: "EN" })
+    .first()
+    .click();
+  await page.waitForTimeout(2000);
+  if (new URL(page.url()).pathname !== "/en/properties") {
+    fail(`Switching back lost the path: ${page.url()}`);
+  }
+
+  // Arabic search matches Arabic content.
+  await page.goto(`${BASE}/ar/properties`, { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(1200);
+  await page.fill('input[type="search"]', "دبي");
+  await page.waitForTimeout(1800);
+  const arabicHits = await page.locator("article").count();
+  if (arabicHits === 0) fail("Arabic search for دبي returned no properties");
+
+  // Folding: the same query without the hamza must match too.
+  await page.fill('input[type="search"]', "الامارات");
+  await page.waitForTimeout(1800);
+  if ((await page.locator("article").count()) === 0) {
+    fail("Arabic search did not fold الامارات → الإمارات");
+  }
+
+  await page.close();
+}
+
+/* ------------------------------------------------------------------ *
+ * 8. Admin flow (only when the server has ADMIN_PASSWORD set)
  * ------------------------------------------------------------------ */
 if (ADMIN_PASSWORD) {
   const context = await browser.newContext({ viewport: { width: 1440, height: 950 } });
   const page = await context.newPage();
   watch(page, "admin ");
 
-  await page.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded" });
-  if (!page.url().includes("/admin/login")) fail(`/admin did not redirect to the login page (at ${page.url()})`);
+  await page.goto(`${BASE}/en/admin`, { waitUntil: "domcontentloaded" });
+  if (!page.url().includes("/en/admin/login")) fail(`/admin did not redirect to the login page (at ${page.url()})`);
 
   await page.fill('input[name="password"]', "definitely-not-the-password");
   await page.getByRole("button", { name: /sign in/i }).click();
   await page.waitForTimeout(1500);
-  if (!page.url().includes("/admin/login")) fail("An incorrect password was accepted");
+  if (!page.url().includes("/en/admin/login")) fail("An incorrect password was accepted");
 
   await page.fill('input[name="password"]', ADMIN_PASSWORD);
   await page.getByRole("button", { name: /sign in/i }).click();
-  await page.waitForURL(/\/admin$/, { timeout: 15000 }).catch(() => fail("Sign-in did not reach /admin"));
+  await page.waitForURL(/\/en\/admin$/, { timeout: 15000 }).catch(() => fail("Sign-in did not reach /admin"));
   await page.waitForTimeout(1000);
   await shot(page, "admin-overview");
 
   // Publish toggle
-  await page.goto(`${BASE}/admin/properties`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/en/admin/properties`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1200);
   await shot(page, "admin-properties");
   await page.getByRole("button", { name: "Published", exact: true }).first().click();
@@ -298,7 +443,7 @@ if (ADMIN_PASSWORD) {
   await page.waitForTimeout(2500);
 
   // Create
-  await page.goto(`${BASE}/admin/properties/new`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/en/admin/properties/new`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(900);
   for (const [selector, value] of [
     ['input[name="title"]', "DENGLER Test Parcel"],
@@ -333,14 +478,14 @@ if (ADMIN_PASSWORD) {
     fail("Creating a property did not report success");
   }
 
-  await page.goto(`${BASE}/properties/dengler-test-parcel`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/en/properties/dengler-test-parcel`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1000);
   if ((await page.getByRole("heading", { name: "DENGLER Test Parcel", level: 1 }).count()) === 0) {
     fail("A published property is not live at its slug");
   }
 
   // Lead pipeline
-  await page.goto(`${BASE}/contact`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/en/contact`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(800);
   await page.fill('input[name="name"]', "Pipeline Check");
   await page.fill('input[name="email"]', "pipeline@example.com");
@@ -348,7 +493,7 @@ if (ADMIN_PASSWORD) {
   await page.getByRole("button", { name: /send enquiry/i }).click();
   await page.waitForTimeout(2500);
 
-  await page.goto(`${BASE}/admin/leads`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/en/admin/leads`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1500);
   if ((await page.getByText("Pipeline Check").count()) === 0) {
     fail("A submitted enquiry did not reach /admin/leads");
@@ -358,23 +503,23 @@ if (ADMIN_PASSWORD) {
   await shot(page, "admin-leads");
 
   // Headline figures
-  await page.goto(`${BASE}/admin/settings`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/en/admin/settings`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(800);
   await page.locator('input[name^="value_"]').first().fill("999+");
   await page.getByRole("button", { name: /save figures/i }).click();
   await page.waitForTimeout(2500);
-  await page.goto(BASE, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/en`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(2500);
   if ((await page.getByText("999+").count()) === 0) {
     fail("An edited headline figure did not reach the home page");
   }
 
   // Sign out revokes access
-  await page.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/en/admin`, { waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: /sign out/i }).click();
   await page.waitForTimeout(2000);
-  await page.goto(`${BASE}/admin/properties`, { waitUntil: "domcontentloaded" });
-  if (!page.url().includes("/admin/login")) fail("Signing out did not revoke dashboard access");
+  await page.goto(`${BASE}/en/admin/properties`, { waitUntil: "domcontentloaded" });
+  if (!page.url().includes("/en/admin/login")) fail("Signing out did not revoke dashboard access");
 
   await context.close();
 } else {

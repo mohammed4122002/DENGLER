@@ -2,6 +2,9 @@
 
 Premium real estate and investment platform for villas, hotels and land.
 
+**Bilingual: English and العربية**, each with its own URL tree, its own
+typography and its own copy of every property record.
+
 Built on Next.js 16 (App Router) with TypeScript, Tailwind CSS v4 and Framer
 Motion. Runs against Supabase/Postgres when configured, and against a bundled
 demo catalogue when it isn't — so `npm run dev` gives you a complete, working
@@ -27,8 +30,11 @@ npm run dev          # http://localhost:3000
 ```
 
 That's it. The platform boots in **demo mode**: 26 fictional properties across
-villas, hotels and land, a working search, a working enquiry pipeline and a
-working admin dashboard, all served from memory.
+villas, hotels and land — each written in both languages — a working search, a
+working enquiry pipeline and a working admin dashboard, all served from memory.
+
+`/` redirects to `/en` or `/ar` based on a saved preference, then
+`Accept-Language`, then English.
 
 To explore the dashboard at `/admin`, either leave `ADMIN_PASSWORD` unset in
 development (it unlocks automatically, and is blocked in production builds), or
@@ -49,6 +55,9 @@ set one in `.env.local`.
 | `npm run seed` | Load the demo catalogue into Supabase |
 | `npm run verify:images` | Check every image URL in the registry resolves |
 
+Both language trees are prerendered at build time — 26 properties × 2 locales,
+plus the legal and marketing pages.
+
 ### End-to-end checks
 
 ```bash
@@ -57,10 +66,19 @@ PORT=3100 ADMIN_PASSWORD=secret ADMIN_SESSION_SECRET=$(openssl rand -hex 32) npm
 BASE_URL=http://127.0.0.1:3100 ADMIN_PASSWORD=secret npm run test:e2e
 ```
 
-Covers every route, console errors and uncaught exceptions, search URL
-round-tripping, form validation, the gallery lightbox, horizontal overflow at
-320/390/768/1440, the sticky investment rail, and the full admin flow from
-guard to sign-out. Set `SHOT_DIR` to capture screenshots as it goes.
+Covers every route **in both languages**, console errors and uncaught
+exceptions, search URL round-tripping, form validation, the gallery lightbox,
+horizontal overflow at 320/390/768/1440, the sticky investment rail, and the
+full admin flow from guard to sign-out.
+
+The bilingual section additionally asserts: unprefixed paths redirect into a
+locale, `Accept-Language` picks Arabic for an Arabic speaker, `dir`/`lang`/
+`hreflang`/`canonical` are correct on both trees, the switcher preserves path
+*and* filters in both directions, Arabic pages are actually Arabic (headings,
+navigation, property description and features — not an English fallback), and
+Arabic search matches both `دبي` and the unhamzated `الامارات`.
+
+Set `SHOT_DIR` to capture screenshots as it goes.
 
 ---
 
@@ -69,29 +87,109 @@ guard to sign-out. Set `SHOT_DIR` to capture screenshots as it goes.
 ```
 src/
   app/
-    page.tsx                     Home
-    properties/                  Listing + /[slug] detail
-    villas/ hotels/ land/        Category pages (one shared implementation)
-    investments/                 Portfolio comparison
-    about/ contact/ legal/[slug]
-    admin/
-      login/                     Unguarded
-      (protected)/               Route group — the auth guard lives on its layout
+    [locale]/                    Everything public lives under /en or /ar
+      layout.tsx                 Root layout — sets lang, dir and the fonts
+      page.tsx                   Home
+      properties/                Listing + /[slug] detail
+      villas/ hotels/ land/      Category pages (one shared implementation)
+      investments/               Portfolio comparison
+      about/ contact/ legal/[slug]
+      not-found.tsx              Localised 404
+      admin/
+        login/                   Unguarded
+        (protected)/             Route group — the auth guard is on its layout
+    global-not-found.tsx         For a URL that matched no locale at all
     actions/                     Server actions (inquiries, admin)
     sitemap.ts  robots.ts
+  proxy.ts                       Locale routing + Supabase session refresh
   components/
     home/                        Hero, stats, categories, investment, CTA
     property/                    Card, grid, search, gallery, investment panel
-    site/                        Navbar, footer, transitions, reveals, images
+    site/                        Navbar, footer, transitions, LanguageSwitcher
     admin/                       Dashboard UI
     ui/                          Icons
   lib/
+    i18n/
+      config.ts                  Locales, direction, path helpers
+      index.ts                   getDictionary, fill
+      metadata.ts                canonical + hreflang helper
+      dictionaries/en.ts         Every English string — defines the shape
+      dictionaries/ar.ts         Every Arabic string — typed against en.ts
     store/                       Data layer — see below
-    data/                        Seed catalogue + image registry
-    types.ts format.ts query.ts auth.ts env.ts i18n.ts site.ts
-  styles/globals.css             Design system
-supabase/migrations/             Schema + RLS
+    data/
+      seed.ts                    Demo catalogue (English + numbers)
+      seed-ar.ts                 The same catalogue in Arabic, keyed by slug
+      images.ts                  Image registry
+    types.ts format.ts query.ts auth.ts env.ts site.ts
+  styles/globals.css             Design system + RTL corrections
+supabase/migrations/             Schema, RLS, and the Arabic columns
 ```
+
+### Bilingual
+
+Both locales are peers, not a base language with a translation bolted on.
+
+**Routing.** Every page lives under `/en/…` or `/ar/…`. `src/proxy.ts` redirects
+an unprefixed request to the visitor's saved cookie, else their
+`Accept-Language`, else English — with a 307, because a permanent redirect
+would cache a preference they might change. Slugs and query keys stay
+locale-independent, so the switcher rewrites
+`/en/properties/x?type=villa` to `/ar/properties/x?type=villa`: same listing,
+same filters, other language.
+
+**Copy.** `dictionaries/en.ts` defines the dictionary's shape and `ar.ts` is
+typed against it, so a missing Arabic string is a build error rather than an
+English word surfacing mid-sentence. The Arabic is written to read as Arabic,
+not translated phrase by phrase.
+
+**Property records.** Each row carries nullable `*_ar` columns
+(`title_ar`, `tagline_ar`, `description_ar`, `location_ar`, `city_ar`,
+`country_ar`, and `feature_ar` on features). `localizeProperty` resolves the
+pair and falls back to English per field, so a half-translated catalogue
+degrades to a readable page. The catalogue this repo ships is fully translated,
+and `seed.ts` throws at build time if a property is missing its Arabic.
+
+The admin form edits both languages, Arabic in its own RTL block.
+
+**Search works in either language against either language.** Both are indexed
+in one `search_text` column, folded so the orthographic variants people
+actually type all match: harakat and tatweel stripped, أ/إ/آ → ا, ى → ي,
+ة → ه. `foldSearchText` (TypeScript) folds the query, `public.fold_arabic`
+(SQL) folds the column — **if you change one, change the other**, or the search
+silently returns nothing.
+
+**Numbers.** Both locales use Latin digits, which `ar-AE` does by default and
+which is the convention in Gulf property material. Everything else goes through
+`Intl`, so Arabic gets its own compact notation — `21.50 مليون USD`, not
+`$21.50M`.
+
+Arabic quotes the ISO code rather than the symbol, on purpose: `$`, `€` and `£`
+are bidi-neutral characters, and next to Latin letters in a right-to-left line
+they detach and jump to the wrong end — `US$` renders as `$US`. Three strong
+Latin letters have nothing neutral to misplace.
+
+**Typography.** Cormorant Garamond ↔ Amiri for display, Inter ↔ IBM Plex Sans
+Arabic for text. All four load always, and each stack lists the other script's
+face, so "DENGLER" inside an Arabic sentence doesn't drop to a system font.
+
+The RTL corrections at the bottom of `globals.css` are **deliberately
+unlayered**. Tailwind's cascade runs base → components → utilities and layer
+order beats specificity, so `[dir="rtl"] .italic` inside `@layer base` loses to
+`.italic` in the utilities layer — which is exactly how an earlier revision
+silently shipped synthetically-slanted Arabic. Each correction undoes a Latin
+convention that damages Arabic:
+
+- **no synthetic italic** — Arabic has no italic form, so browsers shear the
+  glyphs; the accent lines use colour alone
+- **no letter-spacing** — Arabic is cursive, and tracking severs the joins
+- **no full stop on display headings** — at that size it reads as a smudge, and
+  Arabic headline convention omits it; body copy keeps its punctuation
+- **more leading** — Amiri sets deep below the baseline
+
+**Adding a third language** means: add it to `LOCALES`, add a dictionary, add a
+font pair. At that point the `*_ar` columns should become a
+`property_translations` table — two locales are worth the flat columns for the
+single-join reads and the one shared search index; three are not.
 
 ### The data layer
 
@@ -143,9 +241,8 @@ against a grotesk, two easing curves, and a small set of component classes
 Two conventions worth knowing before editing:
 
 - **Logical properties everywhere.** `padding-inline`, `inset-inline-start`,
-  `text-start` — never `left`/`right`. Flipping `dir="rtl"` on `<html>` mirrors
-  the entire layout with no second stylesheet. See `src/lib/i18n.ts` for the
-  three steps to add Arabic.
+  `text-start` — never `left`/`right`. That is what lets `dir="rtl"` mirror the
+  entire layout with no second stylesheet.
 - **No `overflow-x` on `<body>`.** Both `hidden` and `clip` there stop every
   `position: sticky` descendant from sticking. Sections that could bleed
   horizontally clip themselves instead. `tests/e2e.mjs` guards this.
@@ -213,10 +310,14 @@ seed data with verified inventory before you turn it on.
 
 Per-property dynamic titles, descriptions, canonicals, Open Graph and Twitter
 cards; `RealEstateListing` JSON-LD with `Offer`, `PostalAddress`,
-`GeoCoordinates` and `QuantitativeValue`; a generated `sitemap.xml` covering
-every published slug; and a `robots.txt` that keeps `/admin` out of the index.
-Property pages are prerendered at build time via `generateStaticParams` and
-revalidated hourly.
+`GeoCoordinates`, `QuantitativeValue` and `inLanguage`; and a `robots.txt` that
+keeps `/admin` out of the index in both trees. Property pages are prerendered
+at build time via `generateStaticParams` and revalidated hourly.
+
+Every page declares `hreflang` alternates for both locales plus `x-default`,
+and every URL in `sitemap.xml` carries the same set — a one-way declaration is
+ignored, so both trees list each other. Without it the two languages would look
+like duplicate content rather than translations.
 
 ---
 
@@ -242,11 +343,14 @@ revalidated hourly.
 ## Known gaps
 
 - **Image URLs are unverified.** See the note above — one command fixes it.
-- **Legal pages are honest stubs.** They say what the page is for and that it
-  needs replacing, rather than inventing enforceable-looking terms. Have
-  counsel write the real text.
-- **Arabic is scaffolded, not shipped.** The layout is RTL-ready and the seam
-  is a single function; the dictionary and an Arabic display face are not.
+- **Legal pages are honest stubs, in both languages.** They say what the page
+  is for and that it needs replacing, rather than inventing enforceable-looking
+  terms. Have counsel write the real text — and have the Arabic reviewed by
+  counsel in the jurisdictions where you actually operate, not translated from
+  the English.
+- **The Arabic has not been reviewed by a native-speaking editor.** It reads
+  naturally and the terminology is consistent, but before launch it deserves
+  the same pass any published copy gets.
 - **The map is an OpenStreetMap embed**, lazy-loaded, so no mapping SDK or API
   key is on the critical path. Swap the `src` in `LocationMap` for a keyed
   provider if you need custom styling.

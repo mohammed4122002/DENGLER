@@ -12,6 +12,7 @@
 
 import type { Inquiry, Property, SiteStat } from "@/lib/types";
 import { type PhotoKey, photo } from "./images";
+import { AR_CONTENT } from "./seed-ar";
 
 interface RawProperty {
   slug: string;
@@ -713,18 +714,27 @@ function build(raw: RawProperty, index: number): Property {
   const propertyId = id("prop", index + 1);
   const created = at(RAW.length - index);
 
+  // Arabic lives in `seed-ar.ts`, keyed by slug. A record with no entry there
+  // falls back to English on the Arabic site rather than rendering blank.
+  const arabic = AR_CONTENT[raw.slug];
+
   return {
     id: propertyId,
     title: raw.title,
+    title_ar: arabic?.title ?? null,
     slug: raw.slug,
     description: raw.description,
+    description_ar: arabic?.description ?? null,
     property_type: raw.type,
     status: raw.status ?? "available",
     price: raw.price,
     currency: raw.currency ?? "USD",
     location: raw.location,
+    location_ar: arabic?.location ?? null,
     country: raw.country,
+    country_ar: arabic?.country ?? null,
     city: raw.city,
+    city_ar: arabic?.city ?? null,
     latitude: raw.lat,
     longitude: raw.lng,
     area: raw.area,
@@ -740,21 +750,40 @@ function build(raw: RawProperty, index: number): Property {
     published: true,
     cover_image: photo(raw.cover, 1600),
     tagline: raw.tagline,
+    tagline_ar: arabic?.tagline ?? null,
     created_at: created,
     updated_at: created,
     images: [raw.cover, ...raw.gallery].map((key, i) => ({
       id: `${propertyId}_img_${i}`,
       property_id: propertyId,
       image_url: photo(key, 1800),
-      alt: `${raw.title} — view ${i + 1}`,
+      // Left empty on purpose: the gallery generates alt text from the
+      // *localised* title, so a stored English string would leak onto the
+      // Arabic site. The column stays for admin-authored alt text.
+      alt: "",
       sort_order: i,
       created_at: created,
     })),
     features: raw.features,
+    features_ar: arabic?.features ?? [],
   };
 }
 
 export const SEED_PROPERTIES: Property[] = RAW.map(build);
+
+/**
+ * Fails the build if a property ships without Arabic. The fallback to English
+ * exists for a half-finished translation in someone's database — not for the
+ * catalogue this repository ships with.
+ */
+const UNTRANSLATED = SEED_PROPERTIES.filter((property) => !property.title_ar).map(
+  (property) => property.slug,
+);
+if (UNTRANSLATED.length > 0) {
+  throw new Error(
+    `Seed properties missing Arabic content in seed-ar.ts: ${UNTRANSLATED.join(", ")}`,
+  );
+}
 
 export const SEED_INQUIRIES: Inquiry[] = [
   {

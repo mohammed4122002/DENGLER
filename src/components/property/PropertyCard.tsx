@@ -5,12 +5,8 @@ import { DemoBadge } from "@/components/site/DemoBadge";
 import { FavoriteButton } from "@/components/property/FavoriteButton";
 import { AreaIcon, ArrowIcon, BathIcon, BedIcon, PinIcon, TrendIcon } from "@/components/ui/Icons";
 import { formatArea, formatPercent, formatPrice } from "@/lib/format";
-import {
-  INVESTMENT_TYPE_LABELS,
-  PROPERTY_TYPE_LABELS,
-  STATUS_LABELS,
-  type Property,
-} from "@/lib/types";
+import { fill, localePath, type Dictionary, type Locale } from "@/lib/i18n";
+import type { LocalizedProperty } from "@/lib/types";
 
 /**
  * The card is a single anchor with the whole surface clickable. The heart
@@ -19,10 +15,14 @@ import {
  */
 export function PropertyCard({
   property,
+  locale,
+  t,
   priority = false,
   sizes = "(min-width:1280px) 30vw, (min-width:768px) 45vw, 92vw",
 }: {
-  property: Property;
+  property: LocalizedProperty;
+  locale: Locale;
+  t: Dictionary;
   priority?: boolean;
   sizes?: string;
 }) {
@@ -46,9 +46,9 @@ export function PropertyCard({
   return (
     <article className="group relative">
       <Link
-        href={`/properties/${slug}`}
+        href={localePath(locale, `/properties/${slug}`)}
         className="block outline-offset-4"
-        aria-label={`${title} — ${location}, ${formatPrice(price, currency)}`}
+        aria-label={`${title} — ${location}, ${formatPrice(price, currency, locale)}`}
       >
         {/* --- Photograph --------------------------------------------------- */}
         <div className="relative aspect-[4/3] overflow-hidden bg-cream">
@@ -70,16 +70,20 @@ export function PropertyCard({
 
           <div className="absolute inset-x-4 top-4 flex items-start justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-paper/90 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-ink backdrop-blur-sm">
-                {PROPERTY_TYPE_LABELS[property_type]}
+              <span className="rounded-full bg-paper/90 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-ink backdrop-blur-sm rtl:tracking-normal rtl:normal-case">
+                {t.enums.propertyType[property_type]}
               </span>
               {status !== "available" && (
-                <span className="rounded-full bg-ink/85 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-paper backdrop-blur-sm">
-                  {STATUS_LABELS[status]}
+                <span className="rounded-full bg-ink/85 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-paper backdrop-blur-sm rtl:tracking-normal rtl:normal-case">
+                  {t.enums.status[status]}
                 </span>
               )}
             </div>
-            <FavoriteButton propertyId={property.id} title={title} />
+            <FavoriteButton
+              propertyId={property.id}
+              saveLabel={fill(t.card.saveToShortlist, { title })}
+              removeLabel={fill(t.card.removeFromShortlist, { title })}
+            />
           </div>
 
           {/* Investment badge — the thing that separates DENGLER from a
@@ -87,8 +91,8 @@ export function PropertyCard({
           {roi !== null && (
             <div className="absolute bottom-4 start-4 flex items-center gap-2 rounded-full border border-gold-soft/45 bg-ink/70 px-3.5 py-1.5 text-[11px] text-gold-soft backdrop-blur-md">
               <TrendIcon size={13} />
-              <span className="font-medium tracking-wide">
-                {formatPercent(roi)} projected ROI
+              <span className="font-medium tracking-wide rtl:tracking-normal">
+                {formatPercent(roi, locale)} {t.card.projectedRoi}
               </span>
             </div>
           )}
@@ -115,39 +119,42 @@ export function PropertyCard({
             {tagline}
           </p>
 
-          <p className="mt-5 font-display text-[1.75rem] leading-none text-ink">
-            {formatPrice(price, currency)}
+          <p className="mt-5 font-display text-[1.75rem] leading-none text-ink tabular-nums">
+            {formatPrice(price, currency, locale)}
           </p>
 
           <dl className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-hairline pt-4 text-[0.8125rem] text-graphite">
             {bedrooms !== null && (
               <div className="flex items-center gap-1.5">
                 <BedIcon size={14} className="text-muted" />
-                <dt className="sr-only">Bedrooms</dt>
+                <dt className="sr-only">{t.card.bedrooms}</dt>
                 <dd>
-                  {bedrooms} {property_type === "hotel" ? "keys" : "bd"}
+                  {bedrooms}{" "}
+                  {property_type === "hotel" ? t.card.keys : t.card.bedroomsShort}
                 </dd>
               </div>
             )}
             {bathrooms !== null && (
               <div className="flex items-center gap-1.5">
                 <BathIcon size={14} className="text-muted" />
-                <dt className="sr-only">Bathrooms</dt>
-                <dd>{bathrooms} ba</dd>
+                <dt className="sr-only">{t.card.bathrooms}</dt>
+                <dd>
+                  {bathrooms} {t.card.bathroomsShort}
+                </dd>
               </div>
             )}
             <div className="flex items-center gap-1.5">
               <AreaIcon size={14} className="text-muted" />
-              <dt className="sr-only">Area</dt>
-              <dd>{formatArea(area)}</dd>
+              <dt className="sr-only">{t.card.area}</dt>
+              <dd>{formatArea(area, locale)}</dd>
             </div>
           </dl>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="text-[11px] uppercase tracking-[0.14em] text-muted">
-              {INVESTMENT_TYPE_LABELS[investment_type]}
+            <span className="text-[11px] uppercase tracking-[0.14em] text-muted rtl:tracking-normal rtl:normal-case">
+              {t.enums.investmentType[investment_type]}
             </span>
-            <DemoBadge />
+            <DemoBadge label={t.demo.badge} />
           </div>
         </div>
       </Link>

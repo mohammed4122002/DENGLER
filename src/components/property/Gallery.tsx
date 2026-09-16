@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import { SmartImage } from "@/components/site/SmartImage";
 import { ArrowIcon, CloseIcon } from "@/components/ui/Icons";
+import { fill, type Dictionary } from "@/lib/i18n";
 import type { PropertyImage } from "@/lib/types";
 
 /**
@@ -17,9 +18,14 @@ import type { PropertyImage } from "@/lib/types";
 export function Gallery({
   images,
   title,
+  t,
+  rtl,
 }: {
   images: PropertyImage[];
+  /** Already localised by the caller — used for the generated alt text. */
   title: string;
+  t: Dictionary;
+  rtl: boolean;
 }) {
   const [index, setIndex] = useState(0);
   const [lightbox, setLightbox] = useState(false);
@@ -35,8 +41,9 @@ export function Gallery({
 
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setLightbox(false);
-      if (event.key === "ArrowRight") go(1);
-      if (event.key === "ArrowLeft") go(-1);
+      // Arrow keys follow the reading direction: in Arabic, "next" is left.
+      if (event.key === "ArrowRight") go(rtl ? -1 : 1);
+      if (event.key === "ArrowLeft") go(rtl ? 1 : -1);
     };
 
     document.addEventListener("keydown", onKey);
@@ -45,7 +52,7 @@ export function Gallery({
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-  }, [lightbox, go]);
+  }, [lightbox, go, rtl]);
 
   if (count === 0) return null;
 
@@ -66,7 +73,7 @@ export function Gallery({
             >
               <SmartImage
                 src={active.image_url}
-                alt={active.alt || `${title} — image ${index + 1}`}
+                alt={active.alt || fill(t.detail.gallery.imageAlt, { title, n: index + 1 })}
                 fill
                 priority={index === 0}
                 sizes="(min-width:1024px) 62vw, 100vw"
@@ -79,17 +86,28 @@ export function Gallery({
             type="button"
             onClick={() => setLightbox(true)}
             className="absolute inset-0 cursor-zoom-in"
-            aria-label={`Open ${title} gallery full screen`}
+            aria-label={fill(t.detail.gallery.openFullScreen, { title })}
           />
 
           {count > 1 && (
             <>
-              <NavButton side="start" onClick={() => go(-1)} label="Previous image" />
-              <NavButton side="end" onClick={() => go(1)} label="Next image" />
+              <NavButton
+                side="start"
+                onClick={() => go(-1)}
+                label={t.detail.gallery.previous}
+              />
+              <NavButton
+                side="end"
+                onClick={() => go(1)}
+                label={t.detail.gallery.next}
+              />
             </>
           )}
 
-          <p className="pointer-events-none absolute bottom-4 end-4 rounded-full bg-ink/70 px-3 py-1 text-[11px] tracking-[0.14em] text-paper backdrop-blur-md">
+          <p
+            dir="ltr"
+            className="pointer-events-none absolute bottom-4 end-4 rounded-full bg-ink/70 px-3 py-1 text-[11px] tracking-[0.14em] text-paper backdrop-blur-md tabular-nums"
+          >
             {index + 1} / {count}
           </p>
         </div>
@@ -101,7 +119,7 @@ export function Gallery({
                 <button
                   type="button"
                   onClick={() => setIndex(i)}
-                  aria-label={`Show image ${i + 1}`}
+                  aria-label={fill(t.detail.gallery.show, { n: i + 1 })}
                   aria-current={i === index}
                   className={`relative block h-20 w-28 overflow-hidden transition-opacity duration-500 md:h-24 md:w-36 ${
                     i === index ? "opacity-100" : "opacity-45 hover:opacity-80"
@@ -136,7 +154,7 @@ export function Gallery({
             transition={{ duration: 0.3 }}
             role="dialog"
             aria-modal="true"
-            aria-label={`${title} gallery`}
+            aria-label={fill(t.detail.gallery.label, { title })}
           >
             <div className="flex items-center justify-between px-5 py-5 md:px-10">
               <p className="font-display text-xl text-paper">{title}</p>
@@ -144,7 +162,7 @@ export function Gallery({
                 type="button"
                 onClick={() => setLightbox(false)}
                 className="grid h-11 w-11 place-items-center rounded-full border border-paper/25 text-paper transition-colors hover:border-gold-soft hover:text-gold-soft"
-                aria-label="Close gallery"
+                aria-label={t.detail.gallery.close}
                 autoFocus
               >
                 <CloseIcon size={16} />
@@ -155,7 +173,7 @@ export function Gallery({
               <SmartImage
                 key={active.id}
                 src={active.image_url}
-                alt={active.alt || `${title} — image ${index + 1}`}
+                alt={active.alt || fill(t.detail.gallery.imageAlt, { title, n: index + 1 })}
                 fill
                 sizes="100vw"
                 className="object-contain"
@@ -167,18 +185,21 @@ export function Gallery({
                 type="button"
                 onClick={() => go(-1)}
                 className="grid h-11 w-11 place-items-center rounded-full border border-paper/25 transition-colors hover:border-gold-soft hover:text-gold-soft"
-                aria-label="Previous image"
+                aria-label={t.detail.gallery.previous}
               >
                 <ArrowIcon size={16} className="rotate-180" />
               </button>
-              <span className="text-xs tracking-[0.2em] text-paper/60">
+              <span
+                dir="ltr"
+                className="text-xs tracking-[0.2em] text-paper/60 tabular-nums"
+              >
                 {index + 1} / {count}
               </span>
               <button
                 type="button"
                 onClick={() => go(1)}
                 className="grid h-11 w-11 place-items-center rounded-full border border-paper/25 transition-colors hover:border-gold-soft hover:text-gold-soft"
-                aria-label="Next image"
+                aria-label={t.detail.gallery.next}
               >
                 <ArrowIcon size={16} />
               </button>

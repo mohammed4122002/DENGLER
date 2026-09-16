@@ -5,6 +5,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { photo, type PhotoKey } from "@/lib/data/images";
+import { localePath, type Dictionary, type Locale } from "@/lib/i18n";
 
 interface Category {
   href: string;
@@ -13,6 +14,8 @@ interface Category {
   copy: string;
   image: PhotoKey;
   count: number;
+  /** Plural form is a language decision, so the caller supplies both words. */
+  countLabel: string;
 }
 
 /**
@@ -22,33 +25,42 @@ interface Category {
  */
 export function CategoryExplorer({
   counts,
+  locale,
+  t,
 }: {
   counts: { villa: number; hotel: number; land: number };
+  locale: Locale;
+  t: Dictionary;
 }) {
+  const countLabel = (n: number) => (n === 1 ? t.common.listing : t.common.listings);
+
   const categories: Category[] = [
     {
-      href: "/villas",
-      label: "01 — Villas",
-      title: "VILLAS",
-      copy: "Private residences held for use, for yield, or for both. Architect-led, coastal and city, from Dubai to the Côte d'Azur.",
+      href: localePath(locale, "/villas"),
+      label: t.categories.villa.label,
+      title: t.categories.villa.title,
+      copy: t.categories.villa.copy,
       image: "villaPalmModern",
       count: counts.villa,
+      countLabel: countLabel(counts.villa),
     },
     {
-      href: "/hotels",
-      label: "02 — Hotels",
-      title: "HOTELS",
-      copy: "Trading hospitality assets and consented conversions, sold with the operator, the accounts and the booking book in place.",
+      href: localePath(locale, "/hotels"),
+      label: t.categories.hotel.label,
+      title: t.categories.hotel.title,
+      copy: t.categories.hotel.copy,
       image: "hotelResortPool",
       count: counts.hotel,
+      countLabel: countLabel(counts.hotel),
     },
     {
-      href: "/land",
-      label: "03 — Land",
-      title: "LAND",
-      copy: "Development parcels where the scarcity is structural — zoning, water rights, frontage or consent that cannot be recreated.",
+      href: localePath(locale, "/land"),
+      label: t.categories.land.label,
+      title: t.categories.land.title,
+      copy: t.categories.land.copy,
       image: "landCoastalPlot",
       count: counts.land,
+      countLabel: countLabel(counts.land),
     },
   ];
 
@@ -56,15 +68,20 @@ export function CategoryExplorer({
     <section className="bg-paper">
       <div className="shell py-24 md:py-32">
         <SectionHeading
-          eyebrow="Explore by category"
+          eyebrow={t.categories.eyebrow}
           title={
             <>
-              Three ways to hold
+              {t.categories.titleLineOne}
               <br />
-              <span className="italic text-gold-deep">real assets.</span>
+              <span className="italic text-gold-deep">
+                {t.categories.titleLineTwo}
+              </span>
             </>
           }
-          link={{ href: "/properties", label: "All inventory" }}
+          link={{
+            href: localePath(locale, "/properties"),
+            label: t.common.allInventory,
+          }}
         />
 
         <div className="mt-16 grid gap-5 lg:grid-cols-12 lg:gap-6">
@@ -130,8 +147,9 @@ function CategoryPanel({
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-paper/65">
             {category.copy}
           </p>
-          <span className="mt-6 inline-flex items-center gap-3 text-xs uppercase tracking-[0.16em] text-gold-soft">
-            {category.count} {category.count === 1 ? "listing" : "listings"}
+          <span className="mt-6 inline-flex items-center gap-3 text-xs uppercase tracking-[0.16em] text-gold-soft rtl:tracking-normal rtl:normal-case">
+            <span className="tabular-nums">{category.count}</span>{" "}
+            {category.countLabel}
             <ArrowIcon
               size={16}
               className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1.5"

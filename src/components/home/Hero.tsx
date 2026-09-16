@@ -13,6 +13,7 @@ import {
 
 import { SmartImage } from "@/components/site/SmartImage";
 import { photo } from "@/lib/data/images";
+import { isRtl, localePath, type Dictionary, type Locale } from "@/lib/i18n";
 
 /**
  * The hero is staged as a short film rather than a banner.
@@ -34,8 +35,9 @@ import { photo } from "@/lib/data/images";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-export function Hero() {
+export function Hero({ locale, t }: { locale: Locale; t: Dictionary }) {
   const reduce = useReducedMotion();
+  const rtl = isRtl(locale);
   const sectionRef = useRef<HTMLElement>(null);
 
   // --- Pointer parallax -----------------------------------------------------
@@ -45,15 +47,17 @@ export function Hero() {
   const smoothX = useSpring(pointerX, springConfig);
   const smoothY = useSpring(pointerY, springConfig);
 
-  // Each layer gets its own travel budget, in pixels.
-  const skyX = useTransform(smoothX, [-1, 1], [12, -12]);
+  // Each layer gets its own travel budget, in pixels. The sign flips in RTL so
+  // the scene parallaxes with the reading direction rather than against it.
+  const d = rtl ? -1 : 1;
+  const skyX = useTransform(smoothX, [-1, 1], [12 * d, -12 * d]);
   const skyY = useTransform(smoothY, [-1, 1], [8, -8]);
-  const buildingX = useTransform(smoothX, [-1, 1], [26, -26]);
+  const buildingX = useTransform(smoothX, [-1, 1], [26 * d, -26 * d]);
   const buildingY = useTransform(smoothY, [-1, 1], [16, -16]);
-  const lightX = useTransform(smoothX, [-1, 1], [-70, 70]);
-  const foreX = useTransform(smoothX, [-1, 1], [-52, 52]);
+  const lightX = useTransform(smoothX, [-1, 1], [-70 * d, 70 * d]);
+  const foreX = useTransform(smoothX, [-1, 1], [-52 * d, 52 * d]);
   const foreY = useTransform(smoothY, [-1, 1], [-14, 14]);
-  const copyX = useTransform(smoothX, [-1, 1], [8, -8]);
+  const copyX = useTransform(smoothX, [-1, 1], [8 * d, -8 * d]);
 
   // --- Scroll hand-off into the next section --------------------------------
   const { scrollYProgress } = useScroll({
@@ -92,7 +96,7 @@ export function Hero() {
     <section
       ref={sectionRef}
       className="relative h-[100svh] min-h-[620px] w-full overflow-hidden bg-ink"
-      aria-label="DENGLER — invest in what lasts"
+      aria-label={t.hero.ariaLabel}
     >
       {/* ── Layer 0 · sky ──────────────────────────────────────────────── */}
       <motion.div
@@ -149,10 +153,14 @@ export function Hero() {
           style={{ x: lightX }}
           aria-hidden
         >
+          {/* The sweep travels with the reading direction. */}
           <motion.div
             className="gold-sweep"
-            initial={{ x: "-65%", opacity: 0 }}
-            animate={{ x: ["-65%", "65%"], opacity: [0, 0.95, 0] }}
+            initial={{ x: rtl ? "65%" : "-65%", opacity: 0 }}
+            animate={{
+              x: rtl ? ["65%", "-65%"] : ["-65%", "65%"],
+              opacity: [0, 0.95, 0],
+            }}
             transition={{
               duration: 3.6,
               delay: 2.2,
@@ -188,19 +196,16 @@ export function Hero() {
         className="shell relative z-20 flex h-full flex-col justify-end pb-16 md:pb-24"
         style={reduce ? undefined : { x: copyX, y: copyY, opacity: copyOpacity }}
       >
-        <motion.p
-          className="eyebrow !text-white/60"
-          {...stage(0.8)}
-        >
-          DENGLER · Premium Real Estate &amp; Investment
+        <motion.p className="eyebrow !text-white/60" {...stage(0.8)}>
+          {t.hero.eyebrow}
         </motion.p>
 
         <h1 className="mt-5 max-w-5xl text-white display-xl">
           <MaskedLine delay={1.4} reduce={!!reduce}>
-            INVEST IN
+            {t.hero.titleLineOne}
           </MaskedLine>
           <MaskedLine delay={1.58} reduce={!!reduce}>
-            <span className="italic text-gold-soft">WHAT LASTS.</span>
+            <span className="italic text-gold-soft">{t.hero.titleLineTwo}</span>
           </MaskedLine>
         </h1>
 
@@ -208,20 +213,25 @@ export function Hero() {
           className="mt-8 max-w-xl text-base leading-relaxed text-white/72 md:text-lg"
           {...stage(2.6)}
         >
-          Exceptional villas, hotels and land opportunities curated for ambitious
-          investors.
+          {t.hero.lead}
         </motion.p>
 
         <motion.div
           className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center"
           {...stage(2.78)}
         >
-          <Link href="/properties" className="btn btn-ghost-light">
-            Explore Properties
+          <Link
+            href={localePath(locale, "/properties")}
+            className="btn btn-ghost-light"
+          >
+            {t.common.exploreProperties}
             <Arrow />
           </Link>
-          <Link href="/investments" className="btn btn-ghost-light">
-            Investment Opportunities
+          <Link
+            href={localePath(locale, "/investments")}
+            className="btn btn-ghost-light"
+          >
+            {t.common.investmentOpportunities}
           </Link>
         </motion.div>
       </motion.div>
@@ -230,23 +240,23 @@ export function Hero() {
       <motion.figure
         className="absolute bottom-16 z-20 hidden max-w-[17rem] border-s border-white/25 ps-5 text-white/75 lg:block md:bottom-24"
         style={{ insetInlineEnd: "clamp(1.25rem, 4vw, 4rem)" }}
-        initial={reduce ? false : { opacity: 0, x: 32 }}
+        initial={reduce ? false : { opacity: 0, x: rtl ? -32 : 32 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 1.1, delay: 3.2, ease: EASE }}
       >
         <figcaption>
-          <p className="eyebrow !text-gold-soft">Now showing</p>
+          <p className="eyebrow !text-gold-soft">{t.hero.nowShowing}</p>
           <p className="mt-2 font-display text-2xl leading-tight text-white">
-            DENGLER Palm Residence
+            {t.hero.captionTitle}
           </p>
-          <p className="mt-1 text-xs tracking-wide text-white/55">
-            Palm Jumeirah, Dubai · 620 m² · 4 bedrooms
+          <p className="mt-1 text-xs tracking-wide text-white/55 rtl:tracking-normal">
+            {t.hero.captionMeta}
           </p>
           <Link
-            href="/properties/dengler-palm-residence-dubai"
-            className="nav-link mt-4 inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-gold-soft"
+            href={localePath(locale, "/properties/dengler-palm-residence-dubai")}
+            className="nav-link mt-4 inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-gold-soft rtl:tracking-normal rtl:normal-case"
           >
-            View property
+            {t.common.viewProperty}
             <Arrow />
           </Link>
         </figcaption>
@@ -310,7 +320,9 @@ function MaskedLine({
   if (reduce) return <span className="block">{children}</span>;
 
   return (
-    <span className="block overflow-hidden pb-[0.08em]">
+    // The mask clips at the line box, so it needs enough room below the
+    // baseline for the script's descenders — far more in Arabic than in Latin.
+    <span className="block overflow-hidden pb-[0.08em] rtl:pb-[0.26em]">
       <motion.span
         className="block"
         initial={{ y: "108%" }}

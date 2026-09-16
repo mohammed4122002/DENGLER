@@ -4,10 +4,13 @@ import { SEED_INQUIRIES, SEED_PROPERTIES, SEED_STATS } from "@/lib/data/seed";
 import type {
   Inquiry,
   InquiryStatus,
+  LocalizedProperty,
   Property,
   PropertyQuery,
   SiteStat,
 } from "@/lib/types";
+import { localizeProperty } from "@/lib/types";
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config";
 import { buildFacets, matchesQuery, sortProperties } from "./filters";
 import type { DataStore, PropertyInput } from "./types";
 
@@ -67,26 +70,35 @@ function toImages(propertyId: string, gallery: string[], createdAt: string) {
 export const demoStore: DataStore = {
   mode: "demo",
 
-  async listProperties(query = {}) {
+  async listProperties(query = {}, locale: Locale = DEFAULT_LOCALE) {
     const { properties } = getState();
     const visible = properties.filter(
       (p) => p.published || query.status === "all",
     );
+    // Filtering runs against the raw record so a query matches either
+    // language; localisation happens only on the way out.
     const filtered = visible.filter((p) => matchesQuery(p, query));
     const sorted = sortProperties(filtered, query.sort);
-    return query.limit ? sorted.slice(0, query.limit) : sorted;
+    const limited = query.limit ? sorted.slice(0, query.limit) : sorted;
+    return limited.map((p) => localizeProperty(p, locale));
   },
 
-  async getPropertyBySlug(slug) {
-    return getState().properties.find((p) => p.slug === slug) ?? null;
+  async getPropertyBySlug(slug, locale: Locale = DEFAULT_LOCALE) {
+    const match = getState().properties.find((p) => p.slug === slug);
+    return match ? localizeProperty(match, locale) : null;
   },
 
   async getPropertyById(id) {
     return getState().properties.find((p) => p.id === id) ?? null;
   },
 
-  async getFacets() {
-    return buildFacets(getState().properties.filter((p) => p.published));
+  async getFacets(locale: Locale = DEFAULT_LOCALE) {
+    // Facet values are shown in the filter dropdowns, so they are localised.
+    return buildFacets(
+      getState()
+        .properties.filter((p) => p.published)
+        .map((p) => localizeProperty(p, locale)),
+    );
   },
 
   async listPublishedSlugs() {

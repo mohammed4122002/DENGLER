@@ -6,13 +6,22 @@ import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { formatPercent, formatPriceCompact } from "@/lib/format";
-import { INVESTMENT_TYPE_LABELS, type Property } from "@/lib/types";
+import { localePath, type Dictionary, type Locale } from "@/lib/i18n";
+import type { LocalizedProperty } from "@/lib/types";
 
 /**
  * The section that makes DENGLER an investment platform rather than a listings
  * site: the same asset, expressed as capital in, revenue out, and return.
  */
-export function InvestmentSection({ properties }: { properties: Property[] }) {
+export function InvestmentSection({
+  properties,
+  locale,
+  t,
+}: {
+  properties: LocalizedProperty[];
+  locale: Locale;
+  t: Dictionary;
+}) {
   if (properties.length === 0) return null;
 
   const [lead, ...rest] = properties;
@@ -22,23 +31,28 @@ export function InvestmentSection({ properties }: { properties: Property[] }) {
       <div className="shell relative z-10 py-24 md:py-32">
         <SectionHeading
           tone="light"
-          eyebrow="Invest beyond property"
+          eyebrow={t.investmentHome.eyebrow}
           title={
             <>
-              Every asset, stated as
+              {t.investmentHome.titleLineOne}
               <br />
-              <span className="italic text-gold-soft">capital and return.</span>
+              <span className="italic text-gold-soft">
+                {t.investmentHome.titleLineTwo}
+              </span>
             </>
           }
-          lead="Yield, occupancy, revenue and development upside are published on the listing itself — not held back until the second meeting."
-          link={{ href: "/investments", label: "All opportunities" }}
+          lead={t.investmentHome.lead}
+          link={{
+            href: localePath(locale, "/investments"),
+            label: t.common.allOpportunities,
+          }}
         />
 
         <div className="mt-16 grid gap-6 lg:grid-cols-12">
           {/* --- Lead opportunity ------------------------------------------ */}
           <Reveal className="lg:col-span-7">
             <Link
-              href={`/properties/${lead.slug}`}
+              href={localePath(locale, `/properties/${lead.slug}`)}
               className="group relative block h-full overflow-hidden border border-paper/12"
             >
               <div className="relative aspect-[16/10] overflow-hidden">
@@ -58,9 +72,9 @@ export function InvestmentSection({ properties }: { properties: Property[] }) {
               <div className="p-7 md:p-9">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="eyebrow !text-gold-soft">
-                    {INVESTMENT_TYPE_LABELS[lead.investment_type]}
+                    {t.enums.investmentType[lead.investment_type]}
                   </span>
-                  <DemoBadge />
+                  <DemoBadge label={t.demo.badge} />
                 </div>
 
                 <h3 className="mt-4 font-display text-[clamp(2rem,3.4vw,3rem)] leading-none text-paper">
@@ -69,27 +83,36 @@ export function InvestmentSection({ properties }: { properties: Property[] }) {
                 <p className="mt-2 text-sm text-paper/50">{lead.location}</p>
 
                 <dl className="mt-9 grid grid-cols-2 gap-x-6 gap-y-8 border-t border-paper/12 pt-8 sm:grid-cols-3">
-                  <Figure label="Investment" value={formatPriceCompact(lead.price, lead.currency)} />
                   <Figure
-                    label="Est. annual revenue"
+                    label={t.investmentHome.investment}
+                    value={formatPriceCompact(lead.price, lead.currency, locale)}
+                  />
+                  <Figure
+                    label={t.investmentHome.annualRevenue}
                     value={
                       lead.annual_revenue
-                        ? formatPriceCompact(lead.annual_revenue, lead.currency)
+                        ? formatPriceCompact(lead.annual_revenue, lead.currency, locale)
                         : "—"
                     }
                   />
-                  <Figure label="Projected ROI" value={formatPercent(lead.roi)} accent />
-                  <Figure label="Occupancy" value={formatPercent(lead.occupancy_rate)} />
-                  <Figure label="Appreciation p.a." value={formatPercent(lead.appreciation)} />
                   <Figure
-                    label="Market"
-                    value={lead.country}
-                    small
+                    label={t.investmentHome.projectedRoi}
+                    value={formatPercent(lead.roi, locale)}
+                    accent
                   />
+                  <Figure
+                    label={t.investmentHome.occupancy}
+                    value={formatPercent(lead.occupancy_rate, locale)}
+                  />
+                  <Figure
+                    label={t.investmentHome.appreciation}
+                    value={formatPercent(lead.appreciation, locale)}
+                  />
+                  <Figure label={t.investmentHome.market} value={lead.country} small />
                 </dl>
 
-                <span className="mt-9 inline-flex items-center gap-3 text-xs uppercase tracking-[0.16em] text-gold-soft">
-                  Request investment details
+                <span className="mt-9 inline-flex items-center gap-3 text-xs uppercase tracking-[0.16em] text-gold-soft rtl:tracking-normal rtl:normal-case">
+                  {t.common.requestInvestmentDetails}
                   <ArrowIcon
                     size={16}
                     className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1.5"
@@ -104,7 +127,7 @@ export function InvestmentSection({ properties }: { properties: Property[] }) {
             {rest.slice(0, 3).map((property, index) => (
               <Reveal key={property.id} delay={0.08 * (index + 1)}>
                 <Link
-                  href={`/properties/${property.slug}`}
+                  href={localePath(locale, `/properties/${property.slug}`)}
                   className="group flex items-center gap-5 border border-paper/12 p-5 transition-colors duration-500 hover:border-gold-soft/40"
                 >
                   <div className="relative h-24 w-24 shrink-0 overflow-hidden sm:h-28 sm:w-28">
@@ -119,7 +142,7 @@ export function InvestmentSection({ properties }: { properties: Property[] }) {
 
                   <div className="min-w-0 flex-1">
                     <p className="eyebrow !text-paper/40">
-                      {INVESTMENT_TYPE_LABELS[property.investment_type]}
+                      {t.enums.investmentType[property.investment_type]}
                     </p>
                     <h4 className="mt-1.5 truncate font-display text-xl text-paper">
                       {property.title}
@@ -129,11 +152,11 @@ export function InvestmentSection({ properties }: { properties: Property[] }) {
                     </p>
 
                     <div className="mt-3 flex items-baseline gap-4 text-sm">
-                      <span className="text-paper/70">
-                        {formatPriceCompact(property.price, property.currency)}
+                      <span className="text-paper/70 tabular-nums">
+                        {formatPriceCompact(property.price, property.currency, locale)}
                       </span>
                       <span className="text-gold-soft">
-                        {formatPercent(property.roi)} ROI
+                        {formatPercent(property.roi, locale)} {t.investmentHome.roiShort}
                       </span>
                     </div>
                   </div>
@@ -147,7 +170,11 @@ export function InvestmentSection({ properties }: { properties: Property[] }) {
             ))}
 
             <Reveal delay={0.3}>
-              <DemoDisclaimer className="!text-paper/45 [&_strong]:!text-gold-soft" />
+              <DemoDisclaimer
+                lead={t.demo.disclaimerLead}
+                body={t.demo.disclaimer}
+                className="!text-paper/45 [&_strong]:!text-gold-soft"
+              />
             </Reveal>
           </div>
         </div>
@@ -173,7 +200,7 @@ function Figure({
         {label}
       </dt>
       <dd
-        className={`mt-2 font-display leading-none ${
+        className={`mt-2 font-display leading-none tabular-nums ${
           small ? "text-xl" : "text-[clamp(1.5rem,2.4vw,2.25rem)]"
         } ${accent ? "text-gold-soft" : "text-paper"}`}
       >

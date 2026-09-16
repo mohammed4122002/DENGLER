@@ -5,16 +5,19 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
-import { NAV_LINKS, SITE } from "@/lib/site";
+import { LanguageSwitcher } from "@/components/site/LanguageSwitcher";
+import { navLinks, SITE } from "@/lib/site";
+import { localePath, type Dictionary, type Locale } from "@/lib/i18n";
 
 /**
  * The navbar starts transparent over the hero and resolves to a solid bar once
  * you scroll past it. On any page that isn't the home page it starts solid,
  * because there is no cinematic plate behind it to sit on.
  */
-export function Navbar() {
+export function Navbar({ locale, t }: { locale: Locale; t: Dictionary }) {
   const pathname = usePathname();
-  const isHome = pathname === "/";
+  const links = navLinks(locale, t);
+  const isHome = pathname === localePath(locale, "/");
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -57,12 +60,21 @@ export function Navbar() {
           className="shell flex h-[var(--nav-h)] items-center justify-between gap-6"
           aria-label="Primary"
         >
+          {/* The wordmark stays Latin in both languages — it is the brand's
+              mark, not a word to translate. Marked `lang="en"` so a screen
+              reader in Arabic mode reads it as English rather than spelling
+              it out letter by letter. */}
           <Link
-            href="/"
-            className={`font-display text-[1.6rem] leading-none tracking-[0.34em] transition-colors duration-500 ${
+            href={localePath(locale, "/")}
+            lang="en"
+            /* The 0.34em tracking is most of the wordmark's presence, but at
+               320px it plus the switcher and the menu button overflow the bar.
+               It tightens below `sm` and returns at full width above. */
+            className={`font-display text-[1.3rem] leading-none tracking-[0.2em] transition-colors duration-500 sm:text-[1.6rem] sm:tracking-[0.34em] ${
               solid ? "text-ink" : "text-white"
             }`}
-            aria-label={`${SITE.name} — home`}
+            style={{ fontFamily: "var(--font-display-latin), serif" }}
+            aria-label={`${SITE.name} — ${t.nav.home}`}
           >
             {SITE.name}
           </Link>
@@ -72,7 +84,7 @@ export function Navbar() {
               solid ? "text-graphite" : "text-white/85"
             }`}
           >
-            {NAV_LINKS.map((link) => (
+            {links.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
@@ -87,14 +99,20 @@ export function Navbar() {
             ))}
           </ul>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher
+              locale={locale}
+              tone={solid ? "dark" : "light"}
+              label={t.common.switchLanguage}
+            />
+
             <Link
-              href="/contact"
+              href={localePath(locale, "/contact")}
               className={`btn hidden md:inline-flex ${
                 solid ? "btn-outline" : "btn-ghost-light"
               } !py-3 !px-6 !text-[0.6875rem]`}
             >
-              Contact Us
+              {t.common.contactUs}
             </Link>
 
             <button
@@ -102,7 +120,7 @@ export function Navbar() {
               onClick={() => setMenuOpen((open) => !open)}
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"
-              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              aria-label={menuOpen ? t.common.closeMenu : t.common.openMenu}
               className={`relative z-50 flex h-11 w-11 flex-col items-center justify-center gap-[6px] lg:hidden ${
                 solid ? "text-ink" : "text-white"
               }`}
@@ -135,7 +153,7 @@ export function Navbar() {
           >
             <div className="shell flex h-full flex-col justify-between pt-[calc(var(--nav-h)+2rem)] pb-12">
               <ul className="flex flex-col gap-1">
-                {NAV_LINKS.map((link, i) => (
+                {links.map((link, i) => (
                   <motion.li
                     key={link.href}
                     initial={{ opacity: 0, y: 18 }}
@@ -158,11 +176,18 @@ export function Navbar() {
               </ul>
 
               <div className="space-y-6">
-                <Link href="/contact" className="btn btn-solid w-full">
-                  Contact Us
+                <Link
+                  href={localePath(locale, "/contact")}
+                  className="btn btn-solid w-full"
+                >
+                  {t.common.contactUs}
                 </Link>
+                <LanguageSwitcher
+                  locale={locale}
+                  label={t.common.switchLanguage}
+                />
                 <p className="text-xs text-muted">
-                  {SITE.address} · {SITE.email}
+                  {SITE.address[locale]} · {SITE.email}
                 </p>
               </div>
             </div>

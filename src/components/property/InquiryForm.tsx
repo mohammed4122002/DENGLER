@@ -5,6 +5,7 @@ import { useFormStatus } from "react-dom";
 
 import { submitInquiry, type InquiryState } from "@/app/actions/inquiries";
 import { ArrowIcon } from "@/components/ui/Icons";
+import { fill, type Dictionary, type Locale } from "@/lib/i18n";
 
 const INITIAL: InquiryState = { status: "idle" };
 
@@ -15,16 +16,21 @@ const INITIAL: InquiryState = { status: "idle" };
 export function InquiryForm({
   propertyId,
   propertyTitle,
-  submitLabel = "Request Investment Details",
+  locale,
+  t,
+  submitLabel,
   tone = "dark",
 }: {
   propertyId?: string;
   propertyTitle?: string;
+  locale: Locale;
+  t: Dictionary;
   submitLabel?: string;
   tone?: "dark" | "light";
 }) {
   const [state, formAction] = useActionState(submitInquiry, INITIAL);
   const isLight = tone === "light";
+  const label = submitLabel ?? t.common.requestInvestmentDetails;
 
   if (state.status === "success") {
     return (
@@ -34,7 +40,7 @@ export function InquiryForm({
         }`}
         role="status"
       >
-        <p className="font-display text-2xl">Enquiry received.</p>
+        <p className="font-display text-2xl">{t.form.received}</p>
         <p className={`mt-3 text-sm leading-relaxed ${isLight ? "text-paper/60" : "text-muted"}`}>
           {state.message}
         </p>
@@ -45,6 +51,9 @@ export function InquiryForm({
   return (
     <form action={formAction} className="space-y-6" noValidate>
       {propertyId && <input type="hidden" name="propertyId" value={propertyId} />}
+      {/* The action validates server-side and must answer in the language the
+          form was rendered in — it cannot infer that from the request. */}
+      <input type="hidden" name="locale" value={locale} />
 
       {/* Honeypot — visually and programmatically hidden from real users. */}
       <div aria-hidden className="absolute h-0 w-0 overflow-hidden opacity-0">
@@ -55,7 +64,7 @@ export function InquiryForm({
       <div className="grid gap-6 sm:grid-cols-2">
         <TextField
           name="name"
-          label="Name"
+          label={t.form.name}
           autoComplete="name"
           required
           error={state.fieldErrors?.name}
@@ -63,9 +72,11 @@ export function InquiryForm({
         />
         <TextField
           name="phone"
-          label="Phone"
+          label={t.form.phone}
           type="tel"
           autoComplete="tel"
+          // Phone numbers read left-to-right in every locale.
+          dir="ltr"
           error={state.fieldErrors?.phone}
           tone={tone}
         />
@@ -73,23 +84,22 @@ export function InquiryForm({
 
       <TextField
         name="email"
-        label="Email"
+        label={t.form.email}
         type="email"
         autoComplete="email"
         required
+        dir="ltr"
         error={state.fieldErrors?.email}
         tone={tone}
       />
 
       <TextField
         name="message"
-        label="Message"
+        label={t.form.message}
         multiline
         required
         defaultValue={
-          propertyTitle
-            ? `I would like the full investment pack for ${propertyTitle}.`
-            : undefined
+          propertyTitle ? fill(t.form.prefill, { title: propertyTitle }) : undefined
         }
         error={state.fieldErrors?.message}
         tone={tone}
@@ -101,17 +111,24 @@ export function InquiryForm({
         </p>
       )}
 
-      <SubmitButton label={submitLabel} tone={tone} />
+      <SubmitButton label={label} sending={t.form.sending} tone={tone} />
 
       <p className={`text-xs leading-relaxed ${isLight ? "text-paper/40" : "text-muted"}`}>
-        We use your details only to answer this enquiry. Nothing is shared with a
-        third party.
+        {t.form.privacyNote}
       </p>
     </form>
   );
 }
 
-function SubmitButton({ label, tone }: { label: string; tone: "dark" | "light" }) {
+function SubmitButton({
+  label,
+  sending,
+  tone,
+}: {
+  label: string;
+  sending: string;
+  tone: "dark" | "light";
+}) {
   const { pending } = useFormStatus();
 
   return (
@@ -122,7 +139,7 @@ function SubmitButton({ label, tone }: { label: string; tone: "dark" | "light" }
         tone === "light" ? "btn-ghost-light" : "btn-solid"
       } disabled:cursor-wait disabled:opacity-60`}
     >
-      {pending ? "Sending…" : label}
+      {pending ? sending : label}
       {!pending && (
         <ArrowIcon
           size={15}
@@ -141,6 +158,7 @@ function TextField({
   required = false,
   autoComplete,
   defaultValue,
+  dir,
   error,
   tone,
 }: {
@@ -151,6 +169,7 @@ function TextField({
   required?: boolean;
   autoComplete?: string;
   defaultValue?: string;
+  dir?: "ltr" | "rtl";
   error?: string;
   tone: "dark" | "light";
 }) {
@@ -192,6 +211,7 @@ function TextField({
           required={required}
           autoComplete={autoComplete}
           defaultValue={defaultValue}
+          dir={dir}
           aria-invalid={!!error}
           aria-describedby={describedBy}
           className={`${className} mt-1`}

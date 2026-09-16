@@ -1,10 +1,12 @@
 import type {
   Inquiry,
   InquiryStatus,
+  LocalizedProperty,
   Property,
   PropertyQuery,
   SiteStat,
 } from "@/lib/types";
+import type { Locale } from "@/lib/i18n/config";
 import type { Facets } from "./filters";
 
 /** Fields an admin may set when creating or editing a property. */
@@ -19,10 +21,16 @@ export type PropertyInput = Omit<
 export interface DataStore {
   readonly mode: "supabase" | "demo";
 
-  listProperties(query?: PropertyQuery): Promise<Property[]>;
-  getPropertyBySlug(slug: string): Promise<Property | null>;
+  /*
+   * Read methods take a locale and hand back records whose display fields are
+   * already resolved, so no view component has to know which language it is
+   * rendering. `getPropertyById` is the exception: the admin dashboard edits
+   * both languages, so it returns the raw row.
+   */
+  listProperties(query?: PropertyQuery, locale?: Locale): Promise<LocalizedProperty[]>;
+  getPropertyBySlug(slug: string, locale?: Locale): Promise<LocalizedProperty | null>;
   getPropertyById(id: string): Promise<Property | null>;
-  getFacets(): Promise<Facets>;
+  getFacets(locale?: Locale): Promise<Facets>;
   /** All published slugs, for the sitemap and static params. */
   listPublishedSlugs(): Promise<string[]>;
 

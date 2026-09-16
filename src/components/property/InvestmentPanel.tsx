@@ -1,41 +1,52 @@
 import { DemoBadge, DemoDisclaimer } from "@/components/site/DemoBadge";
 import { formatPercent, formatPrice } from "@/lib/format";
-import { INVESTMENT_TYPE_LABELS, type Property } from "@/lib/types";
+import type { Dictionary, Locale } from "@/lib/i18n";
+import type { LocalizedProperty } from "@/lib/types";
 
 /**
  * The investment read-out. Any figure we do not hold is rendered as an em
  * dash rather than a zero — a missing yield and a zero yield are very
  * different statements to make about an asset.
  */
-export function InvestmentPanel({ property }: { property: Property }) {
+export function InvestmentPanel({
+  property,
+  locale,
+  t,
+}: {
+  property: LocalizedProperty;
+  locale: Locale;
+  t: Dictionary;
+}) {
+  const r = t.detail.rows;
+
   const rows: { label: string; value: string; accent?: boolean; note?: string }[] = [
     {
-      label: "Investment",
-      value: formatPrice(property.price, property.currency),
+      label: r.investment,
+      value: formatPrice(property.price, property.currency, locale),
       accent: true,
     },
     {
-      label: "Estimated annual revenue",
+      label: r.annualRevenue,
       value: property.annual_revenue
-        ? formatPrice(property.annual_revenue, property.currency)
+        ? formatPrice(property.annual_revenue, property.currency, locale)
         : "—",
-      note: property.annual_revenue ? "Gross, before operating costs" : undefined,
+      note: property.annual_revenue ? r.annualRevenueNote : undefined,
     },
     {
-      label: "Projected ROI",
-      value: formatPercent(property.roi),
+      label: r.projectedRoi,
+      value: formatPercent(property.roi, locale),
       accent: true,
-      note: property.roi ? "Total return, annualised" : undefined,
+      note: property.roi ? r.projectedRoiNote : undefined,
     },
-    { label: "Occupancy", value: formatPercent(property.occupancy_rate) },
+    { label: r.occupancy, value: formatPercent(property.occupancy_rate, locale) },
     {
-      label: "Expected appreciation",
-      value: formatPercent(property.appreciation),
-      note: property.appreciation ? "Per annum, capital value" : undefined,
+      label: r.appreciation,
+      value: formatPercent(property.appreciation, locale),
+      note: property.appreciation ? r.appreciationNote : undefined,
     },
     {
-      label: "Investment type",
-      value: INVESTMENT_TYPE_LABELS[property.investment_type],
+      label: r.investmentType,
+      value: t.enums.investmentType[property.investment_type],
     },
   ];
 
@@ -49,9 +60,9 @@ export function InvestmentPanel({ property }: { property: Property }) {
           id="investment-overview"
           className="font-display text-[1.75rem] leading-none text-ink"
         >
-          Investment overview
+          {t.detail.investmentOverview}
         </h2>
-        <DemoBadge />
+        <DemoBadge label={t.demo.badge} />
       </div>
 
       <dl className="mt-8 divide-y divide-hairline">
@@ -69,7 +80,7 @@ export function InvestmentPanel({ property }: { property: Property }) {
               )}
             </dt>
             <dd
-              className={`shrink-0 text-end font-display leading-none ${
+              className={`shrink-0 text-end font-display leading-none tabular-nums ${
                 row.accent ? "text-2xl text-gold-deep" : "text-xl text-ink"
               }`}
             >
@@ -79,7 +90,11 @@ export function InvestmentPanel({ property }: { property: Property }) {
         ))}
       </dl>
 
-      <DemoDisclaimer className="mt-7 border-t border-hairline pt-6" />
+      <DemoDisclaimer
+        lead={t.demo.disclaimerLead}
+        body={t.demo.disclaimer}
+        className="mt-7 border-t border-hairline pt-6"
+      />
     </section>
   );
 }

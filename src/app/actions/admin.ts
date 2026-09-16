@@ -22,6 +22,20 @@ import {
   PROPERTY_STATUSES,
   PROPERTY_TYPES,
 } from "@/lib/types";
+import {
+  DEFAULT_LOCALE,
+  getDictionary,
+  isLocale,
+  localePath,
+  LOCALES,
+} from "@/lib/i18n";
+
+/** The dashboard's language comes from the form that submitted the action. */
+function dictFor(formData: FormData) {
+  const raw = String(formData.get("locale") ?? "");
+  const locale = isLocale(raw) ? raw : DEFAULT_LOCALE;
+  return { locale, t: getDictionary(locale) };
+}
 
 export interface ActionState {
   status: "idle" | "success" | "error";
@@ -36,6 +50,7 @@ export async function signIn(
   _previous: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { locale, t } = dictFor(formData);
   const password = String(formData.get("password") ?? "");
   const email = String(formData.get("email") ?? "");
 
@@ -45,11 +60,11 @@ export async function signIn(
 
     if (error) {
       // Deliberately vague: never confirm whether the address exists.
-      return { status: "error", message: "Those credentials were not accepted." };
+      return { status: "error", message: t.admin.credentialsRejected };
     }
   } else {
     if (!passwordMatches(password)) {
-      return { status: "error", message: "Those credentials were not accepted." };
+      return { status: "error", message: t.admin.credentialsRejected };
     }
 
     const cookieStore = await cookies();
@@ -62,10 +77,10 @@ export async function signIn(
     });
   }
 
-  redirect("/admin");
+  redirect(localePath(locale, "/admin"));
 }
 
-export async function signOut(): Promise<void> {
+export async function signOut(locale: string = DEFAULT_LOCALE): Promise<void> {
   if (isSupabaseConfigured) {
     const supabase = await createServerSupabase();
     await supabase.auth.signOut();
@@ -73,7 +88,7 @@ export async function signOut(): Promise<void> {
 
   const cookieStore = await cookies();
   cookieStore.delete(ADMIN_COOKIE);
-  redirect("/admin/login");
+  redirect(localePath(isLocale(locale) ? locale : DEFAULT_LOCALE, "/admin/login"));
 }
 
 /* ------------------------------------------------------------------ *
@@ -83,18 +98,34 @@ export async function signOut(): Promise<void> {
 const numeric = (max: number) =>
   z.coerce.number().min(0).max(max).nullable().catch(null);
 
+/** Optional Arabic text: an empty field is stored as null, not "". */
+const arabicText = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .transform((value) => value || null)
+    .nullable()
+    .catch(null);
+
 const propertySchema = z.object({
   title: z.string().trim().min(2).max(160),
+  title_ar: arabicText(160),
   slug: z.string().trim().max(120).optional(),
   tagline: z.string().trim().max(240).default(""),
+  tagline_ar: arabicText(240),
   description: z.string().trim().max(8000).default(""),
+  description_ar: arabicText(8000),
   property_type: z.enum(PROPERTY_TYPES),
   status: z.enum(PROPERTY_STATUSES),
   price: z.coerce.number().min(0).max(1e12),
   currency: z.string().trim().length(3).toUpperCase(),
   location: z.string().trim().min(2).max(200),
+  location_ar: arabicText(200),
   country: z.string().trim().min(2).max(100),
+  country_ar: arabicText(100),
   city: z.string().trim().min(1).max(100),
+  city_ar: arabicText(100),
   latitude: z.coerce.number().min(-90).max(90).nullable().catch(null),
   longitude: z.coerce.number().min(-180).max(180).nullable().catch(null),
   area: z.coerce.number().min(0).max(1e10),
@@ -122,19 +153,26 @@ function lines(value: FormDataEntryValue | null): string[] {
 function readPropertyForm(formData: FormData) {
   const gallery = lines(formData.get("gallery"));
   const features = lines(formData.get("features"));
+  const featuresAr = lines(formData.get("features_ar"));
 
   const parsed = propertySchema.safeParse({
     title: formData.get("title") ?? "",
+    title_ar: formData.get("title_ar") ?? "",
     slug: formData.get("slug") ?? "",
     tagline: formData.get("tagline") ?? "",
+    tagline_ar: formData.get("tagline_ar") ?? "",
     description: formData.get("description") ?? "",
+    description_ar: formData.get("description_ar") ?? "",
     property_type: formData.get("property_type"),
     status: formData.get("status"),
     price: formData.get("price") ?? 0,
     currency: formData.get("currency") ?? "USD",
     location: formData.get("location") ?? "",
+    location_ar: formData.get("location_ar") ?? "",
     country: formData.get("country") ?? "",
+    country_ar: formData.get("country_ar") ?? "",
     city: formData.get("city") ?? "",
+    city_ar: formData.get("city_ar") ?? "",
     latitude: formData.get("latitude") || null,
     longitude: formData.get("longitude") || null,
     area: formData.get("area") ?? 0,
@@ -166,6 +204,9 @@ function readPropertyForm(formData: FormData) {
     // Fall back to the first gallery frame so a listing is never coverless.
     cover_image: rest.cover_image || gallery[0] || "",
     features,
+    // Only a complete Arabic list is stored; a partial one would render a
+    // half-English feature list on the Arabic site.
+    features_ar: featuresAr.length === features.length ? featuresAr : [],
     gallery,
   };
 
@@ -176,10 +217,12 @@ export async function saveProperty(
   _previous: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = dictFor(formData);
+
   try {
     await requireAdmin();
   } catch {
-    return { status: "error", message: "Not authorised." };
+    return { status: "error", message: t.admin.notAuthorised };
   }
 
   const result = readPropertyForm(formData);
@@ -198,7 +241,7 @@ export async function saveProperty(
   } catch (error) {
     return {
       status: "error",
-      message: error instanceof Error ? error.message : "Could not save.",
+      message: error instanceof Error ? error.message : t.admin.couldNotSave,
     };
   }
 
@@ -206,7 +249,7 @@ export async function saveProperty(
 
   return {
     status: "success",
-    message: id ? "Property updated." : "Property created.",
+    message: id ? t.admin.propertyUpdated : t.admin.propertyCreated,
   };
 }
 
@@ -222,11 +265,13 @@ export async function toggleFeatured(id: string, featured: boolean) {
   revalidateEverything();
 }
 
-export async function deleteProperty(id: string) {
+export async function deleteProperty(id: string, locale: string = DEFAULT_LOCALE) {
   await requireAdmin();
   await store.deleteProperty(id);
   revalidateEverything();
-  redirect("/admin/properties");
+  redirect(
+    localePath(isLocale(locale) ? locale : DEFAULT_LOCALE, "/admin/properties"),
+  );
 }
 
 /**
@@ -298,13 +343,20 @@ export async function setInquiryStatus(id: string, status: string) {
   if (!parsed.success) return;
 
   await store.updateInquiryStatus(id, parsed.data);
-  revalidatePath("/admin/leads");
+  revalidateLeads();
 }
 
 export async function deleteInquiry(id: string) {
   await requireAdmin();
   await store.deleteInquiry(id);
-  revalidatePath("/admin/leads");
+  revalidateLeads();
+}
+
+function revalidateLeads() {
+  for (const locale of LOCALES) {
+    revalidatePath(localePath(locale, "/admin/leads"));
+    revalidatePath(localePath(locale, "/admin"));
+  }
 }
 
 /* ------------------------------------------------------------------ *
@@ -315,10 +367,12 @@ export async function saveStats(
   _previous: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const { t } = dictFor(formData);
+
   try {
     await requireAdmin();
   } catch {
-    return { status: "error", message: "Not authorised." };
+    return { status: "error", message: t.admin.notAuthorised };
   }
 
   const existing = await store.listStats();
@@ -339,25 +393,34 @@ export async function saveStats(
   } catch (error) {
     return {
       status: "error",
-      message: error instanceof Error ? error.message : "Could not save.",
+      message: error instanceof Error ? error.message : t.admin.couldNotSave,
     };
   }
 
-  revalidatePath("/");
-  revalidatePath("/admin/settings");
-  return { status: "success", message: "Headline figures updated." };
+  revalidateEverything();
+  return { status: "success", message: t.admin.figuresUpdated };
 }
 
 /* ------------------------------------------------------------------ */
 
+/**
+ * Both language trees are separate routes, so an edit has to invalidate each
+ * of them — revalidating only `/properties` would leave `/ar/properties` stale.
+ */
 function revalidateEverything(slug?: string) {
-  revalidatePath("/");
-  revalidatePath("/properties");
-  revalidatePath("/villas");
-  revalidatePath("/hotels");
-  revalidatePath("/land");
-  revalidatePath("/investments");
-  revalidatePath("/admin/properties");
+  const paths = [
+    "/",
+    "/properties",
+    "/villas",
+    "/hotels",
+    "/land",
+    "/investments",
+    "/admin/properties",
+    ...(slug ? [`/properties/${slug}`] : []),
+  ];
+
+  for (const locale of LOCALES) {
+    for (const path of paths) revalidatePath(localePath(locale, path));
+  }
   revalidatePath("/sitemap.xml");
-  if (slug) revalidatePath(`/properties/${slug}`);
 }

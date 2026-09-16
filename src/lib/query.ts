@@ -1,3 +1,5 @@
+import { formatPriceCompact } from "@/lib/format";
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config";
 import {
   INVESTMENT_TYPES,
   PROPERTY_STATUSES,
@@ -64,13 +66,23 @@ export function parsePropertyQuery(
   ) as PropertyQuery;
 }
 
-/** A readable summary of the active filters, used in the results header. */
-export function describeQuery(query: PropertyQuery): string | null {
+/**
+ * A readable summary of the active filters, for the results header.
+ *
+ * Deliberately terse and mostly symbolic — quotes, a range arrow, a percentage
+ * — so it reads the same in both languages without needing a sentence template
+ * per locale. The bounds are formatted through `Intl`, so Arabic gets its own
+ * compact notation ("2.85 مليون") rather than an English "M".
+ */
+export function describeQuery(
+  query: PropertyQuery,
+  locale: Locale = DEFAULT_LOCALE,
+): string | null {
   const parts: string[] = [];
   if (query.q) parts.push(`“${query.q}”`);
   if (query.country) parts.push(query.country);
-  if (query.minPrice) parts.push(`from $${(query.minPrice / 1_000_000).toFixed(1)}M`);
-  if (query.maxPrice) parts.push(`up to $${(query.maxPrice / 1_000_000).toFixed(1)}M`);
-  if (query.minRoi) parts.push(`${query.minRoi}%+ ROI`);
+  if (query.minPrice) parts.push(`≥ ${formatPriceCompact(query.minPrice, "USD", locale)}`);
+  if (query.maxPrice) parts.push(`≤ ${formatPriceCompact(query.maxPrice, "USD", locale)}`);
+  if (query.minRoi) parts.push(`ROI ≥ ${query.minRoi}%`);
   return parts.length ? parts.join(" · ") : null;
 }

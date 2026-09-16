@@ -1,22 +1,26 @@
 import { PropertyCard } from "./PropertyCard";
-import type { Property } from "@/lib/types";
+import type { Dictionary, Locale } from "@/lib/i18n";
+import type { LocalizedProperty } from "@/lib/types";
 
 export function PropertyGrid({
   properties,
+  locale,
+  t,
   columns = 3,
   priorityCount = 0,
 }: {
-  properties: Property[];
+  properties: LocalizedProperty[];
+  locale: Locale;
+  t: Dictionary;
   columns?: 2 | 3;
   priorityCount?: number;
 }) {
   if (properties.length === 0) {
     return (
       <div className="border border-dashed border-hairline py-24 text-center">
-        <p className="font-display text-3xl text-ink">Nothing matches yet</p>
+        <p className="font-display text-3xl text-ink">{t.search.empty.title}</p>
         <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-muted">
-          Widen the price range, clear a filter, or tell us what you are looking
-          for and we will source it off-market.
+          {t.search.empty.copy}
         </p>
       </div>
     );
@@ -25,15 +29,15 @@ export function PropertyGrid({
   return (
     <ul
       className={`grid gap-x-8 gap-y-16 ${
-        columns === 2
-          ? "sm:grid-cols-2"
-          : "sm:grid-cols-2 xl:grid-cols-3"
+        columns === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 xl:grid-cols-3"
       }`}
     >
       {properties.map((property, index) => (
         <li key={property.id}>
           <PropertyCard
             property={property}
+            locale={locale}
+            t={t}
             priority={index < priorityCount}
             sizes={
               columns === 2

@@ -4,32 +4,41 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { store } from "@/lib/store";
+import {
+  DEFAULT_LOCALE,
+  getDictionary,
+  isLocale,
+  localePath,
+  LOCALES,
+} from "@/lib/i18n";
 
 /**
  * Server-side validation of the contact / investment-request forms.
  *
  * The client form validates too, but only this matters — the action is a
  * public endpoint and must assume the browser checks were skipped.
+ *
+ * The schema is built per request so that its messages come back in the
+ * visitor's language. The locale arrives as a hidden field rather than from
+ * a header, because the form knows which site rendered it.
  */
-const inquirySchema = z.object({
-  propertyId: z.string().max(120).optional().nullable(),
-  name: z.string().trim().min(2, "Please enter your name").max(120),
-  email: z.string().trim().email("Please enter a valid email address").max(200),
-  phone: z
-    .string()
-    .trim()
-    .max(40)
-    .regex(/^[\d\s()+.-]*$/, "Please enter a valid phone number")
-    .optional()
-    .or(z.literal("")),
-  message: z
-    .string()
-    .trim()
-    .min(10, "Please tell us a little more — at least 10 characters")
-    .max(4000),
-  /** Honeypot. Real users never see this field, so anything in it is a bot. */
-  company: z.string().max(0).optional().or(z.literal("")),
-});
+function buildSchema(t: ReturnType<typeof getDictionary>) {
+  return z.object({
+    propertyId: z.string().max(120).optional().nullable(),
+    name: z.string().trim().min(2, t.form.errors.name).max(120),
+    email: z.string().trim().email(t.form.errors.email).max(200),
+    phone: z
+      .string()
+      .trim()
+      .max(40)
+      .regex(/^[\d\s()+.-]*$/, t.form.errors.phone)
+      .optional()
+      .or(z.literal("")),
+    message: z.string().trim().min(10, t.form.errors.message).max(4000),
+    /** Honeypot. Real users never see this field, so anything in it is a bot. */
+    company: z.string().max(0).optional().or(z.literal("")),
+  });
+}
 
 export interface InquiryState {
   status: "idle" | "success" | "error";
@@ -41,7 +50,11 @@ export async function submitInquiry(
   _previous: InquiryState,
   formData: FormData,
 ): Promise<InquiryState> {
-  const parsed = inquirySchema.safeParse({
+  const rawLocale = String(formData.get("locale") ?? "");
+  const locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+  const t = getDictionary(locale);
+
+  const parsed = buildSchema(t).safeParse({
     propertyId: formData.get("propertyId") || null,
     name: formData.get("name") ?? "",
     email: formData.get("email") ?? "",
@@ -56,7 +69,7 @@ export async function submitInquiry(
       const key = issue.path[0];
       if (key === "company") {
         // Honeypot tripped — accept silently rather than telling a bot why.
-        return { status: "success", message: "Thank you — we will be in touch." };
+        return { status: "success", message: t.form.thanks };
       }
       if (
         key === "name" ||
@@ -67,11 +80,7 @@ export async function submitInquiry(
         fieldErrors[key] ??= issue.message;
       }
     }
-    return {
-      status: "error",
-      message: "Please check the highlighted fields.",
-      fieldErrors,
-    };
+    return { status: "error", message: t.form.checkFields, fieldErrors };
   }
 
   const { propertyId, name, email, phone, message } = parsed.data;
@@ -86,18 +95,10 @@ export async function submitInquiry(
     });
   } catch (error) {
     console.error("Failed to record inquiry", error);
-    return {
-      status: "error",
-      message:
-        "We could not record that just now. Please try again, or email us directly.",
-    };
+    return { status: "error", message: t.form.couldNotRecord };
   }
 
-  revalidatePath("/admin/leads");
+  for (const l of LOCALES) revalidatePath(localePath(l, "/admin/leads"));
 
-  return {
-    status: "success",
-    message:
-      "Thank you — an advisor will come back to you within one business day.",
-  };
+  return { status: "success", message: t.form.thanks };
 }

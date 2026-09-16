@@ -6,13 +6,11 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import { CloseIcon } from "@/components/ui/Icons";
 import type { Facets } from "@/lib/store";
+import type { Dictionary } from "@/lib/i18n";
 import {
   INVESTMENT_TYPES,
-  INVESTMENT_TYPE_LABELS,
   PROPERTY_STATUSES,
   PROPERTY_TYPES,
-  PROPERTY_TYPE_PLURALS,
-  STATUS_LABELS,
 } from "@/lib/types";
 
 /**
@@ -39,10 +37,12 @@ export function SearchPanel({
   /** Locks the type filter on the category pages (/villas, /hotels, /land). */
   lockedType,
   resultCount,
+  t,
 }: {
   facets: Facets;
   lockedType?: string;
   resultCount: number;
+  t: Dictionary;
 }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -99,19 +99,19 @@ export function SearchPanel({
       <div className="shell py-7">
         {/* --- Primary row ------------------------------------------------- */}
         <div className="grid gap-x-8 gap-y-5 lg:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))] lg:items-end">
-          <Field label="Search">
+          <Field label={t.search.search}>
             <input
               type="search"
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Name, city or country"
+              placeholder={t.search.searchPlaceholder}
               className="field"
-              aria-label="Search properties"
+              aria-label={t.search.searchAriaLabel}
             />
           </Field>
 
           {!lockedType && (
-            <Field label="Asset type">
+            <Field label={t.search.assetType}>
               <select
                 id="filter-type"
                 name="type"
@@ -119,17 +119,17 @@ export function SearchPanel({
                 onChange={(e) => set("type", e.target.value === "all" ? "" : e.target.value)}
                 className="field select-luxe"
               >
-                <option value="all">All types</option>
+                <option value="all">{t.search.allTypes}</option>
                 {PROPERTY_TYPES.map((value) => (
                   <option key={value} value={value}>
-                    {PROPERTY_TYPE_PLURALS[value]} ({facets.counts[value]})
+                    {t.enums.propertyTypePlural[value]} ({facets.counts[value]})
                   </option>
                 ))}
               </select>
             </Field>
           )}
 
-          <Field label="Market">
+          <Field label={t.search.market}>
             <select
               id="filter-country"
               name="country"
@@ -137,7 +137,7 @@ export function SearchPanel({
               onChange={(e) => set("country", e.target.value)}
               className="field select-luxe"
             >
-              <option value="">All markets</option>
+              <option value="">{t.search.allMarkets}</option>
               {facets.countries.map((name) => (
                 <option key={name} value={name}>
                   {name}
@@ -146,7 +146,7 @@ export function SearchPanel({
             </select>
           </Field>
 
-          <Field label="Sort by">
+          <Field label={t.search.sortBy}>
             <select
               id="filter-sort"
               name="sort"
@@ -154,11 +154,11 @@ export function SearchPanel({
               onChange={(e) => set("sort", e.target.value === "newest" ? "" : e.target.value)}
               className="field select-luxe"
             >
-              <option value="newest">Most recent</option>
-              <option value="price_asc">Price — low to high</option>
-              <option value="price_desc">Price — high to low</option>
-              <option value="roi_desc">Projected ROI</option>
-              <option value="area_desc">Area</option>
+              <option value="newest">{t.search.sort.newest}</option>
+              <option value="price_asc">{t.search.sort.priceAsc}</option>
+              <option value="price_desc">{t.search.sort.priceDesc}</option>
+              <option value="roi_desc">{t.search.sort.roiDesc}</option>
+              <option value="area_desc">{t.search.sort.areaDesc}</option>
             </select>
           </Field>
         </div>
@@ -174,51 +174,51 @@ export function SearchPanel({
               className="overflow-hidden"
             >
               <div className="mt-8 grid gap-x-8 gap-y-5 border-t border-hairline pt-7 sm:grid-cols-2 lg:grid-cols-4">
-                <Field label="Min price">
+                <Field label={t.search.minPrice}>
                   <NumberSelect
                     name="minPrice"
                     value={current.get("minPrice") ?? ""}
                     onChange={(v) => set("minPrice", v)}
                     options={[1_000_000, 2_500_000, 5_000_000, 10_000_000, 20_000_000]}
-                    placeholder="No minimum"
+                    placeholder={t.search.noMinimum}
                     format={(n) => `$${n / 1_000_000}M`}
                   />
                 </Field>
 
-                <Field label="Max price">
+                <Field label={t.search.maxPrice}>
                   <NumberSelect
                     name="maxPrice"
                     value={current.get("maxPrice") ?? ""}
                     onChange={(v) => set("maxPrice", v)}
                     options={[3_000_000, 5_000_000, 10_000_000, 25_000_000, 50_000_000]}
-                    placeholder="No maximum"
+                    placeholder={t.search.noMaximum}
                     format={(n) => `$${n / 1_000_000}M`}
                   />
                 </Field>
 
-                <Field label="Min area">
+                <Field label={t.search.minArea}>
                   <NumberSelect
                     name="minArea"
                     value={current.get("minArea") ?? ""}
                     onChange={(v) => set("minArea", v)}
                     options={[400, 600, 1000, 10_000, 100_000]}
-                    placeholder="Any area"
+                    placeholder={t.search.anyArea}
                     format={(n) => (n >= 10_000 ? `${n / 10_000} ha` : `${n} m²`)}
                   />
                 </Field>
 
-                <Field label="Bedrooms / keys">
+                <Field label={t.search.bedroomsOrKeys}>
                   <NumberSelect
                     name="bedrooms"
                     value={current.get("bedrooms") ?? ""}
                     onChange={(v) => set("bedrooms", v)}
                     options={[2, 3, 4, 5, 6, 10, 20]}
-                    placeholder="Any"
+                    placeholder={t.search.any}
                     format={(n) => `${n}+`}
                   />
                 </Field>
 
-                <Field label="Investment type">
+                <Field label={t.search.investmentType}>
                   <select
                     id="filter-investmentType"
                     name="investmentType"
@@ -226,27 +226,27 @@ export function SearchPanel({
                     onChange={(e) => set("investmentType", e.target.value)}
                     className="field select-luxe"
                   >
-                    <option value="">Any strategy</option>
+                    <option value="">{t.search.anyStrategy}</option>
                     {INVESTMENT_TYPES.map((value) => (
                       <option key={value} value={value}>
-                        {INVESTMENT_TYPE_LABELS[value]}
+                        {t.enums.investmentType[value]}
                       </option>
                     ))}
                   </select>
                 </Field>
 
-                <Field label="Min projected ROI">
+                <Field label={t.search.minRoi}>
                   <NumberSelect
                     name="minRoi"
                     value={current.get("minRoi") ?? ""}
                     onChange={(v) => set("minRoi", v)}
                     options={[5, 8, 10, 12, 15]}
-                    placeholder="Any return"
+                    placeholder={t.search.anyReturn}
                     format={(n) => `${n}%+`}
                   />
                 </Field>
 
-                <Field label="Availability">
+                <Field label={t.search.availability}>
                   <select
                     id="filter-status"
                     name="status"
@@ -254,10 +254,10 @@ export function SearchPanel({
                     onChange={(e) => set("status", e.target.value)}
                     className="field select-luxe"
                   >
-                    <option value="">Any status</option>
+                    <option value="">{t.search.anyStatus}</option>
                     {PROPERTY_STATUSES.map((value) => (
                       <option key={value} value={value}>
-                        {STATUS_LABELS[value]}
+                        {t.enums.status[value]}
                       </option>
                     ))}
                   </select>
@@ -274,30 +274,30 @@ export function SearchPanel({
               type="button"
               onClick={() => setAdvancedOpen((open) => !open)}
               aria-expanded={advancedOpen}
-              className="nav-link text-xs uppercase tracking-[0.16em] text-graphite transition-colors hover:text-gold"
+              className="nav-link text-xs uppercase tracking-[0.16em] text-graphite transition-colors hover:text-gold rtl:tracking-normal rtl:normal-case"
             >
-              {advancedOpen ? "Hide advanced filters" : "Advanced filters"}
+              {advancedOpen ? t.search.hideAdvanced : t.search.advancedFilters}
             </button>
 
             {activeFilters.length > 0 && (
               <button
                 type="button"
                 onClick={clearAll}
-                className="inline-flex items-center gap-1.5 rounded-full border border-hairline px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-muted transition-colors hover:border-gold hover:text-gold"
+                className="inline-flex items-center gap-1.5 rounded-full border border-hairline px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-muted transition-colors hover:border-gold hover:text-gold rtl:tracking-normal rtl:normal-case"
               >
-                Clear all
+                {t.search.clearAll}
                 <CloseIcon size={11} />
               </button>
             )}
           </div>
 
           <p
-            className="text-xs uppercase tracking-[0.16em] text-muted"
+            className="text-xs uppercase tracking-[0.16em] text-muted rtl:tracking-normal rtl:normal-case"
             aria-live="polite"
           >
             {isPending
-              ? "Searching…"
-              : `${resultCount} ${resultCount === 1 ? "property" : "properties"}`}
+              ? t.search.searching
+              : `${resultCount} ${resultCount === 1 ? t.common.property : t.common.properties}`}
           </p>
         </div>
       </div>

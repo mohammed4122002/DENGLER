@@ -8,30 +8,38 @@ import type {
   PropertyQuery,
   SiteStat,
 } from "@/lib/types";
+import { localizeProperty } from "@/lib/types";
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config";
 import { createAdminSupabase, createServerSupabase } from "@/lib/supabase/server";
-import { buildFacets } from "./filters";
+import { buildFacets, foldSearchText } from "./filters";
 import type { DataStore, PropertyInput } from "./types";
 
 /** Columns on `properties`, minus the hydrated relations. */
 const PROPERTY_COLUMNS =
-  "id, title, slug, description, property_type, status, price, currency, location, country, city, latitude, longitude, area, bedrooms, bathrooms, year_built, investment_type, roi, annual_revenue, occupancy_rate, appreciation, featured, published, cover_image, tagline, created_at, updated_at";
+  "id, title, title_ar, slug, description, description_ar, property_type, status, price, currency, location, location_ar, country, country_ar, city, city_ar, latitude, longitude, area, bedrooms, bathrooms, year_built, investment_type, roi, annual_revenue, occupancy_rate, appreciation, featured, published, cover_image, tagline, tagline_ar, created_at, updated_at";
 
-const SELECT_WITH_RELATIONS = `${PROPERTY_COLUMNS}, property_images(id, property_id, image_url, alt, sort_order, created_at), property_features(feature)`;
+const SELECT_WITH_RELATIONS = `${PROPERTY_COLUMNS}, property_images(id, property_id, image_url, alt, sort_order, created_at), property_features(feature, feature_ar)`;
 
 interface PropertyRow {
   property_images?: PropertyImage[] | null;
-  property_features?: { feature: string }[] | null;
+  property_features?: { feature: string; feature_ar: string | null }[] | null;
   [key: string]: unknown;
 }
 
 function hydrate(row: PropertyRow): Property {
   const { property_images, property_features, ...rest } = row;
+  const features = property_features ?? [];
+
   return {
-    ...(rest as Omit<Property, "images" | "features">),
+    ...(rest as Omit<Property, "images" | "features" | "features_ar">),
     images: [...(property_images ?? [])].sort(
       (a, b) => a.sort_order - b.sort_order,
     ),
-    features: (property_features ?? []).map((f) => f.feature),
+    features: features.map((f) => f.feature),
+    // Only a fully translated list counts — see `localizeProperty`.
+    features_ar: features.every((f) => f.feature_ar)
+      ? features.map((f) => f.feature_ar as string)
+      : [],
   };
 }
 
@@ -53,6 +61,7 @@ async function replaceRelations(
   propertyId: string,
   gallery?: string[],
   features?: string[],
+  featuresAr?: string[],
 ) {
   if (gallery) {
     await client.from("property_images").delete().eq("property_id", propertyId);
@@ -71,9 +80,17 @@ async function replaceRelations(
   if (features) {
     await client.from("property_features").delete().eq("property_id", propertyId);
     if (features.length) {
-      await client
-        .from("property_features")
-        .insert(features.map((feature) => ({ property_id: propertyId, feature })));
+      await client.from("property_features").insert(
+        features.map((feature, index) => ({
+          property_id: propertyId,
+          feature,
+          // Positional pairing: the admin form takes two line-per-entry
+          // textareas, so line N of the Arabic list translates line N of the
+          // English one. A shorter Arabic list simply leaves the rest null,
+          // and `hydrate` then treats the whole list as untranslated.
+          feature_ar: featuresAr?.[index] ?? null,
+        })),
+      );
     }
   }
 }
@@ -81,7 +98,7 @@ async function replaceRelations(
 export const supabaseStore: DataStore = {
   mode: "supabase",
 
-  async listProperties(query = {}) {
+  async listProperties(query = {}, locale: Locale = DEFAULT_LOCALE) {
     const client = await createServerSupabase();
     let builder = client.from("properties").select(SELECT_WITH_RELATIONS);
 
@@ -106,10 +123,11 @@ export const supabaseStore: DataStore = {
     if (query.featuredOnly) builder = builder.eq("featured", true);
 
     if (query.q?.trim()) {
-      // `search_text` is a generated column on `properties` (see the migration)
-      // holding title + tagline + location + description, lower-cased.
-      const term = `%${query.q.trim().toLowerCase()}%`;
-      builder = builder.ilike("search_text", term);
+      // `search_text` is a generated column holding both languages, folded by
+      // `public.fold_arabic` (see 0002_bilingual.sql). The query term has to go
+      // through the identical folding here or "الامارات" would miss
+      // "الإمارات" — `foldSearchText` is the TypeScript half of that pair.
+      builder = builder.ilike("search_text", `%${foldSearchText(query.q.trim())}%`);
     }
 
     switch (query.sort) {
@@ -133,10 +151,10 @@ export const supabaseStore: DataStore = {
 
     const { data, error } = await builder;
     if (error) throw new Error(`Failed to list properties: ${error.message}`);
-    return (data ?? []).map(hydrate);
+    return (data ?? []).map((row) => localizeProperty(hydrate(row), locale));
   },
 
-  async getPropertyBySlug(slug) {
+  async getPropertyBySlug(slug, locale: Locale = DEFAULT_LOCALE) {
     const client = await createServerSupabase();
     const { data, error } = await client
       .from("properties")
@@ -144,7 +162,7 @@ export const supabaseStore: DataStore = {
       .eq("slug", slug)
       .maybeSingle();
     if (error) throw new Error(`Failed to load property: ${error.message}`);
-    return data ? hydrate(data) : null;
+    return data ? localizeProperty(hydrate(data), locale) : null;
   },
 
   async getPropertyById(id) {
@@ -158,14 +176,22 @@ export const supabaseStore: DataStore = {
     return data ? hydrate(data) : null;
   },
 
-  async getFacets() {
+  async getFacets(locale: Locale = DEFAULT_LOCALE) {
     const client = await createServerSupabase();
     const { data, error } = await client
       .from("properties")
-      .select("country, city, price, property_type")
+      .select("country, country_ar, city, city_ar, price, property_type")
       .eq("published", true);
     if (error) throw new Error(`Failed to load facets: ${error.message}`);
-    return buildFacets((data ?? []) as unknown as Property[]);
+
+    // Only the fields `buildFacets` reads are selected, so the rows are
+    // shaped for it rather than being full properties.
+    const rows = (data ?? []).map((row) => ({
+      ...row,
+      country: locale === "ar" ? (row.country_ar ?? row.country) : row.country,
+      city: locale === "ar" ? (row.city_ar ?? row.city) : row.city,
+    }));
+    return buildFacets(rows as unknown as Property[]);
   },
 
   async listPublishedSlugs() {
@@ -180,7 +206,7 @@ export const supabaseStore: DataStore = {
 
   async createProperty(input: PropertyInput) {
     const client = await writeClient();
-    const { gallery, features, ...row } = input;
+    const { gallery, features, features_ar, ...row } = input;
 
     const { data, error } = await client
       .from("properties")
@@ -189,7 +215,7 @@ export const supabaseStore: DataStore = {
       .single();
     if (error) throw new Error(`Failed to create property: ${error.message}`);
 
-    await replaceRelations(client, data.id as string, gallery, features);
+    await replaceRelations(client, data.id as string, gallery, features, features_ar);
     const created = await supabaseStore.getPropertyById(data.id as string);
     if (!created) throw new Error("Property vanished immediately after insert.");
     return created;
@@ -197,7 +223,7 @@ export const supabaseStore: DataStore = {
 
   async updateProperty(id, input) {
     const client = await writeClient();
-    const { gallery, features, ...row } = input;
+    const { gallery, features, features_ar, ...row } = input;
 
     if (Object.keys(row).length) {
       const { error } = await client
@@ -207,7 +233,7 @@ export const supabaseStore: DataStore = {
       if (error) throw new Error(`Failed to update property: ${error.message}`);
     }
 
-    await replaceRelations(client, id, gallery, features);
+    await replaceRelations(client, id, gallery, features, features_ar);
     const updated = await supabaseStore.getPropertyById(id);
     if (!updated) throw new Error(`Property ${id} not found after update.`);
     return updated;

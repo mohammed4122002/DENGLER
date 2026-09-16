@@ -8,8 +8,8 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        // The dashboard and the form endpoint have no business in an index.
-        disallow: ["/admin", "/admin/", "/api/"],
+        // The dashboard has no business in an index — in either language.
+        disallow: ["/*/admin", "/*/admin/", "/api/"],
       },
     ],
     sitemap: `${SITE.url}/sitemap.xml`,

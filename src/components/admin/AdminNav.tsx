@@ -4,23 +4,28 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { signOut } from "@/app/actions/admin";
+import { LanguageSwitcher } from "@/components/site/LanguageSwitcher";
+import { localePath, type Dictionary, type Locale } from "@/lib/i18n";
 
-const LINKS = [
-  { href: "/admin", label: "Overview", exact: true },
-  { href: "/admin/properties", label: "Properties" },
-  { href: "/admin/leads", label: "Leads" },
-  { href: "/admin/settings", label: "Settings" },
-];
-
-export function AdminNav() {
+export function AdminNav({ locale, t }: { locale: Locale; t: Dictionary }) {
   const pathname = usePathname();
 
+  const links = [
+    { href: localePath(locale, "/admin"), label: t.admin.overview, exact: true },
+    { href: localePath(locale, "/admin/properties"), label: t.admin.properties },
+    { href: localePath(locale, "/admin/leads"), label: t.admin.leads },
+    { href: localePath(locale, "/admin/settings"), label: t.admin.settings },
+  ];
+
+  // `signOut` takes the locale so it can redirect back into the same tree.
+  const signOutWithLocale = signOut.bind(null, locale);
+
   return (
-    <nav className="lg:w-52 lg:shrink-0" aria-label="Dashboard">
-      <p className="eyebrow">DENGLER Dashboard</p>
+    <nav className="lg:w-52 lg:shrink-0" aria-label={t.admin.dashboard}>
+      <p className="eyebrow">{t.admin.dashboard}</p>
 
       <ul className="no-scrollbar mt-5 flex gap-6 overflow-x-auto border-b border-hairline pb-3 lg:flex-col lg:gap-1 lg:overflow-visible lg:border-b-0 lg:pb-0">
-        {LINKS.map((link) => {
+        {links.map((link) => {
           const active = link.exact
             ? pathname === link.href
             : pathname.startsWith(link.href);
@@ -43,21 +48,25 @@ export function AdminNav() {
         })}
       </ul>
 
-      <form action={signOut} className="mt-8 hidden lg:block">
+      <form action={signOutWithLocale} className="mt-8 hidden lg:block">
         <button
           type="submit"
-          className="nav-link text-xs uppercase tracking-[0.16em] text-muted transition-colors hover:text-gold"
+          className="nav-link text-xs uppercase tracking-[0.16em] text-muted transition-colors hover:text-gold rtl:tracking-normal rtl:normal-case"
         >
-          Sign out
+          {t.admin.signOut}
         </button>
       </form>
 
       <Link
-        href="/"
-        className="nav-link mt-4 hidden text-xs uppercase tracking-[0.16em] text-muted transition-colors hover:text-gold lg:block"
+        href={localePath(locale, "/")}
+        className="nav-link mt-4 hidden text-xs uppercase tracking-[0.16em] text-muted transition-colors hover:text-gold lg:block rtl:tracking-normal rtl:normal-case"
       >
-        View site
+        {t.admin.viewSite}
       </Link>
+
+      <div className="mt-6 hidden lg:block">
+        <LanguageSwitcher locale={locale} label={t.common.switchLanguage} />
+      </div>
     </nav>
   );
 }

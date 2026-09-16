@@ -1,3 +1,5 @@
+import type { Locale } from "@/lib/i18n/config";
+
 /**
  * DENGLER domain model.
  *
@@ -40,9 +42,21 @@ export interface PropertyImage {
 
 export interface Property {
   id: string;
-  title: string;
+  /** Slugs stay Latin in both locales — see `slugify` for why. */
   slug: string;
+
+  /*
+   * Localised text.
+   *
+   * The English field is required; the `_ar` field is nullable and falls back
+   * to English when absent, so a half-translated catalogue degrades to a
+   * readable page rather than an empty one. `localizeProperty` resolves the
+   * pair into the plain field for a given locale.
+   */
+  title: string;
+  title_ar: string | null;
   description: string;
+  description_ar: string | null;
   property_type: PropertyType;
   status: PropertyStatus;
 
@@ -50,8 +64,11 @@ export interface Property {
   currency: string;
 
   location: string;
+  location_ar: string | null;
   country: string;
+  country_ar: string | null;
   city: string;
+  city_ar: string | null;
   latitude: number | null;
   longitude: number | null;
 
@@ -76,6 +93,7 @@ export interface Property {
   cover_image: string;
   /** Short editorial line used on cards and meta descriptions. */
   tagline: string;
+  tagline_ar: string | null;
 
   created_at: string;
   updated_at: string;
@@ -83,6 +101,19 @@ export interface Property {
   /** Hydrated relations. */
   images: PropertyImage[];
   features: string[];
+  features_ar: string[];
+}
+
+/**
+ * A `Property` whose display fields have been resolved for one locale.
+ *
+ * The `_ar` fields are still present — the admin dashboard edits both — but
+ * `title`, `tagline`, `description`, `location`, `city`, `country` and
+ * `features` now hold the text for `locale`. Public pages only ever receive
+ * this type, so a component never has to know which language it is rendering.
+ */
+export interface LocalizedProperty extends Property {
+  locale: Locale;
 }
 
 export interface Inquiry {
@@ -122,35 +153,29 @@ export interface PropertyQuery {
   limit?: number;
 }
 
-export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
-  villa: "Villa",
-  hotel: "Hotel",
-  land: "Land",
-};
+/**
+ * Human-readable labels for every enum live in the dictionaries
+ * (`dict.enums.*`), not here — a label is copy, and copy is translated.
+ */
 
-export const PROPERTY_TYPE_PLURALS: Record<PropertyType, string> = {
-  villa: "Villas",
-  hotel: "Hotels",
-  land: "Land",
-};
+/** Resolves a property's display text for one locale, falling back to English. */
+export function localizeProperty(
+  property: Property,
+  locale: Locale,
+): LocalizedProperty {
+  if (locale !== "ar") return { ...property, locale };
 
-export const STATUS_LABELS: Record<PropertyStatus, string> = {
-  available: "Available",
-  reserved: "Reserved",
-  sold: "Sold",
-  off_market: "Off market",
-};
-
-export const INVESTMENT_TYPE_LABELS: Record<InvestmentType, string> = {
-  buy_to_hold: "Buy to hold",
-  rental_yield: "Rental yield",
-  hospitality_operation: "Hospitality operation",
-  development: "Development",
-  capital_appreciation: "Capital appreciation",
-};
-
-export const INQUIRY_STATUS_LABELS: Record<InquiryStatus, string> = {
-  new: "New",
-  contacted: "Contacted",
-  closed: "Closed",
-};
+  return {
+    ...property,
+    locale,
+    title: property.title_ar || property.title,
+    tagline: property.tagline_ar || property.tagline,
+    description: property.description_ar || property.description,
+    location: property.location_ar || property.location,
+    city: property.city_ar || property.city,
+    country: property.country_ar || property.country,
+    // An empty Arabic list means "not translated yet", so fall back wholesale
+    // rather than showing a partial feature list.
+    features: property.features_ar.length ? property.features_ar : property.features,
+  };
+}

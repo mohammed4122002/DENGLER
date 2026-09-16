@@ -56,7 +56,7 @@ export function SectionHeading({
             href={link.href}
             className={`group inline-flex items-center gap-3 text-xs uppercase tracking-[0.16em] ${
               isLight ? "text-paper/75 hover:text-gold-soft" : "text-graphite hover:text-gold"
-            } nav-link transition-colors duration-400`}
+            } nav-link rtl:tracking-normal rtl:normal-case transition-colors duration-400`}
           >
             {link.label}
             <ArrowIcon

@@ -6,13 +6,11 @@ import { useFormStatus } from "react-dom";
 
 import { saveProperty, type ActionState } from "@/app/actions/admin";
 import { slugify } from "@/lib/format";
+import type { Dictionary, Locale } from "@/lib/i18n";
 import {
   INVESTMENT_TYPES,
-  INVESTMENT_TYPE_LABELS,
   PROPERTY_STATUSES,
   PROPERTY_TYPES,
-  PROPERTY_TYPE_LABELS,
-  STATUS_LABELS,
   type Property,
 } from "@/lib/types";
 
@@ -27,7 +25,16 @@ const INITIAL: ActionState = { status: "idle" };
  * editor paste twenty URLs at once. Reordering and deletion get a richer UI
  * on the edit page once the property exists.
  */
-export function PropertyForm({ property }: { property?: Property }) {
+export function PropertyForm({
+  property,
+  locale,
+  t,
+}: {
+  property?: Property;
+  locale: Locale;
+  t: Dictionary;
+}) {
+  const f = t.admin.form;
   const [state, formAction] = useActionState(saveProperty, INITIAL);
   const [title, setTitle] = useState(property?.title ?? "");
   const [slug, setSlug] = useState(property?.slug ?? "");
@@ -38,72 +45,135 @@ export function PropertyForm({ property }: { property?: Property }) {
   return (
     <form action={formAction} className="space-y-12">
       {property && <input type="hidden" name="id" value={property.id} />}
+      <input type="hidden" name="locale" value={locale} />
 
       {/* --- Identity ----------------------------------------------------- */}
-      <Fieldset legend="Identity">
+      <Fieldset legend={f.identity}>
         <Row>
           <Text
             name="title"
-            label="Title"
+            label={f.title}
             required
             value={title}
             onChange={setTitle}
+            dir="ltr"
           />
           <Text
             name="slug"
-            label="URL slug"
+            label={f.slug}
             value={effectiveSlug}
             onChange={(value) => {
               setSlugTouched(true);
               setSlug(value);
             }}
             hint={`/properties/${effectiveSlug || "…"}`}
+            dir="ltr"
           />
         </Row>
 
         <Text
           name="tagline"
-          label="Tagline"
+          label={f.tagline}
           defaultValue={property?.tagline}
-          hint="One editorial line. Used on cards and in the meta description."
+          hint={f.taglineHint}
+          dir="ltr"
         />
 
         <Textarea
           name="description"
-          label="Description"
+          label={f.description}
           rows={8}
           defaultValue={property?.description}
+          dir="ltr"
         />
       </Fieldset>
 
+      {/* --- Arabic ------------------------------------------------------- *
+          A separate block rather than fields interleaved with their English
+          counterparts: an editor working on the translation stays in one
+          place and in one writing direction, and the RTL inputs do not make
+          the English form jump about. Every field is optional — see the
+          fallback note in `localizeProperty`. */}
+      <Fieldset legend={f.arabic} note={f.arabicHint}>
+        <Row>
+          <Text
+            name="title_ar"
+            label={f.titleAr}
+            defaultValue={property?.title_ar ?? undefined}
+            dir="rtl"
+            lang="ar"
+          />
+          <Text
+            name="tagline_ar"
+            label={f.taglineAr}
+            defaultValue={property?.tagline_ar ?? undefined}
+            dir="rtl"
+            lang="ar"
+          />
+        </Row>
+
+        <Textarea
+          name="description_ar"
+          label={f.descriptionAr}
+          rows={8}
+          defaultValue={property?.description_ar ?? undefined}
+          dir="rtl"
+          lang="ar"
+        />
+
+        <Row cols={3}>
+          <Text
+            name="location_ar"
+            label={f.locationAr}
+            defaultValue={property?.location_ar ?? undefined}
+            dir="rtl"
+            lang="ar"
+          />
+          <Text
+            name="city_ar"
+            label={f.cityAr}
+            defaultValue={property?.city_ar ?? undefined}
+            dir="rtl"
+            lang="ar"
+          />
+          <Text
+            name="country_ar"
+            label={f.countryAr}
+            defaultValue={property?.country_ar ?? undefined}
+            dir="rtl"
+            lang="ar"
+          />
+        </Row>
+      </Fieldset>
+
       {/* --- Classification ------------------------------------------------ */}
-      <Fieldset legend="Classification">
+      <Fieldset legend={f.classification}>
         <Row cols={3}>
           <Select
             name="property_type"
-            label="Type"
+            label={f.type}
             defaultValue={property?.property_type ?? "villa"}
             options={PROPERTY_TYPES.map((value) => ({
               value,
-              label: PROPERTY_TYPE_LABELS[value],
+              label: t.enums.propertyType[value],
             }))}
           />
           <Select
             name="status"
-            label="Availability"
+            label={f.availability}
             defaultValue={property?.status ?? "available"}
             options={PROPERTY_STATUSES.map((value) => ({
               value,
-              label: STATUS_LABELS[value],
+              label: t.enums.status[value],
             }))}
           />
           <Select
             name="investment_type"
-            label="Investment strategy"
+            label={f.investmentStrategy}
             defaultValue={property?.investment_type ?? "buy_to_hold"}
             options={INVESTMENT_TYPES.map((value) => ({
               value,
-              label: INVESTMENT_TYPE_LABELS[value],
+              label: t.enums.investmentType[value],
             }))}
           />
         </Row>
@@ -111,37 +181,49 @@ export function PropertyForm({ property }: { property?: Property }) {
         <div className="flex flex-wrap gap-8">
           <Checkbox
             name="published"
-            label="Published"
+            label={t.admin.published}
             defaultChecked={property?.published ?? false}
-            hint="Visible on the public site and in the sitemap."
+            hint={f.publishedHint}
           />
           <Checkbox
             name="featured"
-            label="Featured"
+            label={t.admin.featured}
             defaultChecked={property?.featured ?? false}
-            hint="Appears in the featured row on the home page."
+            hint={f.featuredHint}
           />
         </div>
       </Fieldset>
 
       {/* --- Location ------------------------------------------------------ */}
-      <Fieldset legend="Location">
+      <Fieldset legend={f.location}>
         <Row>
-          <Text name="location" label="Display location" required defaultValue={property?.location} />
-          <Text name="city" label="City" required defaultValue={property?.city} />
+          <Text
+            name="location"
+            label={f.displayLocation}
+            required
+            defaultValue={property?.location}
+            dir="ltr"
+          />
+          <Text name="city" label={f.city} required defaultValue={property?.city} dir="ltr" />
         </Row>
         <Row cols={3}>
-          <Text name="country" label="Country" required defaultValue={property?.country} />
+          <Text
+            name="country"
+            label={f.country}
+            required
+            defaultValue={property?.country}
+            dir="ltr"
+          />
           <Text
             name="latitude"
-            label="Latitude"
+            label={f.latitude}
             type="number"
             step="any"
             defaultValue={property?.latitude ?? undefined}
           />
           <Text
             name="longitude"
-            label="Longitude"
+            label={f.longitude}
             type="number"
             step="any"
             defaultValue={property?.longitude ?? undefined}
@@ -150,11 +232,11 @@ export function PropertyForm({ property }: { property?: Property }) {
       </Fieldset>
 
       {/* --- Specification -------------------------------------------------- */}
-      <Fieldset legend="Specification">
+      <Fieldset legend={f.specification}>
         <Row cols={3}>
           <Text
             name="price"
-            label="Price"
+            label={f.price}
             type="number"
             min="0"
             step="any"
@@ -163,15 +245,15 @@ export function PropertyForm({ property }: { property?: Property }) {
           />
           <Text
             name="currency"
-            label="Currency"
+            label={f.currency}
             maxLength={3}
             required
             defaultValue={property?.currency ?? "USD"}
-            hint="Three-letter ISO code."
+            hint={f.currencyHint}
           />
           <Text
             name="area"
-            label="Area (m²)"
+            label={f.area}
             type="number"
             min="0"
             step="any"
@@ -182,21 +264,21 @@ export function PropertyForm({ property }: { property?: Property }) {
         <Row cols={3}>
           <Text
             name="bedrooms"
-            label="Bedrooms / keys"
+            label={f.bedrooms}
             type="number"
             min="0"
             defaultValue={property?.bedrooms ?? undefined}
           />
           <Text
             name="bathrooms"
-            label="Bathrooms"
+            label={f.bathrooms}
             type="number"
             min="0"
             defaultValue={property?.bathrooms ?? undefined}
           />
           <Text
             name="year_built"
-            label="Year built"
+            label={f.yearBuilt}
             type="number"
             min="1500"
             max="2200"
@@ -207,13 +289,13 @@ export function PropertyForm({ property }: { property?: Property }) {
 
       {/* --- Investment ----------------------------------------------------- */}
       <Fieldset
-        legend="Investment figures"
-        note="Leave a field blank where you do not hold the figure. Blank renders as an em dash on the listing; zero would state that the figure is zero."
+        legend={f.investmentFigures}
+        note={f.investmentNote}
       >
         <Row cols={4}>
           <Text
             name="roi"
-            label="Projected ROI (%)"
+            label={f.roi}
             type="number"
             step="any"
             min="0"
@@ -221,7 +303,7 @@ export function PropertyForm({ property }: { property?: Property }) {
           />
           <Text
             name="annual_revenue"
-            label="Annual revenue"
+            label={f.annualRevenue}
             type="number"
             min="0"
             step="any"
@@ -229,7 +311,7 @@ export function PropertyForm({ property }: { property?: Property }) {
           />
           <Text
             name="occupancy_rate"
-            label="Occupancy (%)"
+            label={f.occupancy}
             type="number"
             step="any"
             min="0"
@@ -238,7 +320,7 @@ export function PropertyForm({ property }: { property?: Property }) {
           />
           <Text
             name="appreciation"
-            label="Appreciation (%)"
+            label={f.appreciation}
             type="number"
             step="any"
             min="0"
@@ -249,41 +331,61 @@ export function PropertyForm({ property }: { property?: Property }) {
 
       {/* --- Media ---------------------------------------------------------- */}
       <Fieldset
-        legend="Media"
-        note="One image URL per line. The first line becomes the cover unless a cover URL is set explicitly."
+        legend={f.media}
+        note={f.mediaNote}
       >
         <Text
           name="cover_image"
-          label="Cover image URL"
+          label={f.coverImage}
           defaultValue={property?.cover_image}
+          dir="ltr"
         />
         <Textarea
           name="gallery"
-          label="Gallery URLs"
+          label={f.galleryUrls}
+          dir="ltr"
           rows={7}
           defaultValue={property?.images.map((image) => image.image_url).join("\n")}
           mono
         />
       </Fieldset>
 
-      <Fieldset legend="Features" note="One feature per line.">
-        <Textarea
-          name="features"
-          label="Features"
-          rows={8}
-          defaultValue={property?.features.join("\n")}
-        />
+      <Fieldset legend={f.features} note={f.featuresNote}>
+        <Row>
+          <Textarea
+            name="features"
+            label={f.features}
+            rows={8}
+            defaultValue={property?.features.join("\n")}
+            dir="ltr"
+          />
+          {/* Line N here translates line N on the left. A list of a different
+              length is stored as untranslated rather than half-applied. */}
+          <Textarea
+            name="features_ar"
+            label={f.featuresAr}
+            rows={8}
+            defaultValue={property?.features_ar.join("\n")}
+            dir="rtl"
+            lang="ar"
+          />
+        </Row>
       </Fieldset>
 
       {/* --- Save ----------------------------------------------------------- */}
       <div className="sticky bottom-0 -mx-5 flex flex-wrap items-center gap-5 border-t border-hairline bg-paper/95 px-5 py-5 backdrop-blur-lg">
-        <SaveButton isEdit={Boolean(property)} />
+        <SaveButton
+          isEdit={Boolean(property)}
+          saving={t.admin.saving}
+          save={t.admin.saveChanges}
+          create={t.admin.createProperty}
+        />
 
         <Link
-          href="/admin/properties"
-          className="nav-link text-xs uppercase tracking-[0.16em] text-muted hover:text-gold"
+          href={`/${locale}/admin/properties`}
+          className="nav-link text-xs uppercase tracking-[0.16em] text-muted hover:text-gold rtl:tracking-normal rtl:normal-case"
         >
-          Back to list
+          {t.admin.backToList}
         </Link>
 
         {state.status !== "idle" && state.message && (
@@ -301,7 +403,17 @@ export function PropertyForm({ property }: { property?: Property }) {
   );
 }
 
-function SaveButton({ isEdit }: { isEdit: boolean }) {
+function SaveButton({
+  isEdit,
+  saving,
+  save,
+  create,
+}: {
+  isEdit: boolean;
+  saving: string;
+  save: string;
+  create: string;
+}) {
   const { pending } = useFormStatus();
   return (
     <button
@@ -309,7 +421,7 @@ function SaveButton({ isEdit }: { isEdit: boolean }) {
       disabled={pending}
       className="btn btn-solid !py-3 !px-7 disabled:opacity-60"
     >
-      {pending ? "Saving…" : isEdit ? "Save changes" : "Create property"}
+      {pending ? saving : isEdit ? save : create}
     </button>
   );
 }
@@ -415,12 +527,16 @@ function Textarea({
   rows = 5,
   defaultValue,
   mono = false,
+  dir,
+  lang,
 }: {
   name: string;
   label: string;
   rows?: number;
   defaultValue?: string;
   mono?: boolean;
+  dir?: "ltr" | "rtl";
+  lang?: string;
 }) {
   return (
     <div>
@@ -430,6 +546,8 @@ function Textarea({
         name={name}
         rows={rows}
         defaultValue={defaultValue}
+        dir={dir}
+        lang={lang}
         className={`field mt-1 resize-y ${mono ? "font-mono text-xs" : ""}`}
       />
     </div>

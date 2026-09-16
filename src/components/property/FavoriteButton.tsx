@@ -19,11 +19,14 @@ import {
  */
 export function FavoriteButton({
   propertyId,
-  title,
+  saveLabel,
+  removeLabel,
   tone = "light",
 }: {
   propertyId: string;
-  title: string;
+  /** Pre-composed by the caller — label word order differs between locales. */
+  saveLabel: string;
+  removeLabel: string;
   tone?: "light" | "dark";
 }) {
   const favourites = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
@@ -41,7 +44,7 @@ export function FavoriteButton({
       type="button"
       onClick={toggle}
       aria-pressed={saved}
-      aria-label={saved ? `Remove ${title} from shortlist` : `Save ${title} to shortlist`}
+      aria-label={saved ? removeLabel : saveLabel}
       className={`grid h-10 w-10 place-items-center rounded-full border backdrop-blur-md transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
         tone === "light"
           ? "border-white/35 bg-black/20 text-white hover:border-gold-soft hover:text-gold-soft"

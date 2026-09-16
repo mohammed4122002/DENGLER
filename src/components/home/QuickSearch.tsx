@@ -4,14 +4,23 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { ArrowIcon } from "@/components/ui/Icons";
-import { PROPERTY_TYPES, PROPERTY_TYPE_PLURALS } from "@/lib/types";
+import { localePath, type Dictionary, type Locale } from "@/lib/i18n";
+import { PROPERTY_TYPES } from "@/lib/types";
 
 /**
  * The entry point to search, sitting directly under the hero. It composes a
  * querystring and hands off to /properties, which owns the real filtering —
  * so there is exactly one search implementation, not two that drift apart.
  */
-export function QuickSearch({ countries }: { countries: string[] }) {
+export function QuickSearch({
+  countries,
+  locale,
+  t,
+}: {
+  countries: string[];
+  locale: Locale;
+  t: Dictionary;
+}) {
   const router = useRouter();
   const [type, setType] = useState<string>("all");
   const [country, setCountry] = useState<string>("");
@@ -23,38 +32,40 @@ export function QuickSearch({ countries }: { countries: string[] }) {
     if (type !== "all") params.set("type", type);
     if (country) params.set("country", country);
     if (maxPrice) params.set("maxPrice", maxPrice);
-    router.push(`/properties${params.size ? `?${params}` : ""}`);
+    router.push(
+      `${localePath(locale, "/properties")}${params.size ? `?${params}` : ""}`,
+    );
   };
 
   return (
-    <section className="relative z-30 -mt-14 md:-mt-16" aria-label="Quick search">
+    <section className="relative z-30 -mt-14 md:-mt-16" aria-label={t.quickSearch.ariaLabel}>
       <div className="shell">
         <form
           onSubmit={submit}
           className="grid grid-cols-1 gap-x-8 gap-y-5 border border-hairline bg-paper px-6 py-7 shadow-[0_24px_60px_-40px_rgba(18,16,14,0.5)] sm:grid-cols-2 sm:px-8 lg:grid-cols-[1fr_1fr_1fr_auto] lg:items-end lg:gap-x-10"
         >
-          <Field label="I am looking for">
+          <Field label={t.quickSearch.lookingFor}>
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
               className="field select-luxe"
             >
-              <option value="all">Any asset type</option>
+              <option value="all">{t.quickSearch.anyType}</option>
               {PROPERTY_TYPES.map((value) => (
                 <option key={value} value={value}>
-                  {PROPERTY_TYPE_PLURALS[value]}
+                  {t.enums.propertyTypePlural[value]}
                 </option>
               ))}
             </select>
           </Field>
 
-          <Field label="Market">
+          <Field label={t.quickSearch.market}>
             <select
               value={country}
               onChange={(e) => setCountry(e.target.value)}
               className="field select-luxe"
             >
-              <option value="">Any market</option>
+              <option value="">{t.quickSearch.anyMarket}</option>
               {countries.map((name) => (
                 <option key={name} value={name}>
                   {name}
@@ -63,13 +74,13 @@ export function QuickSearch({ countries }: { countries: string[] }) {
             </select>
           </Field>
 
-          <Field label="Budget up to">
+          <Field label={t.quickSearch.budget}>
             <select
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
               className="field select-luxe"
             >
-              <option value="">No maximum</option>
+              <option value="">{t.quickSearch.noMaximum}</option>
               <option value="3000000">$3M</option>
               <option value="5000000">$5M</option>
               <option value="10000000">$10M</option>
@@ -79,7 +90,7 @@ export function QuickSearch({ countries }: { countries: string[] }) {
           </Field>
 
           <button type="submit" className="btn btn-solid group w-full lg:w-auto">
-            Search
+            {t.quickSearch.submit}
             <ArrowIcon
               size={15}
               className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1"

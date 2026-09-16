@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useTransition } from "react";
 
 import { toggleFeatured, togglePublished } from "@/app/actions/admin";
+import { localePath, type Dictionary, type Locale } from "@/lib/i18n";
 
 /**
  * Inline publish / feature toggles. Each one is an optimistic-free transition:
@@ -15,11 +16,15 @@ export function PropertyRowActions({
   slug,
   published,
   featured,
+  locale,
+  t,
 }: {
   id: string;
   slug: string;
   published: boolean;
   featured: boolean;
+  locale: Locale;
+  t: Dictionary;
 }) {
   const [isPending, startTransition] = useTransition();
 
@@ -31,8 +36,8 @@ export function PropertyRowActions({
     >
       <Toggle
         active={published}
-        activeLabel="Published"
-        inactiveLabel="Draft"
+        activeLabel={t.admin.published}
+        inactiveLabel={t.admin.draft}
         disabled={isPending}
         onToggle={() =>
           startTransition(() => {
@@ -43,8 +48,8 @@ export function PropertyRowActions({
 
       <Toggle
         active={featured}
-        activeLabel="Featured"
-        inactiveLabel="Feature"
+        activeLabel={t.admin.featured}
+        inactiveLabel={t.admin.feature}
         disabled={isPending}
         onToggle={() =>
           startTransition(() => {
@@ -54,19 +59,19 @@ export function PropertyRowActions({
       />
 
       <Link
-        href={`/admin/properties/${id}`}
-        className="rounded-full border border-hairline px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-graphite transition-colors hover:border-gold hover:text-gold"
+        href={localePath(locale, `/admin/properties/${id}`)}
+        className="rounded-full border border-hairline px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-graphite transition-colors hover:border-gold hover:text-gold rtl:tracking-normal rtl:normal-case"
       >
-        Edit
+        {t.admin.edit}
       </Link>
 
       {published && (
         <Link
-          href={`/properties/${slug}`}
+          href={localePath(locale, `/properties/${slug}`)}
           target="_blank"
-          className="rounded-full border border-hairline px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-muted transition-colors hover:border-gold hover:text-gold"
+          className="rounded-full border border-hairline px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-muted transition-colors hover:border-gold hover:text-gold rtl:tracking-normal rtl:normal-case"
         >
-          View
+          {t.admin.view}
         </Link>
       )}
     </div>
@@ -92,7 +97,7 @@ function Toggle({
       onClick={onToggle}
       disabled={disabled}
       aria-pressed={active}
-      className={`rounded-full border px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] transition-colors disabled:cursor-wait ${
+      className={`rounded-full border px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] transition-colors disabled:cursor-wait rtl:tracking-normal rtl:normal-case ${
         active
           ? "border-gold bg-gold/12 text-gold-deep"
           : "border-hairline text-muted hover:border-gold hover:text-gold"
