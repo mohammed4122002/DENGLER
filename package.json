@@ -36,6 +36,11 @@
     "typescript": "5.9.2"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": "22.x"
+  },
+  "allowScripts": {
+    "@tailwindcss/oxide": true,
+    "esbuild": true,
+    "unrs-resolver": true
   }
 }
