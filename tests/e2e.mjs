@@ -18,6 +18,8 @@
  *   · both language trees: routing, redirects, `dir`/`lang`, hreflang, the
  *     switcher preserving path and filters, and Arabic content actually being
  *     Arabic rather than an untranslated fallback
+ *   · hero copy contrast, measured off the rendered pixels — including
+ *     against a forced near-white photograph
  *
  * Set BASE_URL to point at a different server (default http://127.0.0.1:3100).
  * The admin section runs only when ADMIN_PASSWORD is set, matching the server.
@@ -409,7 +411,135 @@ for (const [width, height, label] of [
 }
 
 /* ------------------------------------------------------------------ *
- * 8. Admin flow (only when the server has ADMIN_PASSWORD set)
+ * 8. Hero contrast, measured off the rendered pixels
+ * ------------------------------------------------------------------ *
+ * The hero sets white type over a photograph an editor can swap at any time.
+ * This hides every glyph in the section, screenshots the boxes the text
+ * actually occupies, and reads the pixels back through a canvas — so the
+ * assertion is about what is painted, not about what the CSS intends.
+ *
+ * It runs twice: as published, and with every hero image forced to pure white,
+ * which is the brightest photograph anyone could realistically upload.
+ *
+ * This regressed once already — the headline measured 1.2:1 — so the numbers
+ * are checked rather than eyeballed.
+ * ------------------------------------------------------------------ */
+{
+  const MIN_CONTRAST = 3; // WCAG AA, large text.
+  const chan = (c) => {
+    const v = c / 255;
+    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  };
+  const relLum = ([r, g, b]) => 0.2126 * chan(r) + 0.7152 * chan(g) + 0.0722 * chan(b);
+  const contrast = (a, b) => {
+    const [hi, lo] = a > b ? [a, b] : [b, a];
+    return (hi + 0.05) / (lo + 0.05);
+  };
+  const WHITE = relLum([255, 255, 255]);
+
+  for (const bright of [false, true]) {
+    for (const [label, path, selector] of [
+      ["en hero headline", "/en", "h1"],
+      ["en hero lead", "/en", "h1 ~ p"],
+      ["en page header", "/en/properties", "h1"],
+      ["ar hero headline", "/ar", "h1"],
+      ["ar hero lead", "/ar", "h1 ~ p"],
+      ["ar page header", "/ar/properties", "h1"],
+    ]) {
+      const page = await (
+        await browser.newContext({ viewport: { width: 1440, height: 900 } })
+      ).newPage();
+      await page.goto(BASE + path, { waitUntil: "domcontentloaded", timeout: 45000 });
+      await page.waitForTimeout(5200);
+
+      if (bright) {
+        await page.evaluate(() => {
+          document.querySelectorAll("section img").forEach((img) => {
+            img.style.filter = "brightness(0) invert(1)";
+            img.style.opacity = "1";
+          });
+        });
+        await page.waitForTimeout(300);
+      }
+
+      const rects = await page.evaluate((sel) => {
+        const root = document.querySelector(sel);
+        if (!root) return [];
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        const found = [];
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+          if (!node.textContent.trim()) continue;
+          const range = document.createRange();
+          range.selectNodeContents(node);
+          for (const r of range.getClientRects()) {
+            if (r.width > 8 && r.height > 8 && r.top >= 0 && r.bottom <= innerHeight) {
+              found.push({
+                x: Math.round(r.x),
+                y: Math.round(r.y),
+                width: Math.round(r.width),
+                height: Math.round(r.height),
+              });
+            }
+          }
+        }
+        // A line box is taller than its ink, so a heading's rect overlaps the
+        // element above it. Clearing every glyph in the section — rather than
+        // just this one — stops the eyebrow's own pixels being read as
+        // background.
+        root.closest("section")?.querySelectorAll("*").forEach((el) => {
+          el.style.color = "transparent";
+          el.style.textShadow = "none";
+          el.style.webkitTextFillColor = "transparent";
+        });
+        return found;
+      }, selector);
+
+      if (rects.length === 0) {
+        fail(`contrast: no text found for ${label}`);
+        await page.close();
+        continue;
+      }
+      await page.waitForTimeout(150);
+
+      let worst = Infinity;
+      for (const rect of rects) {
+        const encoded = (await page.screenshot({ clip: rect })).toString("base64");
+        const maxLum = await page.evaluate(async (data) => {
+          const img = new Image();
+          img.src = `data:image/png;base64,${data}`;
+          await img.decode();
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+          const px = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+          const f = (v) => {
+            const n = v / 255;
+            return n <= 0.03928 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4;
+          };
+          let max = 0;
+          for (let i = 0; i < px.length; i += 4) {
+            const L = 0.2126 * f(px[i]) + 0.7152 * f(px[i + 1]) + 0.0722 * f(px[i + 2]);
+            if (L > max) max = L;
+          }
+          return max;
+        }, encoded);
+        worst = Math.min(worst, contrast(WHITE, maxLum));
+      }
+
+      if (worst < MIN_CONTRAST) {
+        fail(
+          `contrast: ${label}${bright ? " (near-white photo)" : ""} is ${worst.toFixed(2)}:1, below ${MIN_CONTRAST}:1`,
+        );
+      }
+      await page.close();
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * 9. Admin flow (only when the server has ADMIN_PASSWORD set)
  * ------------------------------------------------------------------ */
 if (ADMIN_PASSWORD) {
   const context = await browser.newContext({ viewport: { width: 1440, height: 950 } });

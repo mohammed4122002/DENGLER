@@ -136,13 +136,33 @@ export function Hero({ locale, t }: { locale: Locale; t: Dictionary }) {
         </motion.div>
       </motion.div>
 
-      {/* ── Layer 2 · grade + vignette ─────────────────────────────────── */}
+      {/* ── Layer 2 · grade + scrim ────────────────────────────────────────
+          Three passes, and the reason there are three is legibility rather
+          than atmosphere.
+
+          The copy is white and sits over whatever photograph is in the
+          catalogue — which an editor can change to a white villa at midday.
+          Measured against the plate, the headline was landing at 1.2:1, so
+          the scrim now guarantees contrast instead of assuming a dark image:
+
+            · vignette   — edge falloff, atmosphere
+            · bottom     — tall and weighted to cover the whole copy block
+            · reading    — a directional wash from the text edge, so the
+                           opposite corner of the photograph stays open
+
+          `tests/e2e.mjs` asserts ≥3:1 (WCAG large text) for the headline and
+          the sub-line, so this cannot silently regress. */}
       <div
-        className="absolute inset-0 bg-[radial-gradient(120%_85%_at_50%_35%,transparent_20%,rgba(10,9,8,0.55)_78%,rgba(10,9,8,0.85)_100%)]"
+        className="absolute inset-0 bg-[radial-gradient(120%_85%_at_50%_32%,transparent_18%,rgba(10,9,8,0.42)_72%,rgba(10,9,8,0.8)_100%)]"
         aria-hidden
       />
       <div
-        className="absolute inset-x-0 bottom-0 h-[60%] bg-[linear-gradient(to_top,rgba(10,9,8,0.92)_2%,rgba(10,9,8,0.45)_45%,transparent_100%)]"
+        className="absolute inset-x-0 bottom-0 h-[78%] bg-[linear-gradient(to_top,rgba(10,9,8,0.86)_0%,rgba(10,9,8,0.6)_30%,rgba(10,9,8,0.32)_58%,rgba(10,9,8,0.12)_80%,transparent_100%)]"
+        aria-hidden
+      />
+      <div
+        className="absolute inset-0 bg-[linear-gradient(to_var(--scrim-to),rgba(10,9,8,0.44)_0%,rgba(10,9,8,0.2)_40%,transparent_70%)]"
+        style={{ ["--scrim-to" as string]: rtl ? "left" : "right" }}
         aria-hidden
       />
 
@@ -196,6 +216,23 @@ export function Hero({ locale, t }: { locale: Locale; t: Dictionary }) {
         className="shell relative z-20 flex h-full flex-col justify-end pb-16 md:pb-24"
         style={reduce ? undefined : { x: copyX, y: copyY, opacity: copyOpacity }}
       >
+        <div className="relative w-full">
+          {/* The scrim that actually guarantees legibility is anchored to the
+              copy, not to the viewport.
+
+              A percentage-of-viewport gradient assumes it knows how tall the
+              text is — and it doesn't. The Arabic headline sets taller than
+              the English one (longer words, more leading), so it reached above
+              where a fixed gradient was still dense and measured 1.85:1 while
+              English measured 13:1. A blurred radial sized to this block
+              follows whatever the copy does, in any language, and leaves the
+              rest of the photograph open rather than crushing the whole
+              lower half of it. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -inset-x-[16%] -top-[14%] -bottom-[45%] -z-10 bg-[linear-gradient(to_bottom,transparent_0%,rgba(10,9,8,0.52)_12%,rgba(10,9,8,0.7)_30%,rgba(10,9,8,0.7)_100%)] blur-2xl"
+          />
+
         <motion.p className="eyebrow !text-white/60" {...stage(0.8)}>
           {t.hero.eyebrow}
         </motion.p>
@@ -234,6 +271,7 @@ export function Hero({ locale, t }: { locale: Locale; t: Dictionary }) {
             {t.common.investmentOpportunities}
           </Link>
         </motion.div>
+        </div>
       </motion.div>
 
       {/* ── Property caption, trailing edge ────────────────────────────── */}

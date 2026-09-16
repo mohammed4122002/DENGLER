@@ -71,6 +71,12 @@ exceptions, search URL round-tripping, form validation, the gallery lightbox,
 horizontal overflow at 320/390/768/1440, the sticky investment rail, and the
 full admin flow from guard to sign-out.
 
+It also measures **hero contrast off the rendered pixels** — hiding every glyph
+in the section, screenshotting the boxes the text actually occupies, and
+reading them back through a canvas — twice: as published, and with every hero
+image forced to pure white. Both must clear 3:1 (WCAG AA, large text). The
+headline once measured 1.2:1, so this is asserted rather than eyeballed.
+
 The bilingual section additionally asserts: unprefixed paths redirect into a
 locale, `Accept-Language` picks Arabic for an Arabic speaker, `dir`/`lang`/
 `hreflang`/`canonical` are correct on both trees, the switcher preserves path
@@ -286,9 +292,14 @@ Every demo image resolves through `src/lib/data/images.ts` — one registry of
 semantic keys to URLs. Repoint the whole catalogue by editing that file alone.
 
 The defaults are Unsplash CDN URLs, transformed server-side (`w`, `q`, `fm`)
-and re-encoded to AVIF/WebP by Next. `SmartImage` adds a warm blur-up, a fade
-on decode, and a branded fallback plate so a dead URL reads as intentional
-rather than broken.
+and re-encoded to AVIF/WebP by Next. `SmartImage` adds a blur-up, a fade on decode, and a fallback plate so a dead
+URL reads as intentional rather than broken.
+
+Both the blur and the plate are graded **dark-to-warm, not cream**. That is not
+decoration: the hero sets white type over the image, so a pale placeholder made
+every heading unreadable for as long as the photograph was missing — which,
+if a URL is wrong, is forever. The plate is a dusk composition that the same
+type sits on correctly.
 
 > **Please run `npm run verify:images` once.** The sandbox this project was
 > scaffolded in blocks outbound requests to image CDNs, so the registry could

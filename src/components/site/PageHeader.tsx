@@ -30,8 +30,10 @@ export function PageHeader({
         quality={72}
         className="object-cover opacity-70"
       />
+      {/* Same reasoning as the hero: the heading is white over an editable
+          photograph, so the scrim has to carry the contrast on its own. */}
       <div
-        className="absolute inset-0 bg-[linear-gradient(to_top,rgba(10,9,8,0.92)_5%,rgba(10,9,8,0.4)_55%,rgba(10,9,8,0.55)_100%)]"
+        className="absolute inset-0 bg-[linear-gradient(to_top,rgba(10,9,8,0.94)_5%,rgba(10,9,8,0.68)_45%,rgba(10,9,8,0.6)_100%)]"
         aria-hidden
       />
       <div className="absolute inset-0 grain" aria-hidden />

@@ -1,20 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1067" role="img" aria-label="Image unavailable">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1067" role="img" aria-label="Photography unavailable">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#f6f1e9"/>
-      <stop offset="55%" stop-color="#ece4d8"/>
-      <stop offset="100%" stop-color="#ded2c1"/>
+    <!-- A dusk plate, not a blank panel. Photography on this platform is
+         always dark-to-warm, and the white type over it is set for that; a
+         pale placeholder made every hero unreadable the moment an image
+         failed to load. -->
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#14181f"/>
+      <stop offset="42%"  stop-color="#2b2b30"/>
+      <stop offset="72%"  stop-color="#5a4638"/>
+      <stop offset="100%" stop-color="#8a6544"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.78" r="0.55">
+      <stop offset="0%"   stop-color="#d9a06a" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#d9a06a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#0d0c0b" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#0a0908" stop-opacity="0.9"/>
     </linearGradient>
   </defs>
-  <rect width="1600" height="1067" fill="url(#g)"/>
-  <g fill="none" stroke="#b4924f" stroke-opacity="0.35" stroke-width="2">
-    <path d="M520 700 L520 470 L800 300 L1080 470 L1080 700 Z"/>
-    <path d="M520 700 L1080 700"/>
-    <path d="M660 700 L660 560 L760 560 L760 700"/>
-    <path d="M860 560 L1000 560 L1000 640 L860 640 Z"/>
+
+  <rect width="1600" height="1067" fill="url(#sky)"/>
+  <rect width="1600" height="1067" fill="url(#sun)"/>
+
+  <!-- Horizon and a low architectural mass, drawn rather than photographed. -->
+  <rect y="742" width="1600" height="325" fill="url(#ground)"/>
+  <g fill="#0b0a09" opacity="0.72">
+    <path d="M0 742 L360 742 L360 688 L470 688 L470 742 L980 742 L980 664 L1180 664 L1180 742 L1600 742 L1600 1067 L0 1067 Z"/>
   </g>
-  <text x="800" y="806" text-anchor="middle" font-family="Georgia, serif" font-size="34"
-        letter-spacing="14" fill="#6f6a63">DENGLER</text>
-  <text x="800" y="844" text-anchor="middle" font-family="Helvetica, Arial, sans-serif"
-        font-size="13" letter-spacing="9" fill="#8a8580">REAL ESTATE</text>
+  <g stroke="#b4924f" stroke-opacity="0.3" stroke-width="2" fill="none">
+    <path d="M470 742 L470 606 L760 470 L1050 606 L1050 742"/>
+    <path d="M598 742 L598 640 L690 640 L690 742"/>
+    <path d="M830 636 L972 636 L972 712 L830 712 Z"/>
+  </g>
+
+  <text x="800" y="906" text-anchor="middle" font-family="Georgia, serif" font-size="34"
+        letter-spacing="14" fill="#f4efe6" fill-opacity="0.62">DENGLER</text>
+  <text x="800" y="944" text-anchor="middle" font-family="Helvetica, Arial, sans-serif"
+        font-size="13" letter-spacing="9" fill="#f4efe6" fill-opacity="0.38">REAL ESTATE</text>
 </svg>

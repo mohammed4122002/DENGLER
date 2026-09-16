@@ -28,13 +28,17 @@ export function unsplash(id: string, width = 1600): string {
 export const FALLBACK_IMAGE = "/media/placeholder.svg";
 
 /**
- * A 10px SVG data URI used as the `blurDataURL` for every remote photograph.
- * Keeps first paint warm (cream, not grey) instead of flashing an empty box.
+ * The `blurDataURL` behind every remote photograph.
+ *
+ * Graded dark-to-warm rather than cream: property photography here is mostly
+ * dusk and interiors, so a mid-dark blur is closer to what resolves on top of
+ * it, and — more importantly — white hero type stays readable during the swap
+ * instead of disappearing against a pale panel for a beat.
  */
 export const BLUR_DATA_URL =
   "data:image/svg+xml;base64," +
   Buffer.from(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="7"><rect width="10" height="7" fill="#ece4d8"/><rect width="10" height="3" fill="#ded2c1"/></svg>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="7"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#23262c"/><stop offset="60%" stop-color="#4a4038"/><stop offset="100%" stop-color="#7d6248"/></linearGradient></defs><rect width="10" height="7" fill="url(#g)"/></svg>`,
   ).toString("base64");
 
 /** Semantic keys → Unsplash photo ids. Swap the ids, keep the keys. */
