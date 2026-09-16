@@ -346,6 +346,27 @@ and every URL in `sitemap.xml` carries the same set — a one-way declaration is
 ignored, so both trees list each other. Without it the two languages would look
 like duplicate content rather than translations.
 
+Canonical, hreflang and `og:url` are returned together by one helper
+(`lib/i18n/metadata.ts`) rather than set separately. Next merges `openGraph` as
+a whole, so a page that sets `alternates` but not `openGraph` silently inherits
+the *layout's* `og:url` — which is the locale root. Every interior page was
+advertising the home page as its Open Graph URL until `tests/e2e.mjs` started
+asserting it.
+
+### The site URL
+
+`publicEnv.siteUrl` resolves in order: `NEXT_PUBLIC_SITE_URL`, then Vercel's
+`VERCEL_PROJECT_PRODUCTION_URL` (stable across deploys) or `VERCEL_URL` (the
+per-deployment preview host), then `http://localhost:3000`. A bare host gains
+`https://`; an explicitly configured value that cannot parse throws with the
+offending string rather than failing obscurely later.
+
+Note the empty-string trap this exists to avoid: **Next inlines an unset
+`NEXT_PUBLIC_*` as `""`, not `undefined`**, so `process.env.X ?? fallback`
+never reaches its fallback. That is what made `new URL("")` throw during
+prerender and took down every deployment. Use the `read()` helper in
+`lib/env.ts` — never `??` — for any public variable with a default.
+
 ---
 
 ## Security

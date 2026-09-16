@@ -322,6 +322,7 @@ for (const [width, height, label] of [
         (el) => `${el.getAttribute("hreflang")}:${new URL(el.href).pathname}`,
       ),
       canonical: document.querySelector('link[rel="canonical"]')?.getAttribute("href") ?? null,
+      ogUrl: document.querySelector('meta[property="og:url"]')?.getAttribute("content") ?? null,
     }));
 
     if (doc.dir !== dir) fail(`${route}: <html dir> is "${doc.dir}", expected "${dir}"`);
@@ -333,8 +334,33 @@ for (const [width, height, label] of [
         fail(`${route}: missing hreflang ${want} (has ${doc.alternates.join(", ") || "none"})`);
       }
     }
-    if (!doc.canonical?.endsWith(route)) {
-      fail(`${route}: canonical is ${doc.canonical}, expected to end with ${route}`);
+    /*
+     * Absolute, with a scheme — not merely "ends with the route".
+     *
+     * `metadataBase` is built from an environment variable, and Next inlines
+     * an unset NEXT_PUBLIC_* as an empty string. That once made `new URL("")`
+     * throw and took every deployment down; the near miss is worse, though —
+     * a value that parses but points at localhost would publish canonical and
+     * Open Graph URLs for a machine nobody can reach.
+     */
+    for (const [field, value] of [["canonical", doc.canonical], ["og:url", doc.ogUrl]]) {
+      if (!value) {
+        fail(`${route}: ${field} is missing`);
+        continue;
+      }
+      let parsed;
+      try {
+        parsed = new URL(value);
+      } catch {
+        fail(`${route}: ${field} is not an absolute URL — "${value}"`);
+        continue;
+      }
+      if (!/^https?:$/.test(parsed.protocol)) {
+        fail(`${route}: ${field} has protocol "${parsed.protocol}"`);
+      }
+      if (parsed.pathname !== route) {
+        fail(`${route}: ${field} path is "${parsed.pathname}", expected "${route}"`);
+      }
     }
   }
 

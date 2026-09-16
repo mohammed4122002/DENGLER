@@ -32,7 +32,7 @@ export async function generateMetadata({
   return {
     title: t.nav.investments,
     description: t.investmentsPage.lead,
-    alternates: buildAlternates(raw, "/investments"),
+    ...buildAlternates(raw, "/investments"),
   };
 }
 

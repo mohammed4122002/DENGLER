@@ -17,7 +17,7 @@ export async function generateMetadata({
   return {
     title: t.nav.land,
     description: t.landPage.lead,
-    alternates: buildAlternates(raw, "/land"),
+    ...buildAlternates(raw, "/land"),
   };
 }
 

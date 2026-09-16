@@ -26,7 +26,7 @@ export async function generateMetadata({
   return {
     title: `${SITE.name} — ${t.meta.tagline}`,
     description: t.meta.description,
-    alternates: buildAlternates(raw, "/"),
+    ...buildAlternates(raw, "/"),
   };
 }
 

@@ -23,7 +23,7 @@ export async function generateMetadata({
   return {
     title: t.nav.properties,
     description: t.propertiesPage.lead,
-    alternates: buildAlternates(raw, "/properties"),
+    ...buildAlternates(raw, "/properties"),
   };
 }
 

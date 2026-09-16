@@ -17,7 +17,7 @@ export async function generateMetadata({
   return {
     title: t.nav.hotels,
     description: t.hotelsPage.lead,
-    alternates: buildAlternates(raw, "/hotels"),
+    ...buildAlternates(raw, "/hotels"),
   };
 }
 

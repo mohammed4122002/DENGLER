@@ -48,7 +48,7 @@ export async function generateMetadata({
   return {
     title: content.title,
     description: content.lead,
-    alternates: buildAlternates(raw, `/legal/${slug}`),
+    ...buildAlternates(raw, `/legal/${slug}`),
   };
 }
 

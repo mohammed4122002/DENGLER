@@ -21,7 +21,7 @@ export async function generateMetadata({
   return {
     title: t.nav.contact,
     description: t.contactPage.lead,
-    alternates: buildAlternates(raw, "/contact"),
+    ...buildAlternates(raw, "/contact"),
   };
 }
 

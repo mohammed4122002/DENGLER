@@ -73,16 +73,20 @@ export async function generateMetadata({
     t.enums.propertyType[property.property_type]
   }, ${SITE.name}.`;
 
+  // Spread the shared block, then extend its `openGraph` rather than replacing
+  // it — a bare `openGraph: {...}` here would drop the canonical URL, the
+  // BCP-47 locale tag and the alternate-locale list the helper supplies.
+  const shared = buildAlternates(locale, `/properties/${property.slug}`);
+
   return {
     title,
     description,
-    alternates: buildAlternates(locale, `/properties/${property.slug}`),
+    ...shared,
     openGraph: {
+      ...shared.openGraph,
       type: "article",
-      locale,
       title,
       description,
-      url: `${SITE.url}${localePath(locale, `/properties/${property.slug}`)}`,
       images: [
         { url: property.cover_image, width: 1600, height: 1067, alt: property.title },
       ],
