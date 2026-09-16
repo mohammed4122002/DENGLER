@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
 import { LoginForm } from "@/components/admin/LoginForm";
+import { Wordmark } from "@/components/site/Wordmark";
 import { checkAdminAccess } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/env";
 import { getDictionary, isLocale, localePath, type Locale } from "@/lib/i18n";
@@ -36,10 +37,8 @@ export default async function AdminLoginPage({
   return (
     <div className="flex min-h-screen items-center justify-center bg-cream/40 px-5 pt-[var(--nav-h)]">
       <div className="w-full max-w-md border border-hairline bg-paper p-9 md:p-11">
-        <p className="eyebrow" lang="en">
-          DENGLER
-        </p>
-        <h1 className="mt-4 font-display text-4xl leading-none text-ink">
+        <Wordmark locale={locale} size="footer" />
+        <h1 className="mt-6 font-display text-4xl leading-none text-ink">
           {t.admin.dashboard}
         </h1>
 

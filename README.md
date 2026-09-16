@@ -1,4 +1,4 @@
-# DENGLER
+# DENGLER REAL ESTATE
 
 Premium real estate and investment platform for villas, hotels and land.
 
@@ -167,6 +167,22 @@ Arabic quotes the ISO code rather than the symbol, on purpose: `$`, `€` and `�
 are bidi-neutral characters, and next to Latin letters in a right-to-left line
 they detach and jump to the wrong end — `US$` renders as `$US`. Three strong
 Latin letters have nothing neutral to misplace.
+
+**The wordmark** is a two-line lockup (`components/site/Wordmark.tsx`):
+DENGLER above, the descriptor below. "DENGLER" stays Latin in both locales — it
+is a mark, not a word to translate — while the descriptor is localised,
+`REAL ESTATE` / `العقارية`, the way bilingual signage is normally set in the
+Gulf. One line in `site.ts` switches the Arabic side back to the Latin lockup
+if you prefer it.
+
+The Latin descriptor is spread letter by letter to the exact width of the mark,
+which is what makes the two lines read as one object. That is deliberately
+*not* done to Arabic: Arabic is cursive, and boxing each letter severs the
+joins between them. The Arabic descriptor is set as one run and sized about a
+quarter larger, because it has no small-capital convention to fall back on.
+
+In running prose both dictionaries use the short form — a company calls itself
+"DENGLER" in a sentence and "DENGLER REAL ESTATE" on the door.
 
 **Typography.** Cormorant Garamond ↔ Amiri for display, Inter ↔ IBM Plex Sans
 Arabic for text. All four load always, and each stack lists the other script's

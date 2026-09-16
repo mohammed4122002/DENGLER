@@ -13,6 +13,8 @@
     <path d="M660 700 L660 560 L760 560 L760 700"/>
     <path d="M860 560 L1000 560 L1000 640 L860 640 Z"/>
   </g>
-  <text x="800" y="810" text-anchor="middle" font-family="Georgia, serif" font-size="34"
+  <text x="800" y="806" text-anchor="middle" font-family="Georgia, serif" font-size="34"
         letter-spacing="14" fill="#6f6a63">DENGLER</text>
+  <text x="800" y="844" text-anchor="middle" font-family="Helvetica, Arial, sans-serif"
+        font-size="13" letter-spacing="9" fill="#8a8580">REAL ESTATE</text>
 </svg>

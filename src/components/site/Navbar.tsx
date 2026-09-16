@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { LanguageSwitcher } from "@/components/site/LanguageSwitcher";
+import { Wordmark } from "@/components/site/Wordmark";
 import { navLinks, SITE } from "@/lib/site";
 import { localePath, type Dictionary, type Locale } from "@/lib/i18n";
 
@@ -60,23 +61,12 @@ export function Navbar({ locale, t }: { locale: Locale; t: Dictionary }) {
           className="shell flex h-[var(--nav-h)] items-center justify-between gap-6"
           aria-label="Primary"
         >
-          {/* The wordmark stays Latin in both languages — it is the brand's
-              mark, not a word to translate. Marked `lang="en"` so a screen
-              reader in Arabic mode reads it as English rather than spelling
-              it out letter by letter. */}
           <Link
             href={localePath(locale, "/")}
-            lang="en"
-            /* The 0.34em tracking is most of the wordmark's presence, but at
-               320px it plus the switcher and the menu button overflow the bar.
-               It tightens below `sm` and returns at full width above. */
-            className={`font-display text-[1.3rem] leading-none tracking-[0.2em] transition-colors duration-500 sm:text-[1.6rem] sm:tracking-[0.34em] ${
-              solid ? "text-ink" : "text-white"
-            }`}
-            style={{ fontFamily: "var(--font-display-latin), serif" }}
+            className="transition-opacity duration-500 hover:opacity-80"
             aria-label={`${SITE.name} — ${t.nav.home}`}
           >
-            {SITE.name}
+            <Wordmark locale={locale} tone={solid ? "dark" : "light"} />
           </Link>
 
           <ul

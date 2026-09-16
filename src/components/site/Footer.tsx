@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { LanguageSwitcher } from "@/components/site/LanguageSwitcher";
+import { Wordmark } from "@/components/site/Wordmark";
 import { legalLinks, navLinks, SITE } from "@/lib/site";
 import { localePath, type Dictionary, type Locale } from "@/lib/i18n";
 
@@ -14,13 +15,7 @@ export function Footer({ locale, t }: { locale: Locale; t: Dictionary }) {
       <div className="shell relative z-10 py-20 md:py-28">
         <div className="grid gap-14 md:grid-cols-12">
           <div className="md:col-span-5">
-            <p
-              lang="en"
-              className="font-display text-[2.5rem] leading-none tracking-[0.3em]"
-              style={{ fontFamily: "var(--font-display-latin), serif" }}
-            >
-              {SITE.name}
-            </p>
+            <Wordmark locale={locale} size="footer" tone="light" />
             <p className="mt-6 max-w-sm text-sm leading-relaxed text-paper/55">
               {t.meta.description}
             </p>

@@ -7,7 +7,9 @@
  */
 export const en = {
   meta: {
-    tagline: "Premium Real Estate & Investment",
+    // Sits directly after the site name in every <title>, so it must not
+    // repeat "real estate" — it says what is on offer, not what we are.
+    tagline: "Villas, Hotels & Land for Investment",
     description:
       "DENGLER curates exceptional villas, hotels and land opportunities for investors — with the returns, yields and development potential stated up front.",
     keywords: [
@@ -56,7 +58,7 @@ export const en = {
   },
 
   hero: {
-    eyebrow: "DENGLER · Premium Real Estate & Investment",
+    eyebrow: "DENGLER REAL ESTATE · Villas, Hotels & Land",
     titleLineOne: "INVEST IN",
     titleLineTwo: "WHAT LASTS.",
     lead: "Exceptional villas, hotels and land opportunities curated for ambitious investors.",

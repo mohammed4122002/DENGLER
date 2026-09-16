@@ -4,8 +4,28 @@ import { publicEnv } from "@/lib/env";
 import { localePath, type Dictionary, type Locale } from "@/lib/i18n";
 
 export const SITE = {
-  /** The wordmark is Latin in both locales — it is a mark, not a word. */
-  name: "DENGLER",
+  /**
+   * The formal name, used in page titles, structured data and the copyright
+   * line. In running prose the dictionaries use the short form — a company
+   * refers to itself as "DENGLER" in a sentence and "DENGLER REAL ESTATE" on
+   * the door.
+   */
+  name: "DENGLER REAL ESTATE",
+
+  /**
+   * The wordmark, set as a two-line lockup by `<Wordmark/>`.
+   *
+   * "DENGLER" stays Latin in both locales — it is a mark, not a word to
+   * translate — while the descriptor under it is localised, which is how
+   * bilingual signage in the Gulf is normally set. To use the Latin lockup on
+   * the Arabic site too, make `descriptor.ar` read "REAL ESTATE".
+   */
+  wordmark: "DENGLER",
+  descriptor: {
+    en: "REAL ESTATE",
+    ar: "العقارية",
+  } satisfies Record<Locale, string>,
+
   url: publicEnv.siteUrl,
   email: "invest@dengler.example",
   phone: "+971 4 000 0000",
