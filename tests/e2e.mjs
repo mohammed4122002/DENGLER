@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * DENGLER end-to-end check.
+ * Crete Roots end-to-end check.
  *
  *   npm run build && npm run test:e2e
  *
@@ -68,9 +68,9 @@ const PATHS = [
   "/legal/privacy",
   "/legal/terms",
   "/legal/disclosures",
-  "/properties/dengler-palm-residence-dubai",
-  "/properties/dengler-seascape-resort-maldives",
-  "/properties/dengler-jumeirah-bay-plot",
+  "/properties/palm-residence-dubai",
+  "/properties/seascape-resort-maldives",
+  "/properties/jumeirah-bay-plot",
 ];
 
 const LOCALES = ["en", "ar"];
@@ -181,7 +181,7 @@ const browser = await chromium.launch({ executablePath: EXECUTABLE });
   const page = await (await browser.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
   watch(page, "gallery ");
 
-  await page.goto(`${BASE}/en/properties/dengler-seascape-resort-maldives`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/en/properties/seascape-resort-maldives`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1200);
   await page.getByRole("button", { name: /gallery full screen/i }).click();
   await page.waitForTimeout(800);
@@ -200,7 +200,7 @@ const browser = await chromium.launch({ executablePath: EXECUTABLE });
  * ------------------------------------------------------------------ */
 {
   const page = await (await browser.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
-  await page.goto(`${BASE}/en/properties/dengler-cap-ferrat-villa`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/en/properties/cap-ferrat-villa`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1500);
 
   // Scroll the whole document: reveal animations grow the page as they run, so
@@ -366,7 +366,7 @@ for (const [width, height, label] of [
 
   // The Arabic site must actually be in Arabic — headings, navigation and
   // property copy, not just the chrome.
-  await page.goto(`${BASE}/ar/properties/dengler-palm-residence-dubai`, {
+  await page.goto(`${BASE}/ar/properties/palm-residence-dubai`, {
     waitUntil: "domcontentloaded",
   });
   await page.waitForTimeout(1200);
@@ -602,7 +602,7 @@ if (ADMIN_PASSWORD) {
   await page.goto(`${BASE}/en/admin/properties/new`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(900);
   for (const [selector, value] of [
-    ['input[name="title"]', "DENGLER Test Parcel"],
+    ['input[name="title"]', "Test Parcel"],
     ['input[name="location"]', "Test Bay, Testland"],
     ['input[name="city"]', "Test City"],
     ['input[name="country"]', "Testland"],
@@ -634,9 +634,9 @@ if (ADMIN_PASSWORD) {
     fail("Creating a property did not report success");
   }
 
-  await page.goto(`${BASE}/en/properties/dengler-test-parcel`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/en/properties/test-parcel`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1000);
-  if ((await page.getByRole("heading", { name: "DENGLER Test Parcel", level: 1 }).count()) === 0) {
+  if ((await page.getByRole("heading", { name: "Test Parcel", level: 1 }).count()) === 0) {
     fail("A published property is not live at its slug");
   }
 

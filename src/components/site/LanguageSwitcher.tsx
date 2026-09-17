@@ -17,7 +17,7 @@ import {
  * Switches language without losing the reader's place.
  *
  * It rewrites the current path rather than sending everyone to the home page —
- * `/en/properties/dengler-palm-residence-dubai?type=villa` becomes the same
+ * `/en/properties/palm-residence-dubai?type=villa` becomes the same
  * listing in Arabic, filters intact. That works because slugs and query keys
  * are locale-independent by design.
  *

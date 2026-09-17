@@ -2,7 +2,7 @@ import { Reveal, RevealGroup } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import type { Dictionary } from "@/lib/i18n";
 
-export function WhyDengler({ t }: { t: Dictionary }) {
+export function WhyUs({ t }: { t: Dictionary }) {
   return (
     <section className="border-t border-hairline bg-cream/45">
       <div className="shell py-24 md:py-32">

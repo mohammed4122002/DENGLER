@@ -1,5 +1,5 @@
 -- ===========================================================================
--- DENGLER — initial schema
+-- Crete Roots Company — initial schema
 --
 -- Apply with:  supabase db push
 --        or:   psql "$DATABASE_URL" -f supabase/migrations/0001_init.sql

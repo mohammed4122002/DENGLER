@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import {
-  Amiri,
-  Cormorant_Garamond,
-  IBM_Plex_Sans_Arabic,
-  Inter,
+  Bodoni_Moda,
+  Jost,
+  Reem_Kufi,
+  Tajawal,
 } from "next/font/google";
 
 import { Footer } from "@/components/site/Footer";
@@ -27,39 +27,59 @@ import "@/styles/globals.css";
  * Typefaces
  *
  * Each script gets a display face and a text face, and the two pairings are
- * chosen to sit at the same weight on the page: Cormorant Garamond ↔ Amiri
- * (both high-contrast, both with generous counters), Inter ↔ IBM Plex Sans
- * Arabic (both neutral grotesques from the same design lineage).
+ * chosen to sit at the same weight on the page: Bodoni Moda ↔ Reem Kufi (both
+ * high-contrast and geometric — a Didone and a modern Kufi, which are the same
+ * idea worked out in two scripts), Jost ↔ Tajawal (both geometric sans faces
+ * built on the circle and the straight stem).
+ *
+ * Bodoni Moda is loaded with its `opsz` axis. CSS applies `font-optical-sizing:
+ * auto` by default, so the browser moves along that axis with the font size on
+ * its own: hairlines thicken in a 1rem card title and thin out again in an
+ * 8rem headline. That is the whole reason to choose a Didone with real optical
+ * sizing over one without — an unsized Didone either disappears at small sizes
+ * or looks blunt at large ones.
+ *
+ * Its lightest weight is 400, and `font-synthesis-weight: none` means the
+ * `font-weight: 300` on headings resolves to it rather than being faked
+ * thinner. That is intentional: the headings carry more presence than the
+ * previous pairing gave them.
  *
  * All four variables are always defined; `globals.css` swaps which pair
  * `--font-display` and `--font-sans` point at based on `[dir]`, so a mixed
- * paragraph — an Arabic sentence containing "DENGLER" — renders both scripts
- * in their intended face rather than falling back.
+ * paragraph — an Arabic sentence containing "CRETE ROOTS" — renders both
+ * scripts in their intended face rather than falling back.
  * ------------------------------------------------------------------ */
 
-const displayLatin = Cormorant_Garamond({
+const displayLatin = Bodoni_Moda({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
+  weight: "variable",
+  /* The real italic, not a synthesised one. A Didone italic is a separate
+     design — a sloped cursive with different letterforms — so shearing the
+     roman, which is what the browser does when the italic is absent, reads as
+     a rendering fault rather than as emphasis. The hero's accent line is set
+     in it. */
+  style: ["normal", "italic"],
+  axes: ["opsz"],
   variable: "--font-display-latin",
   display: "swap",
 });
 
-const sansLatin = Inter({
+const sansLatin = Jost({
   subsets: ["latin"],
   variable: "--font-sans-latin",
   display: "swap",
 });
 
-const displayArabic = Amiri({
+const displayArabic = Reem_Kufi({
   subsets: ["arabic", "latin"],
-  weight: ["400", "700"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-display-arabic",
   display: "swap",
 });
 
-const sansArabic = IBM_Plex_Sans_Arabic({
+const sansArabic = Tajawal({
   subsets: ["arabic", "latin"],
-  weight: ["300", "400", "500", "600"],
+  weight: ["300", "400", "500", "700"],
   variable: "--font-sans-arabic",
   display: "swap",
 });

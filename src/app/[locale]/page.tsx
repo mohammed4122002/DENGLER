@@ -8,7 +8,7 @@ import { InvestmentSection } from "@/components/home/InvestmentSection";
 import { PremiumCta } from "@/components/home/PremiumCta";
 import { QuickSearch } from "@/components/home/QuickSearch";
 import { Stats } from "@/components/home/Stats";
-import { WhyDengler } from "@/components/home/WhyDengler";
+import { WhyUs } from "@/components/home/WhyUs";
 import { store } from "@/lib/store";
 import { SITE } from "@/lib/site";
 import { getDictionary, isLocale, type Locale } from "@/lib/i18n";
@@ -62,7 +62,7 @@ export default async function HomePage({
       <FeaturedProperties properties={featured} locale={locale} t={t} />
       <CategoryExplorer counts={facets.counts} locale={locale} t={t} />
       <InvestmentSection properties={investments} locale={locale} t={t} />
-      <WhyDengler t={t} />
+      <WhyUs t={t} />
       <PremiumCta locale={locale} t={t} />
     </>
   );

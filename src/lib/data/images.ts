@@ -1,5 +1,5 @@
 /**
- * DENGLER image registry.
+ * Crete Roots image registry.
  *
  * Every demo image in the platform resolves through this one file, so the
  * whole catalogue can be repointed at a different source (your own CDN,

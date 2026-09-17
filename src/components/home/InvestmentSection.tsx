@@ -10,7 +10,7 @@ import { localePath, type Dictionary, type Locale } from "@/lib/i18n";
 import type { LocalizedProperty } from "@/lib/types";
 
 /**
- * The section that makes DENGLER an investment platform rather than a listings
+ * The section that makes Crete Roots an investment platform rather than a listings
  * site: the same asset, expressed as capital in, revenue out, and return.
  */
 export function InvestmentSection({

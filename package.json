@@ -1,8 +1,8 @@
 {
-  "name": "dengler",
+  "name": "crete-roots-company",
   "version": "0.1.0",
   "private": true,
-  "description": "DENGLER — Premium Real Estate & Investment Platform",
+  "description": "Crete Roots Company — Premium Real Estate & Investment Platform",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

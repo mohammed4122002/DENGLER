@@ -32,7 +32,7 @@ interface DemoState {
   sequence: number;
 }
 
-const STATE_KEY = Symbol.for("dengler.demo-state");
+const STATE_KEY = Symbol.for("creteroots.demo-state");
 
 function getState(): DemoState {
   const globalRef = globalThis as typeof globalThis & {

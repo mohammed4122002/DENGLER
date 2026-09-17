@@ -11,7 +11,7 @@ export const en = {
     // repeat "real estate" — it says what is on offer, not what we are.
     tagline: "Villas, Hotels & Land for Investment",
     description:
-      "DENGLER curates exceptional villas, hotels and land opportunities for investors — with the returns, yields and development potential stated up front.",
+      "Crete Roots curates exceptional villas, hotels and land opportunities for investors — with the returns, yields and development potential stated up front.",
     keywords: [
       "luxury villas",
       "hotel investment",
@@ -58,14 +58,14 @@ export const en = {
   },
 
   hero: {
-    eyebrow: "DENGLER REAL ESTATE · Villas, Hotels & Land",
+    eyebrow: "Crete Roots Company · Villas, Hotels & Land",
     titleLineOne: "INVEST IN",
     titleLineTwo: "WHAT LASTS.",
     lead: "Exceptional villas, hotels and land opportunities curated for ambitious investors.",
     nowShowing: "Now showing",
-    captionTitle: "DENGLER Palm Residence",
+    captionTitle: "Palm Residence",
     captionMeta: "Palm Jumeirah, Dubai · 620 m² · 4 bedrooms",
-    ariaLabel: "DENGLER — invest in what lasts",
+    ariaLabel: "Crete Roots — invest in what lasts",
   },
 
   quickSearch: {
@@ -80,14 +80,14 @@ export const en = {
   },
 
   stats: {
-    ariaLabel: "DENGLER at a glance",
+    ariaLabel: "Crete Roots at a glance",
     trustedBy: "Trusted by investors across 24 markets",
   },
 
   featured: {
     eyebrow: "Featured properties",
     titleLineOne: "Currently on the",
-    titleLineTwo: "DENGLER desk.",
+    titleLineTwo: "Crete Roots desk.",
     lead: "A rotating selection from across the portfolio — villas held for appreciation, hospitality assets trading today, and land where the consent is already granted.",
   },
 
@@ -127,7 +127,7 @@ export const en = {
   },
 
   why: {
-    eyebrow: "Why DENGLER",
+    eyebrow: "Why Crete Roots",
     titleLineOne: "A shorter list,",
     titleLineTwo: "checked more carefully.",
     pillars: [
@@ -224,7 +224,7 @@ export const en = {
   propertiesPage: {
     eyebrow: "The portfolio",
     titleLineOne: "Every asset on the",
-    titleLineTwo: "DENGLER desk.",
+    titleLineTwo: "Crete Roots desk.",
     lead: "Villas, hospitality assets and development land across twenty-four markets. Filter by what actually decides the investment: budget, yield, strategy and consent.",
   },
 
@@ -350,7 +350,7 @@ export const en = {
     tableTitleLineTwo: "on one page.",
     tableLead:
       "Every published asset with its headline investment figures. A dash means we do not hold that figure — not that it is zero.",
-    tableCaption: "DENGLER portfolio investment comparison",
+    tableCaption: "Crete Roots portfolio investment comparison",
     searchByRoi: "Search by ROI",
     columns: {
       asset: "Asset",
@@ -369,18 +369,18 @@ export const en = {
   },
 
   aboutPage: {
-    eyebrow: "About DENGLER",
+    eyebrow: "About Crete Roots",
     titleLineOne: "A shorter list,",
     titleLineTwo: "checked more carefully.",
-    lead: "DENGLER exists because buying a villa, a hotel or a development parcel should not require three months of due diligence to establish what a listing could simply have said.",
+    lead: "Crete Roots exists because buying a villa, a hotel or a development parcel should not require three months of due diligence to establish what a listing could simply have said.",
     statement:
       "Most property platforms are built to generate enquiries. The numbers that would let you rule an asset out are the numbers they hold back, because an enquiry is worth more than an honest answer.",
     paragraphs: [
-      "DENGLER is built the other way round. Every listing carries its price, its area, its consent status, its trading history where one exists, and its projected return with the basis stated. You should be able to decide an asset is not for you without speaking to anybody.",
+      "Crete Roots is built the other way round. Every listing carries its price, its area, its consent status, its trading history where one exists, and its projected return with the basis stated. You should be able to decide an asset is not for you without speaking to anybody.",
       "What remains after that filter is a much shorter list — and a much better conversation. We cover villas held for use and for yield, hospitality assets that already trade, and land where the scarcity is structural rather than narrative.",
       "We work across twenty-four markets from three offices, with local counsel and local valuation in each. We do not operate assets, we do not take a position alongside our clients, and we do not list what we have not checked.",
     ],
-    imageAlt: "Interior of a DENGLER-listed residence",
+    imageAlt: "Interior of a Crete Roots-listed residence",
     offices: "Offices",
     howWeWork: "How we work",
     principlesTitleLineOne: "Four rules we",
@@ -483,7 +483,7 @@ export const en = {
     eyebrow: "Legal",
     privacy: {
       title: "Privacy",
-      lead: "How DENGLER handles the information you send us.",
+      lead: "How Crete Roots handles the information you send us.",
       sections: [
         {
           heading: "What we collect",
@@ -546,7 +546,7 @@ export const en = {
   },
 
   admin: {
-    dashboard: "DENGLER Dashboard",
+    dashboard: "Crete Roots Dashboard",
     overview: "Overview",
     properties: "Properties",
     leads: "Leads",
@@ -559,7 +559,7 @@ export const en = {
     email: "Email",
     credentialsRejected: "Those credentials were not accepted.",
     notAuthorised: "Not authorised.",
-    signInPrompt: "Sign in with your DENGLER administrator account.",
+    signInPrompt: "Sign in with your Crete Roots administrator account.",
     passwordPrompt: "Enter the dashboard password to continue.",
     notAdmin: "That account is signed in but is not an administrator.",
     notConfigured: "Access is not configured.",

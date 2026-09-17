@@ -78,4 +78,4 @@ export function negotiateLocale(acceptLanguage: string | null): Locale {
 }
 
 /** Cookie the switcher writes so a returning visitor keeps their choice. */
-export const LOCALE_COOKIE = "dengler_locale";
+export const LOCALE_COOKIE = "creteroots_locale";

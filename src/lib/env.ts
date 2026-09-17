@@ -23,7 +23,7 @@ function read(value: string | undefined): string | undefined {
   return trimmed ? trimmed : undefined;
 }
 
-/** `dengler.vercel.app` → `https://dengler.vercel.app`. */
+/** `creteroots.vercel.app` → `https://creteroots.vercel.app`. */
 function withProtocol(host: string): string {
   return /^https?:\/\//i.test(host) ? host : `https://${host}`;
 }

@@ -8,7 +8,7 @@
  * updates together when any one of them is toggled.
  */
 
-const STORAGE_KEY = "dengler.favourites";
+const STORAGE_KEY = "creteroots.favourites";
 
 let cache: string[] = [];
 let cacheLoaded = false;

@@ -1,5 +1,5 @@
 /**
- * DENGLER demo catalogue.
+ * Crete Roots demo catalogue.
  *
  * ── IMPORTANT ──────────────────────────────────────────────────────────────
  * Every record below is FICTIONAL. Titles, valuations, yields, occupancy and
@@ -46,8 +46,8 @@ interface RawProperty {
 const RAW: RawProperty[] = [
   /* ─────────────────────────────── VILLAS ─────────────────────────────── */
   {
-    slug: "dengler-palm-residence-dubai",
-    title: "DENGLER Palm Residence",
+    slug: "palm-residence-dubai",
+    title: "Palm Residence",
     tagline: "A glass pavilion on the western crescent, facing the sunset.",
     description:
       "Set on the quieter western crescent of Palm Jumeirah, the Palm Residence is a study in restraint: a single-storey glass pavilion lifted on a travertine plinth, with a 22-metre lap pool running the full length of the sea elevation. The living volume opens completely on two sides, so the boundary between the terrace and the interior effectively disappears between October and May. Four bedroom suites occupy a separate wing screened by a mature palm court, keeping the entertaining floor entirely free of circulation.",
@@ -73,8 +73,8 @@ const RAW: RawProperty[] = [
     features: ["Private beach access", "22m lap pool", "Smart home", "Sea view", "Staff quarters", "Covered parking for 4", "24/7 security"],
   },
   {
-    slug: "dengler-aegean-house-mykonos",
-    title: "DENGLER Aegean House",
+    slug: "aegean-house-mykonos",
+    title: "Aegean House",
     tagline: "Cycladic geometry cut into the hillside above Agios Lazaros.",
     description:
       "The Aegean House takes the vernacular of the Cyclades — thick lime-washed walls, deep-set openings, cantilevered stone benches — and rebuilds it at a scale suited to long stays. Five terraces step down the slope, each with its own aspect, so there is shade at every hour. The infinity pool reads as a continuation of the bay from the main terrace. Sold furnished, with an established summer rental history under management.",
@@ -101,8 +101,8 @@ const RAW: RawProperty[] = [
     features: ["Infinity pool", "Sea view", "Furnished", "Rental management in place", "Outdoor kitchen", "Solar hot water", "Parking"],
   },
   {
-    slug: "dengler-cap-ferrat-villa",
-    title: "DENGLER Cap Ferrat Villa",
+    slug: "cap-ferrat-villa",
+    title: "Cap Ferrat Villa",
     tagline: "Belle Époque bones, rebuilt behind the original façade.",
     description:
       "One of the few remaining Belle Époque properties on the cape to have been taken back to structure and rebuilt to contemporary specification while retaining its protected façade and garden walls. The result is a house that reads as historic from the approach and entirely modern once inside: full climate control, a two-level basement with cinema and wellness floor, and glazing that meets current thermal standards without visible frames. The garden was replanted in 2021 with mature olive and cypress.",
@@ -129,8 +129,8 @@ const RAW: RawProperty[] = [
     features: ["Protected façade", "Wellness floor", "Cinema room", "Mature garden", "Sea view", "Wine cellar", "Guest house", "Gated entry"],
   },
   {
-    slug: "dengler-marbella-dunes",
-    title: "DENGLER Marbella Dunes",
+    slug: "marbella-dunes",
+    title: "Marbella Dunes",
     tagline: "Low, wide and horizontal — a beach house that ignores the street.",
     description:
       "Built on a dune plot on the New Golden Mile, the house turns its back entirely on the road and opens along a 34-metre southern elevation. Everything is horizontal: a single roof plane, a continuous limestone floor running inside to out, and a pool set flush with the terrace. The layout suits multi-generational use, with two independent suites at either end and a shared central volume between them.",
@@ -156,8 +156,8 @@ const RAW: RawProperty[] = [
     features: ["Beachfront", "Heated pool", "Smart home", "Gym", "Underfloor heating", "Garage for 3", "Landscaped garden"],
   },
   {
-    slug: "dengler-uluwatu-cliff-house",
-    title: "DENGLER Uluwatu Cliff House",
+    slug: "uluwatu-cliff-house",
+    title: "Uluwatu Cliff House",
     tagline: "Seventy metres above the break, on a freehold cliff parcel.",
     description:
       "A rare freehold title on the Bukit peninsula, sitting directly on the cliff edge with an uninterrupted western aspect. The house is arranged as four pavilions connected by open walkways and water gardens, which keeps the structure light and allows every room to be naturally cross-ventilated. It has operated as a boutique rental since 2021 with a consistent occupancy record and an experienced on-site team who can be retained.",
@@ -183,8 +183,8 @@ const RAW: RawProperty[] = [
     features: ["Freehold title", "Cliff-edge infinity pool", "Ocean view", "On-site team", "Yoga pavilion", "Backup generator", "Rental licence"],
   },
   {
-    slug: "dengler-al-barari-garden-villa",
-    title: "DENGLER Al Barari Garden Villa",
+    slug: "al-barari-garden-villa",
+    title: "Al Barari Garden Villa",
     tagline: "Inside Dubai's densest planted community, on a mature water channel.",
     description:
       "Al Barari remains the only community in Dubai where planting, not built form, sets the character — and this plot backs directly onto one of the original water channels, giving it a green outlook on three sides. The house has been reconfigured from the developer's layout: the ground floor is now a single continuous space, and the former maid's wing has become a studio. Low running costs for its size, thanks to a 2023 plant and glazing upgrade.",
@@ -209,8 +209,8 @@ const RAW: RawProperty[] = [
     features: ["Water channel frontage", "Mature landscaping", "Private pool", "Studio annexe", "Smart home", "Gated community", "Gym"],
   },
   {
-    slug: "dengler-zurichberg-house",
-    title: "DENGLER Zürichberg House",
+    slug: "zurichberg-house",
+    title: "Zürichberg House",
     tagline: "A quiet modernist house with the lake in the middle distance.",
     description:
       "On the Zürichberg slope, twelve minutes from the centre, this is a disciplined concrete-and-oak house from a Swiss practice known for very few, very exact projects. It performs to Minergie-P standard, which for a house of this glazing ratio is unusual. The lower ground floor opens to a sunken garden and currently houses a library and a small pool. Sale is subject to the usual non-resident acquisition rules.",
@@ -236,8 +236,8 @@ const RAW: RawProperty[] = [
     features: ["Minergie-P certified", "Indoor pool", "Lake view", "Oak joinery throughout", "Geothermal heating", "Double garage"],
   },
   {
-    slug: "dengler-bodrum-peninsula-villa",
-    title: "DENGLER Bodrum Peninsula Villa",
+    slug: "bodrum-peninsula-villa",
+    title: "Bodrum Peninsula Villa",
     tagline: "Stone, olive and a private jetty on the Yalıkavak side.",
     description:
       "Built from local basalt by a Bodrum practice that has worked the peninsula for three decades, the house sits within a walled olive grove with 40 metres of shoreline and its own jetty. The plan is deliberately loose — a main house of three bedrooms and two detached guest cottages — which makes it well suited to either family use or a small boutique rental operation. Marina berth at Yalıkavak is available separately.",
@@ -263,8 +263,8 @@ const RAW: RawProperty[] = [
     features: ["Private jetty", "40m shoreline", "Olive grove", "Two guest cottages", "Sea view", "Stone construction", "Irrigation system"],
   },
   {
-    slug: "dengler-lake-como-residence",
-    title: "DENGLER Lake Como Residence",
+    slug: "lake-como-residence",
+    title: "Lake Como Residence",
     tagline: "A restored 1920s villa with water frontage at Tremezzina.",
     description:
       "Water-frontage properties on the western shore rarely come to market, and almost never with a boathouse in working order. This one has both, plus a terraced garden rising four levels behind the house. The restoration completed in 2020 kept the original terrazzo and ironwork while replacing all services. The upper terrace has planning consent for a pool, which has not been exercised.",
@@ -290,8 +290,8 @@ const RAW: RawProperty[] = [
     features: ["Direct lake frontage", "Working boathouse", "Terraced garden", "Original terrazzo", "Pool consent granted", "Restored 2020"],
   },
   {
-    slug: "dengler-red-sea-dune-villa",
-    title: "DENGLER Red Sea Dune Villa",
+    slug: "red-sea-dune-villa",
+    title: "Red Sea Dune Villa",
     tagline: "Rammed earth and shade, on a protected stretch of coast.",
     description:
       "Part of a low-density coastal scheme on the Saudi Red Sea coast, built in rammed earth with deep shaded loggias and a passive cooling strategy that keeps the interior workable without mechanical assistance for most of the year. The reef directly offshore is under protection, which caps future development density along this stretch — the principal reason the plot holds its value.",
@@ -318,8 +318,8 @@ const RAW: RawProperty[] = [
 
   /* ─────────────────────────────── HOTELS ─────────────────────────────── */
   {
-    slug: "dengler-seascape-resort-maldives",
-    title: "DENGLER Seascape Resort",
+    slug: "seascape-resort-maldives",
+    title: "Seascape Resort",
     tagline: "Thirty-two overwater keys, trading, with the operator in place.",
     description:
       "A fully operational 32-key resort on a private lagoon in Baa Atoll, offered with its management agreement, forward bookings and staff in place. The property was refurbished in 2023, which resets the capital cycle for roughly a decade. Average daily rate has held above the atoll benchmark for three consecutive seasons, driven largely by direct bookings rather than OTA volume — the single most transferable asset in the sale.",
@@ -345,8 +345,8 @@ const RAW: RawProperty[] = [
     features: ["32 overwater keys", "Operator in place", "Refurbished 2023", "Private lagoon", "Dive centre", "Two restaurants", "Spa", "Seaplane platform"],
   },
   {
-    slug: "dengler-marrakech-riad-collection",
-    title: "DENGLER Marrakech Riad Collection",
+    slug: "marrakech-riad-collection",
+    title: "Marrakech Riad Collection",
     tagline: "Four adjoining riads in the Medina, operated as one house.",
     description:
       "Four historic riads on adjoining plots in the Mouassine quarter, knitted together into a single 24-key operation while keeping each courtyard intact. The consolidation was completed in 2022 and is the reason the property can carry a rate that a single riad cannot — it offers privacy at scale in a quarter where scale is otherwise impossible. Includes a rooftop restaurant with an Atlas view and a hammam.",
@@ -373,8 +373,8 @@ const RAW: RawProperty[] = [
     features: ["24 keys", "Four courtyards", "Rooftop restaurant", "Hammam", "Consolidated 2022", "Medina location", "Trading licence"],
   },
   {
-    slug: "dengler-lisbon-grand",
-    title: "DENGLER Lisbon Grand",
+    slug: "lisbon-grand",
+    title: "Lisbon Grand",
     tagline: "A 1930s bank building consented for 61 keys in Chiado.",
     description:
       "A consented conversion rather than a trading hotel: the former bank headquarters on a corner site in Chiado, with full planning and heritage approval for a 61-key hotel plus ground-floor retail. The banking hall, with its original coffered ceiling, is consented as the lobby and restaurant. Shell works are complete; fit-out has not started. Suits a buyer with an operator relationship already in hand.",
@@ -401,8 +401,8 @@ const RAW: RawProperty[] = [
     features: ["Consented for 61 keys", "Heritage approval granted", "Shell works complete", "Ground-floor retail", "Corner site", "Original banking hall"],
   },
   {
-    slug: "dengler-riyadh-business-tower-hotel",
-    title: "DENGLER Riyadh Business Tower Hotel",
+    slug: "riyadh-business-tower-hotel",
+    title: "Riyadh Business Tower Hotel",
     tagline: "A 180-key corporate hotel on King Fahd Road, newly opened.",
     description:
       "Opened in 2024 on King Fahd Road with a corporate-weighted demand base and a large conference floor — the segment of the Riyadh market currently running hardest, given the volume of regional headquarters relocating into the city. The asset is sold with a management contract and a corporate account book that accounts for the majority of room nights. Occupancy is still ramping and has not yet reached stabilised levels.",
@@ -427,8 +427,8 @@ const RAW: RawProperty[] = [
     features: ["180 keys", "Conference floor", "Opened 2024", "Management contract in place", "Corporate account book", "Executive lounge", "Parking for 300"],
   },
   {
-    slug: "dengler-amalfi-cliff-hotel",
-    title: "DENGLER Amalfi Cliff Hotel",
+    slug: "amalfi-cliff-hotel",
+    title: "Amalfi Cliff Hotel",
     tagline: "Eighteen keys cut into the rock above Conca dei Marini.",
     description:
       "An eighteen-key property built into the cliff on seven levels, connected by a private lift shaft down to a sea platform. It trades a short, very high-rate season — typically late April to early October — which produces a strong yield on a comparatively low key count. The restaurant holds a following independent of the hotel and contributes materially to revenue. Sold with the operating company.",
@@ -457,8 +457,8 @@ const RAW: RawProperty[] = [
 
   /* ──────────────────────────────── LAND ──────────────────────────────── */
   {
-    slug: "dengler-jumeirah-bay-plot",
-    title: "DENGLER Jumeirah Bay Plot",
+    slug: "jumeirah-bay-plot",
+    title: "Jumeirah Bay Plot",
     tagline: "One of the last undeveloped waterfront plots on the island.",
     description:
       "A freehold waterfront plot on Jumeirah Bay Island with 31 metres of water frontage and a north-western aspect toward the skyline. The island is effectively built out, which makes the remaining undeveloped plots a closed set. Design guidelines cap height at G+1 and fix a 60% site coverage limit; a concept design meeting those guidelines is available to a serious buyer.",
@@ -479,8 +479,8 @@ const RAW: RawProperty[] = [
     features: ["Freehold", "31m water frontage", "Skyline aspect", "G+1 consent envelope", "Services to plot boundary", "Concept design available"],
   },
   {
-    slug: "dengler-red-sea-coastal-parcel",
-    title: "DENGLER Red Sea Coastal Parcel",
+    slug: "red-sea-coastal-parcel",
+    title: "Red Sea Coastal Parcel",
     tagline: "Twelve hectares with 600 metres of undeveloped shoreline.",
     description:
       "A twelve-hectare coastal parcel with 600 metres of shoreline, zoned for low-density tourism development. The surrounding coast falls within a regional masterplan that restricts building heights and mandates set-backs from the dune line, which limits total supply along this stretch permanently. Access road and grid connection are in place to the parcel boundary.",
@@ -501,8 +501,8 @@ const RAW: RawProperty[] = [
     features: ["600m shoreline", "Tourism zoning", "Access road in place", "Grid connection", "12 hectares", "Height-restricted surroundings"],
   },
   {
-    slug: "dengler-tuscan-vineyard-estate",
-    title: "DENGLER Tuscan Vineyard Estate",
+    slug: "tuscan-vineyard-estate",
+    title: "Tuscan Vineyard Estate",
     tagline: "Forty hectares in Chianti Classico, with DOCG rights attached.",
     description:
       "Forty hectares in the Chianti Classico zone, of which eighteen are planted and in production, carrying DOCG rights — the part of the asset that cannot be recreated by planting new vines. Two stone buildings on the estate are consented for restoration as an agriturismo. The current tenant farmer has an agreement running to 2028 that can be assigned or terminated at completion.",
@@ -524,8 +524,8 @@ const RAW: RawProperty[] = [
     features: ["DOCG rights", "18ha in production", "Agriturismo consent", "Two stone buildings", "Tenant agreement to 2028", "40 hectares"],
   },
   {
-    slug: "dengler-algarve-cliff-land",
-    title: "DENGLER Algarve Cliff Land",
+    slug: "algarve-cliff-land",
+    title: "Algarve Cliff Land",
     tagline: "A consented cliff-top plot between Lagos and Sagres.",
     description:
       "A cliff-top plot on the western Algarve with construction consent already granted for a single dwelling of up to 480 square metres — consent that is now extremely difficult to obtain on this coastline. The plot sits behind the coastal protection line, with the approved footprint set back from the edge. Nearest neighbouring consent is 400 metres away.",
@@ -546,8 +546,8 @@ const RAW: RawProperty[] = [
     features: ["Construction consent granted", "480m² approved footprint", "Cliff-top", "Ocean view", "Behind protection line", "Water and power nearby"],
   },
   {
-    slug: "dengler-aegean-island-parcel",
-    title: "DENGLER Aegean Island Parcel",
+    slug: "aegean-island-parcel",
+    title: "Aegean Island Parcel",
     tagline: "A private headland on a small Cycladic island, with bay access.",
     description:
       "An entire headland of six hectares on a small Cycladic island, including two coves reachable only from the parcel itself. Building rights permit approximately 600 square metres across a maximum of three structures. Access is by boat from the island's main harbour, twenty minutes away, or by a track suitable for four-wheel-drive. Well and solar are the intended servicing route; there is no grid connection.",
@@ -568,8 +568,8 @@ const RAW: RawProperty[] = [
     features: ["Private headland", "Two private coves", "600m² building rights", "6 hectares", "Boat access", "Off-grid servicing route"],
   },
   {
-    slug: "dengler-austin-urban-lot",
-    title: "DENGLER Austin Urban Lot",
+    slug: "austin-urban-lot",
+    title: "Austin Urban Lot",
     tagline: "An entitled downtown block, cleared and ready for vertical.",
     description:
       "A cleared and entitled downtown lot with approvals for a mixed-use scheme of roughly 240 residential units over ground-floor retail. Demolition and site remediation are complete, utilities are stubbed, and the entitlement runs to 2029. For a developer, this removes roughly twenty-four months from a downtown Austin programme — which is the substance of what is being sold here.",
@@ -589,8 +589,8 @@ const RAW: RawProperty[] = [
     features: ["Entitled to 2029", "≈240 units approved", "Ground-floor retail", "Site cleared", "Utilities stubbed", "Remediation complete"],
   },
   {
-    slug: "dengler-black-forest-woodland",
-    title: "DENGLER Black Forest Woodland",
+    slug: "black-forest-woodland",
+    title: "Black Forest Woodland",
     tagline: "Managed timber with a certified yield and a wellness consent.",
     description:
       "Two hundred hectares of managed mixed woodland under an FSC-certified management plan, producing a modest but genuinely uncorrelated timber income. A four-hectare clearing near the southern boundary carries outline consent for a wellness retreat of up to forty keys. The existing forestry contractor is willing to continue under the current terms.",
@@ -612,8 +612,8 @@ const RAW: RawProperty[] = [
     features: ["FSC-certified", "200 hectares", "Timber income", "Wellness retreat consent", "Forestry contractor in place", "Road access"],
   },
   {
-    slug: "dengler-danube-riverfront",
-    title: "DENGLER Danube Riverfront",
+    slug: "danube-riverfront",
+    title: "Danube Riverfront",
     tagline: "Nine hundred metres of river frontage inside the city boundary.",
     description:
       "A riverfront strip of nine hundred metres within the Vienna city boundary, currently zoned for recreation with an active rezoning application for mixed-use. The application is not determined and the sale is priced on current zoning, not on the hoped-for outcome — a buyer is acquiring the option, not the consent. Flood modelling for the 100-year event is available in the data room.",
@@ -634,8 +634,8 @@ const RAW: RawProperty[] = [
     features: ["900m river frontage", "Within city boundary", "Rezoning application live", "Flood modelling available", "Priced on current zoning"],
   },
   {
-    slug: "dengler-atlas-plateau",
-    title: "DENGLER Atlas Plateau",
+    slug: "atlas-plateau",
+    title: "Atlas Plateau",
     tagline: "A high plateau parcel with water rights and an Atlas horizon.",
     description:
       "Eighty hectares on a plateau in the Atlas foothills, an hour from Marrakech, with registered water rights from two sources — the binding constraint on almost every comparable parcel in the region, and the reason this one can support a development of scale. Tourism zoning permits low-density accommodation. Existing terracing and olive planting cover roughly twelve hectares.",
@@ -656,8 +656,8 @@ const RAW: RawProperty[] = [
     features: ["Registered water rights", "80 hectares", "Tourism zoning", "12ha terraced and planted", "Atlas view", "1 hour from Marrakech"],
   },
   {
-    slug: "dengler-dolomites-alpine-parcel",
-    title: "DENGLER Dolomites Alpine Parcel",
+    slug: "dolomites-alpine-parcel",
+    title: "Dolomites Alpine Parcel",
     tagline: "A south-facing alpine parcel with lift access in the ski domain.",
     description:
       "A south-facing parcel inside the Dolomiti Superski domain with ski-in access from an existing lift — a condition that cannot be created retrospectively and that sets the ceiling on what can be built here. Volumetric rights allow roughly 1,400 square metres across two structures under the local building code. Road access is maintained year-round by the comune.",
@@ -678,8 +678,8 @@ const RAW: RawProperty[] = [
     features: ["Ski-in lift access", "South facing", "≈1,400m² volumetric rights", "Year-round road access", "Inside Dolomiti Superski"],
   },
   {
-    slug: "dengler-desert-reserve-parcel",
-    title: "DENGLER Desert Reserve Parcel",
+    slug: "desert-reserve-parcel",
+    title: "Desert Reserve Parcel",
     tagline: "Adjoining a protected reserve, with a dark-sky designation.",
     description:
       "A 240-hectare parcel sharing a boundary with a protected desert reserve, carrying a dark-sky designation that permanently restricts lighting on neighbouring land — an unusual and durable amenity for an astronomy-led or wellness-led development. Consent exists for up to twenty low-rise units. Access is via a graded road from the highway, nine kilometres away.",
@@ -789,7 +789,7 @@ export const SEED_INQUIRIES: Inquiry[] = [
   {
     id: id("inq", 1),
     property_id: "prop_001",
-    property_title: "DENGLER Palm Residence",
+    property_title: "Palm Residence",
     name: "Layla Haddad",
     email: "l.haddad@example.com",
     phone: "+971 50 000 0000",
@@ -801,7 +801,7 @@ export const SEED_INQUIRIES: Inquiry[] = [
   {
     id: id("inq", 2),
     property_id: "prop_011",
-    property_title: "DENGLER Seascape Resort",
+    property_title: "Seascape Resort",
     name: "Marcus Oyelaran",
     email: "m.oyelaran@example.com",
     phone: "+44 7700 000000",
@@ -813,7 +813,7 @@ export const SEED_INQUIRIES: Inquiry[] = [
   {
     id: id("inq", 3),
     property_id: "prop_017",
-    property_title: "DENGLER Red Sea Coastal Parcel",
+    property_title: "Red Sea Coastal Parcel",
     name: "Sofia Almeida",
     email: "s.almeida@example.com",
     phone: null,
@@ -824,7 +824,7 @@ export const SEED_INQUIRIES: Inquiry[] = [
   {
     id: id("inq", 4),
     property_id: "prop_013",
-    property_title: "DENGLER Lisbon Grand",
+    property_title: "Lisbon Grand",
     name: "Henrik Vogel",
     email: "h.vogel@example.com",
     phone: "+49 170 0000000",

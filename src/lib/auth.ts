@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 import { isSupabaseConfigured, serverEnv } from "@/lib/env";
 import { createServerSupabase } from "@/lib/supabase/server";
 
-const COOKIE = "dengler_admin";
+const COOKIE = "creteroots_admin";
 const MAX_AGE_SECONDS = 60 * 60 * 8; // One working day.
 
 export type AdminAccess =

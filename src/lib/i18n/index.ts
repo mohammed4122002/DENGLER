@@ -17,7 +17,7 @@ export function getDictionary(locale: Locale): Dictionary {
 /**
  * Fills `{name}` placeholders.
  *
- *   fill(t.detail.mapAlt, { title: "DENGLER Palm Residence" })
+ *   fill(t.detail.mapAlt, { title: "Palm Residence" })
  *
  * Kept this simple deliberately: no plural rules, no gendered forms. Arabic
  * has six plural categories, and a naive pluraliser would produce worse copy

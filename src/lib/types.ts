@@ -1,7 +1,7 @@
 import type { Locale } from "@/lib/i18n/config";
 
 /**
- * DENGLER domain model.
+ * Crete Roots domain model.
  *
  * These types are the contract between the data layer (Supabase or the
  * in-memory demo store) and every view. Field names mirror the Postgres

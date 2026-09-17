@@ -22,7 +22,7 @@ import { isRtl, localePath, type Dictionary, type Locale } from "@/lib/i18n";
  *   0.0  the plate is already pushing in — a 20s scale from 1.14 → 1.00 that
  *        never visibly stops, so the frame is alive before anything else is
  *   0.3  grade and vignette settle
- *   0.8  DENGLER wordmark fades up
+ *   0.8  Crete Roots wordmark fades up
  *   1.4  the headline reveals line by line from behind a mask
  *   2.2  a gold light sweep crosses the building
  *   2.6  sub-line and actions
@@ -291,7 +291,7 @@ export function Hero({ locale, t }: { locale: Locale; t: Dictionary }) {
             {t.hero.captionMeta}
           </p>
           <Link
-            href={localePath(locale, "/properties/dengler-palm-residence-dubai")}
+            href={localePath(locale, "/properties/palm-residence-dubai")}
             className="nav-link mt-4 inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-gold-soft rtl:tracking-normal rtl:normal-case"
           >
             {t.common.viewProperty}
@@ -359,8 +359,11 @@ function MaskedLine({
 
   return (
     // The mask clips at the line box, so it needs enough room below the
-    // baseline for the script's descenders — far more in Arabic than in Latin.
-    <span className="block overflow-hidden pb-[0.08em] rtl:pb-[0.26em]">
+    // baseline for the script's descenders — more in Arabic than in Latin,
+    // though a Kufi face needs far less of it than a Naskh one. Both values
+    // are measured: `fontcheck` compares each line's ink extents, taken from
+    // canvas text metrics, against this box.
+    <span className="block overflow-hidden pb-[0.08em] rtl:pb-[0.12em]">
       <motion.span
         className="block"
         initial={{ y: "108%" }}

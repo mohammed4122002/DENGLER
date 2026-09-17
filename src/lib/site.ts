@@ -7,27 +7,27 @@ export const SITE = {
   /**
    * The formal name, used in page titles, structured data and the copyright
    * line. In running prose the dictionaries use the short form — a company
-   * refers to itself as "DENGLER" in a sentence and "DENGLER REAL ESTATE" on
-   * the door.
+   * refers to itself as "Crete Roots" in a sentence and "Crete Roots Company"
+   * on the door.
    */
-  name: "DENGLER REAL ESTATE",
+  name: "Crete Roots Company",
 
   /**
    * The wordmark, set as a two-line lockup by `<Wordmark/>`.
    *
-   * "DENGLER" stays Latin in both locales — it is a mark, not a word to
+   * "CRETE ROOTS" stays Latin in both locales — it is a mark, not a word to
    * translate — while the descriptor under it is localised, which is how
    * bilingual signage in the Gulf is normally set. To use the Latin lockup on
-   * the Arabic site too, make `descriptor.ar` read "REAL ESTATE".
+   * the Arabic site too, make `descriptor.ar` read "COMPANY".
    */
-  wordmark: "DENGLER",
+  wordmark: "CRETE ROOTS",
   descriptor: {
-    en: "REAL ESTATE",
-    ar: "العقارية",
+    en: "COMPANY",
+    ar: "شركة",
   } satisfies Record<Locale, string>,
 
   url: publicEnv.siteUrl,
-  email: "invest@dengler.example",
+  email: "invest@creteroots.example",
   phone: "+971 4 000 0000",
   /** City names are place names, so they get a proper Arabic form. */
   address: {

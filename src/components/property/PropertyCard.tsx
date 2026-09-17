@@ -86,7 +86,7 @@ export function PropertyCard({
             />
           </div>
 
-          {/* Investment badge — the thing that separates DENGLER from a
+          {/* Investment badge — the thing that separates Crete Roots from a
               conventional listing card. */}
           {roi !== null && (
             <div className="absolute bottom-4 start-4 flex items-center gap-2 rounded-full border border-gold-soft/45 bg-ink/70 px-3.5 py-1.5 text-[11px] text-gold-soft backdrop-blur-md">

@@ -1,5 +1,5 @@
 -- ===========================================================================
--- DENGLER — Arabic content
+-- Crete Roots Company — Arabic content
 --
 -- Adds a nullable Arabic counterpart to every user-facing text column. Nullable
 -- on purpose: a record with no Arabic falls back to its English text on the

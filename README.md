@@ -1,4 +1,4 @@
-# DENGLER REAL ESTATE
+# Crete Roots Company
 
 Premium real estate and investment platform for villas, hotels and land.
 
@@ -14,7 +14,7 @@ platform with no setup at all.
 
 ## A note on what this repository was before
 
-This repository contained a single `README.md` with the word "DENGLER" in it.
+This repository contained a single `README.md` with the project name in it.
 There was no prior application — no framework, no components, no database, no
 ZIP — so there was nothing to analyse, preserve or refactor. Everything here
 was written from scratch. If you have an existing codebase you wanted merged
@@ -175,11 +175,18 @@ they detach and jump to the wrong end — `US$` renders as `$US`. Three strong
 Latin letters have nothing neutral to misplace.
 
 **The wordmark** is a two-line lockup (`components/site/Wordmark.tsx`):
-DENGLER above, the descriptor below. "DENGLER" stays Latin in both locales — it
+CRETE ROOTS above, the descriptor below. "CRETE ROOTS" stays Latin in both locales — it
 is a mark, not a word to translate — while the descriptor is localised,
-`REAL ESTATE` / `العقارية`, the way bilingual signage is normally set in the
-Gulf. One line in `site.ts` switches the Arabic side back to the Latin lockup
-if you prefer it.
+`COMPANY` / `شركة`, the way bilingual signage is normally set in the Gulf. One
+line in `site.ts` switches the Arabic side back to the Latin lockup if you
+prefer it.
+
+The mark is `whitespace-nowrap`, and its size and tracking step together at the
+`sm` breakpoint. Eleven characters is half again as wide as a one-word mark,
+and at 320px the budget is roughly 170px once the language switcher and the
+menu button have taken theirs. Letting it break to two lines is not an escape
+hatch — the descriptor is aligned to the mark's box, so a wrapped mark takes
+the lockup's alignment with it.
 
 The Latin descriptor is spread letter by letter to the exact width of the mark,
 which is what makes the two lines read as one object. That is deliberately
@@ -188,11 +195,28 @@ joins between them. The Arabic descriptor is set as one run and sized about a
 quarter larger, because it has no small-capital convention to fall back on.
 
 In running prose both dictionaries use the short form — a company calls itself
-"DENGLER" in a sentence and "DENGLER REAL ESTATE" on the door.
+"Crete Roots" in a sentence and "Crete Roots Company" on the door.
 
-**Typography.** Cormorant Garamond ↔ Amiri for display, Inter ↔ IBM Plex Sans
-Arabic for text. All four load always, and each stack lists the other script's
-face, so "DENGLER" inside an Arabic sentence doesn't drop to a system font.
+**Typography.** Bodoni Moda ↔ Reem Kufi for display, Jost ↔ Tajawal for text.
+The pairings are the same idea worked out in two scripts: a Didone beside a
+modern Kufi, both high-contrast and geometric; a geometric sans beside an
+Arabic one built on the same circle-and-stem logic. All four load always, and
+each stack lists the other script's face, so "CRETE ROOTS" inside an Arabic
+sentence doesn't drop to a system font.
+
+Bodoni Moda is loaded with its `opsz` axis and with its real italic. CSS
+applies `font-optical-sizing: auto` by default, so hairlines thicken in a 1rem
+card title and thin out again in an 8rem headline without anything being set
+per size — which is the whole reason to pick a Didone that has the axis. The
+italic matters for the same reason: a Didone italic is a separate design, and
+the sheared roman a browser synthesises in its absence reads as a rendering
+fault rather than as emphasis.
+
+Its lightest weight is 400 and `font-synthesis-weight` is off, so the
+`font-weight: 300` on headings resolves to it rather than being faked thinner.
+Display tracking is much looser than the previous humanist serif took: a Didone
+is vertical stems joined by hairlines, and pulled tight the hairlines of one
+letter touch the stems of the next.
 
 The RTL corrections at the bottom of `globals.css` are **deliberately
 unlayered**. Tailwind's cascade runs base → components → utilities and layer
@@ -206,7 +230,9 @@ convention that damages Arabic:
 - **no letter-spacing** — Arabic is cursive, and tracking severs the joins
 - **no full stop on display headings** — at that size it reads as a smudge, and
   Arabic headline convention omits it; body copy keeps its punctuation
-- **more leading** — Amiri sets deep below the baseline
+- **more leading** — Arabic reaches further above and below the baseline, though
+  a Kufi face needs much less of it than a Naskh one; the hero's line masks are
+  sized from measured ink extents, not guessed
 
 **Adding a third language** means: add it to `LOCALES`, add a dictionary, add a
 font pair. At that point the `*_ar` columns should become a

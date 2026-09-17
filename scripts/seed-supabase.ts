@@ -1,5 +1,5 @@
 /**
- * Loads the DENGLER demo catalogue into a Supabase project.
+ * Loads the Crete Roots demo catalogue into a Supabase project.
  *
  *   npm run seed
  *

@@ -24,7 +24,7 @@ const sans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Page not found · DENGLER",
+  title: "Page not found · Crete Roots",
   robots: { index: false, follow: false },
 };
 
@@ -36,7 +36,7 @@ export default function GlobalNotFound() {
           <div>
             <p className="eyebrow">404</p>
             <p className="mt-6 font-display text-[3rem] leading-none tracking-[0.3em] text-ink">
-              DENGLER
+              CRETE ROOTS
             </p>
 
             <p className="mt-10 font-display text-3xl text-ink">

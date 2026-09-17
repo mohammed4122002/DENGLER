@@ -2,7 +2,7 @@ import { SITE } from "@/lib/site";
 import { isRtl, type Locale } from "@/lib/i18n";
 
 /**
- * The DENGLER REAL ESTATE lockup.
+ * The Crete Roots Company lockup.
  *
  * Two lines: the mark in the display serif, the descriptor beneath it in small
  * tracked sans. Stacking rather than setting it inline is what keeps it usable
@@ -29,10 +29,23 @@ export function Wordmark({
   const descriptor = SITE.descriptor[locale];
   const rtl = isRtl(locale);
 
+  /*
+   * Size and tracking move together, because what has to fit is the product of
+   * the two across eleven characters: "CRETE ROOTS" is half as wide again as a
+   * one-word mark, and at 320px the budget is roughly 170px once the language
+   * switcher and the menu button have taken their share. The mark is
+   * `whitespace-nowrap`, so it cannot buy room by breaking across two lines —
+   * it would take the descriptor's alignment with it if it did.
+   *
+   * The negative inline-end margin cancels the letter-space the tracking adds
+   * *after the final letter*. Without it the box is wider than the glyphs, and
+   * the descriptor below centres against phantom space — which reads as a
+   * lockup that is slightly out of alignment. It always matches the tracking.
+   */
   const mark = {
-    nav: "text-[1.15rem] sm:text-[1.4rem]",
-    footer: "text-[2.1rem]",
-    large: "text-[2.6rem]",
+    nav: "text-[0.95rem] tracking-[0.12em] -me-[0.12em] sm:text-[1.25rem] sm:tracking-[0.24em] sm:-me-[0.24em]",
+    footer: "text-[1.6rem] tracking-[0.2em] -me-[0.2em] sm:text-[2rem] sm:tracking-[0.26em] sm:-me-[0.26em]",
+    large: "text-[2rem] tracking-[0.22em] -me-[0.22em] sm:text-[2.5rem] sm:tracking-[0.28em] sm:-me-[0.28em]",
   }[size];
 
   /*
@@ -46,28 +59,24 @@ export function Wordmark({
     rtl
       ? {
           nav: "text-[0.5625rem] sm:text-[0.625rem]",
-          footer: "text-[0.875rem]",
-          large: "text-[1rem]",
+          footer: "text-[0.8125rem]",
+          large: "text-[0.9375rem]",
         }
       : {
           nav: "text-[0.4375rem] sm:text-[0.5rem]",
-          footer: "text-[0.6875rem]",
-          large: "text-[0.8125rem]",
+          footer: "text-[0.625rem]",
+          large: "text-[0.75rem]",
         }
   )[size];
 
   return (
     <span className={`inline-flex flex-col items-stretch leading-none ${className}`}>
       {/* Always Latin, and marked as such so an Arabic screen reader announces
-          it as an English word rather than spelling it out. */}
-      {/* The negative inline-end margin cancels the letter-space the tracking
-          adds *after the final letter*. Without it the box is wider than the
-          glyphs, and the descriptor below centres against phantom space —
-          which reads as a lockup that is slightly out of alignment. */}
+          it as an English name rather than spelling it out. */}
       <span
         lang="en"
         dir="ltr"
-        className={`font-display -me-[0.2em] tracking-[0.2em] sm:-me-[0.34em] sm:tracking-[0.34em] ${mark} ${
+        className={`font-display whitespace-nowrap ${mark} ${
           tone === "light" ? "text-white" : "text-ink"
         }`}
         style={{ fontFamily: "var(--font-display-latin), serif" }}
