@@ -1,9 +1,10 @@
+import { Logomark } from "@/components/site/Logomark";
 import { SITE } from "@/lib/site";
 import { isRtl, type Locale } from "@/lib/i18n";
 
 /**
- * The Crete Roots Company lockup: a navy monogram tile, the name beside it in
- * two tones, and the descriptor beneath in small tracked capitals.
+ * The Crete Roots Company lockup: the mark on a navy tile, the name beside it
+ * in two tones, and the descriptor beneath in small tracked capitals.
  *
  * The two tones are what make a two-word name read as one mark — "CRETE" in
  * the type colour, "ROOTS" in the accent — which is also why the name is split
@@ -39,9 +40,9 @@ export function Wordmark({
   const second = rest.join(" ");
 
   const scale = {
-    nav: { tile: "h-9 w-9 text-[0.9rem] rounded-[10px]", name: "text-[1.0625rem] sm:text-[1.1875rem]", gap: "gap-2.5" },
-    footer: { tile: "h-11 w-11 text-[1.05rem] rounded-[12px]", name: "text-[1.375rem]", gap: "gap-3" },
-    large: { tile: "h-14 w-14 text-[1.35rem] rounded-[14px]", name: "text-[1.75rem]", gap: "gap-3.5" },
+    nav: { tile: "h-9 w-9 rounded-[10px]", mark: 22, name: "text-[1.0625rem] sm:text-[1.1875rem]", gap: "gap-2.5" },
+    footer: { tile: "h-11 w-11 rounded-[12px]", mark: 27, name: "text-[1.375rem]", gap: "gap-3" },
+    large: { tile: "h-14 w-14 rounded-[14px]", mark: 34, name: "text-[1.75rem]", gap: "gap-3.5" },
   }[size];
 
   /* Latin can be set tiny because it is read as a shape — capitals, widely
@@ -55,24 +56,19 @@ export function Wordmark({
 
   return (
     <span className={`inline-flex items-center ${scale.gap} ${className}`}>
-      {/* The monogram. Always the brand navy on light chrome; on a photograph
-          it inverts to glass so it does not punch a dark hole in the image. */}
+      {/* The tile is always navy on light chrome; over a photograph it becomes
+          glass so it does not punch a dark hole in the image. The roof takes
+          `currentColor` either way, so it stays white without a second copy of
+          the artwork. */}
       <span
         aria-hidden
-        className={`grid shrink-0 place-items-center font-display font-extrabold leading-none tracking-tight ${
-          scale.tile
-        } ${
+        className={`grid shrink-0 place-items-center text-white ${scale.tile} ${
           light
-            ? "bg-white/15 text-white ring-1 ring-inset ring-white/35 backdrop-blur-sm"
-            : "bg-ink text-white"
+            ? "bg-white/15 ring-1 ring-inset ring-white/35 backdrop-blur-sm"
+            : "bg-ink"
         }`}
       >
-        <span className="translate-y-[0.02em]">
-          {first.charAt(0)}
-          <span className={light ? "text-gold-soft" : "text-gold"}>
-            {(second || first).charAt(second ? 0 : 1)}
-          </span>
-        </span>
+        <Logomark size={scale.mark} root={light ? "#e7cd8d" : "#d4af52"} />
       </span>
 
       <span className="inline-flex flex-col items-stretch leading-none">

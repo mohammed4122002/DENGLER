@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Inter } from "next/font/google";
+import { Manrope, Plus_Jakarta_Sans } from "next/font/google";
 
+import { Logomark } from "@/components/site/Logomark";
 import "@/styles/globals.css";
 
 /**
@@ -10,14 +11,18 @@ import "@/styles/globals.css";
  * so has no layout above it — which also means it cannot know a language.
  * Rather than guess, it says it in both, and offers a door into each site.
  */
-const display = Cormorant_Garamond({
+/* This page is outside the `[locale]` tree, so it loads its own fonts. Only
+   the Latin pair: the Arabic line here is one sentence, and pulling two more
+   font files onto a 404 to set it is not a trade worth making — it falls back
+   to the system Arabic face. */
+const display = Manrope({
   subsets: ["latin"],
-  weight: ["300", "400"],
+  weight: "variable",
   variable: "--font-display-latin",
   display: "swap",
 });
 
-const sans = Inter({
+const sans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-sans-latin",
   display: "swap",
@@ -34,15 +39,18 @@ export default function GlobalNotFound() {
       <body>
         <main className="grid min-h-screen place-items-center bg-paper px-5 text-center">
           <div>
-            <p className="eyebrow">404</p>
-            <p className="mt-6 font-display text-[3rem] leading-none tracking-[0.3em] text-ink">
-              CRETE ROOTS
+            <span className="mx-auto grid h-14 w-14 place-items-center rounded-[14px] bg-ink text-white">
+              <Logomark size={34} title="Crete Roots Company" />
+            </span>
+            <p className="mt-6 font-display text-[1.75rem] font-extrabold tracking-[0.02em] text-ink">
+              CRETE<span className="text-gold">ROOTS</span>
             </p>
+            <p className="eyebrow mt-3">404</p>
 
-            <p className="mt-10 font-display text-3xl text-ink">
+            <p className="mt-10 font-display text-2xl font-bold text-ink">
               This page could not be found.
             </p>
-            <p className="mt-2 font-display text-3xl text-ink" lang="ar" dir="rtl">
+            <p className="mt-2 font-display text-2xl font-bold text-ink" lang="ar" dir="rtl">
               تعذّر العثور على هذه الصفحة.
             </p>
 

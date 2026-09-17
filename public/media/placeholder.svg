@@ -34,8 +34,15 @@
     <path d="M830 636 L972 636 L972 712 L830 712 Z"/>
   </g>
 
-  <text x="800" y="906" text-anchor="middle" font-family="Georgia, serif" font-size="34"
-        letter-spacing="12" fill="#f4efe6" fill-opacity="0.62">CRETE ROOTS</text>
-  <text x="800" y="944" text-anchor="middle" font-family="Helvetica, Arial, sans-serif"
-        font-size="13" letter-spacing="9" fill="#f4efe6" fill-opacity="0.38">COMPANY</text>
+  <!-- The mark, drawn rather than set, so the plate needs no webfont. -->
+  <g transform="translate(776 846) scale(1.5)" opacity="0.62">
+    <g stroke="#d4af52" stroke-width="2.4" stroke-linecap="round" fill="none">
+      <path d="M16 18.4v9.2"/>
+      <path d="M16 22.2c-3.6.2-5.6 2-6 5.4"/>
+      <path d="M16 22.2c3.6.2 5.6 2 6 5.4"/>
+    </g>
+    <path d="M16 4.4 26.6 12.5a1.5 1.5 0 0 1 .6 1.2v3.1a1.6 1.6 0 0 1-1.6 1.6H6.4a1.6 1.6 0 0 1-1.6-1.6v-3.1c0-.47.22-.92.6-1.2L16 4.4Z" fill="#f4efe6"/>
+  </g>
+  <text x="800" y="948" text-anchor="middle" font-family="Helvetica, Arial, sans-serif"
+        font-size="15" font-weight="700" letter-spacing="7" fill="#f4efe6" fill-opacity="0.5">CRETE ROOTS</text>
 </svg>

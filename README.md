@@ -174,21 +174,47 @@ are bidi-neutral characters, and next to Latin letters in a right-to-left line
 they detach and jump to the wrong end — `US$` renders as `$US`. Three strong
 Latin letters have nothing neutral to misplace.
 
-**The wordmark** is a two-line lockup (`components/site/Wordmark.tsx`):
-CRETE ROOTS above, the descriptor below. "CRETE ROOTS" stays Latin in both locales — it
-is a mark, not a word to translate — while the descriptor is localised,
-`COMPANY` / `شركة`, the way bilingual signage is normally set in the Gulf. One
-line in `site.ts` switches the Arabic side back to the Latin lockup if you
-prefer it.
+**The mark** (`components/site/Logomark.tsx`, and as files in `public/brand/`)
+is a gable standing on a root system — the property above ground, what holds it
+up below. The name is the brief: "roots" is what the company sells, and a roof
+is the shortest way to say real estate.
+
+It is drawn on a 32-unit grid and was tested down to 16px, which is the size
+that decides a mark. Earlier drafts used an open chevron rather than a solid
+gable and read as an arrow at every size; the roots had five branches and
+turned to mush below 24px. Three branches and a filled roof survive the
+favicon.
+
+The roots are painted *before* the roof so the roof covers the trunk's round
+cap — drawn the other way the cap pokes into the roof as a gold nub, invisible
+while both are the same colour and obvious the moment they are not. The roof
+takes `currentColor` so it inverts with whatever it sits on; the roots carry
+their own colour, because the accent has to darken on light surfaces and
+lighten on dark ones.
+
+`src/app/icon.svg` and `src/app/apple-icon.png` are the Next file conventions,
+so the tab icon and the iOS home-screen icon need no `<head>` wiring.
+
+**The wordmark** is the mark on a navy tile beside a two-tone name over a
+tracked descriptor (`components/site/Wordmark.tsx`). The two tones are what
+make a two-word name read as one object — "CRETE" in the type colour, "ROOTS"
+in the accent — which is why the name is split on a space in the component
+rather than stored pre-split: `SITE.wordmark` stays a single readable string
+and nothing downstream has to know about the device.
+
+The descriptor is localised, `COMPANY` / `شركة`, while the name stays Latin in
+both locales — it is a mark, not a word to translate — the way bilingual
+signage is normally set in the Gulf. One line in `site.ts` switches the Arabic
+side back to the Latin lockup if you prefer it.
 
 The mark is `whitespace-nowrap`, and its size and tracking step together at the
-`sm` breakpoint. Eleven characters is half again as wide as a one-word mark,
+`sm` breakpoint. Eleven characters is half again as wide as a one-word name,
 and at 320px the budget is roughly 170px once the language switcher and the
 menu button have taken theirs. Letting it break to two lines is not an escape
-hatch — the descriptor is aligned to the mark's box, so a wrapped mark takes
+hatch — the descriptor is aligned to the name's box, so a wrapped name takes
 the lockup's alignment with it.
 
-The Latin descriptor is spread letter by letter to the exact width of the mark,
+The Latin descriptor is spread letter by letter to the exact width of the name,
 which is what makes the two lines read as one object. That is deliberately
 *not* done to Arabic: Arabic is cursive, and boxing each letter severs the
 joins between them. The Arabic descriptor is set as one run and sized about a
@@ -197,30 +223,30 @@ quarter larger, because it has no small-capital convention to fall back on.
 In running prose both dictionaries use the short form — a company calls itself
 "Crete Roots" in a sentence and "Crete Roots Company" on the door.
 
-**Typography.** Source Serif 4 ↔ Cairo for display, Plus Jakarta Sans ↔ Noto
-Sans Arabic for text. Chosen for legibility first: all four share a large
-x-height, open apertures, sturdy stems and low stroke contrast. That rules out
-the Didone and the geometric sans this file carried in an earlier revision — a
-hairline that thins to nothing and a lowercase built from perfect circles both
-look expensive in a specimen and cost you the sentence.
+**Typography.** Sans throughout, in both scripts: Manrope ↔ Cairo for display,
+Plus Jakarta Sans ↔ Noto Sans Arabic for text. A serif heading over a
+soft-shadowed card reads as editorial; this interface is a product, and
+products set their headings in the same voice as their buttons. The
+display/text split is carried by weight and size rather than by a change of
+species.
 
-The Arabic side is the bigger change. Cairo and Noto Sans Arabic are plainly
-drawn humanist faces, where a Kufi is a display idiom whose geometry gets read
-as style before it gets read as words.
+Manrope is here for its numerals as much as its headings: the price is the
+loudest thing on a property card, and its figures are even-width and
+unambiguous at 2rem.
+
+All four were chosen for legibility first — large x-height, open apertures,
+sturdy stems, low stroke contrast. That ruled out the Didone and the geometric
+sans an earlier revision carried: a hairline that thins to nothing and a
+lowercase built from perfect circles both look expensive in a specimen and cost
+you the sentence. On the Arabic side it ruled out the Kufi, which is a display
+idiom whose geometry gets read as style before it gets read as words.
 
 All four load always, and each stack lists the other script's face, so
 "CRETE ROOTS" inside an Arabic sentence doesn't drop to a system font.
 
-Source Serif 4 is loaded with its `opsz` axis and with its real italic. CSS
-applies `font-optical-sizing: auto` by default, so the face opens up and
-thickens at caption sizes and tightens at headline sizes with nothing set per
-size. The italic matters for the same reason a real weight does: the sheared
-roman a browser synthesises in its absence reads as a rendering fault rather
-than as emphasis.
-
-Headings are set at 400, not at the 300 an earlier revision used. Source Serif
-goes down to 200, and a heading thinner than the body copy under it reads as
-faded rather than as restrained — especially in white over a photograph.
+Headings are set at 700. A serif can hold a heading at regular weight — its
+stroke contrast does the work — but a sans at regular weight is body copy set
+large, and the hierarchy collapses.
 
 The RTL corrections at the bottom of `globals.css` are **deliberately
 unlayered**. Tailwind's cascade runs base → components → utilities and layer
