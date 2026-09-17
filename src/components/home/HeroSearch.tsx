@@ -125,7 +125,7 @@ function Segment({
         {icon}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[0.6875rem] font-semibold text-muted">
+        <span className="block truncate text-[0.6875rem] font-semibold text-muted">
           {label}
         </span>
         {children}

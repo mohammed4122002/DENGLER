@@ -126,7 +126,7 @@ export function Hero({
             fetchPriority="high"
             sizes="100vw"
             quality={80}
-            className="object-cover object-[65%_50%]"
+            className="object-cover object-[62%_46%]"
           />
         </motion.div>
       </motion.div>
@@ -143,13 +143,19 @@ export function Hero({
           full-width — a horizontal wash left the last third of every line
           sitting on raw photograph, which is exactly the bug the measured
           contrast check exists to catch, so the small-screen wash runs top to
-          bottom and the photograph reads as a footer to the section. */}
+          bottom and the photograph reads as a footer to the section.
+
+          The desktop wash hands over to the photograph earlier than it looks
+          like it should. The plate is a hazy sunrise, so the handover lands on
+          pale sky rather than on a subject — which is what lets the skyline
+          start well inside the copy column instead of being pushed off the
+          trailing edge. */}
       <div
         className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,#ffffff_0%,#ffffff_62%,rgba(255,255,255,0.88)_78%,rgba(255,255,255,0.55)_92%,rgba(255,255,255,0.3)_100%)] lg:hidden"
         aria-hidden
       />
       <div
-        className="absolute inset-0 -z-10 hidden bg-[linear-gradient(to_var(--wash-to),#ffffff_0%,#ffffff_26%,rgba(255,255,255,0.92)_42%,rgba(255,255,255,0.55)_62%,rgba(255,255,255,0.12)_82%,transparent_100%)] lg:block"
+        className="absolute inset-0 -z-10 hidden bg-[linear-gradient(to_var(--wash-to),#ffffff_0%,#ffffff_20%,rgba(255,255,255,0.9)_34%,rgba(255,255,255,0.55)_50%,rgba(255,255,255,0.15)_70%,transparent_88%)] lg:block"
         style={{ ["--wash-to" as string]: rtl ? "left" : "right" }}
         aria-hidden
       />
@@ -163,7 +169,7 @@ export function Hero({
           half, which is what the wash is cut to. The column is a grid track
           rather than a `max-w`, so the two always meet at the same seam
           whatever the headline does in either language. */}
-      <div className="shell relative z-10 grid items-center gap-12 py-16 md:py-24 lg:grid-cols-[minmax(0,32rem)_minmax(0,1fr)] lg:py-28">
+      <div className="shell relative z-10 grid items-center gap-12 pb-24 pt-12 md:pb-28 md:pt-16 lg:grid-cols-[minmax(0,32rem)_minmax(0,1fr)] lg:pb-28 lg:pt-20">
         <motion.div
           className="w-full"
           style={reduce ? undefined : { y: copyY, opacity: copyOpacity }}
@@ -172,7 +178,7 @@ export function Hero({
             {t.hero.eyebrow}
           </motion.p>
 
-          <h1 className="mt-4 text-ink display-xl">
+          <h1 className="mt-3 text-ink display-xl">
             <MaskedLine delay={0.35} reduce={!!reduce}>
               {t.hero.titleLineOne}
             </MaskedLine>
@@ -182,18 +188,23 @@ export function Hero({
           </h1>
 
           <motion.p
-            className="mt-6 max-w-lg text-base leading-relaxed text-graphite"
+            className="mt-5 max-w-lg text-[0.9375rem] leading-relaxed text-graphite"
             {...stage(0.85)}
           >
             {t.hero.lead}
           </motion.p>
 
-          <motion.div className="mt-8" {...stage(1)}>
+          {/* Wider than the copy track on purpose, and allowed to overflow
+              it. Three labelled selects and a button do not fit in a measure
+              set for a headline — squeezed into 32rem every value truncated to
+              "Any mark…". In the reference the bar is visibly wider than the
+              heading above it, and it has to be. */}
+          <motion.div className="mt-7 lg:w-[40rem] lg:max-w-none" {...stage(1)}>
             <HeroSearch countries={countries} locale={locale} t={t} />
           </motion.div>
 
           <motion.div
-            className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center"
+            className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center"
             {...stage(1.12)}
           >
             <Link
@@ -243,23 +254,36 @@ export function Hero({
         ))}
       </motion.nav>
 
-      {/* ── Scroll cue ─────────────────────────────────────────────────── */}
-      <motion.p
-        className="relative z-10 hidden items-center justify-center gap-3 pb-10 text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-muted md:flex rtl:tracking-normal rtl:normal-case"
+      {/* ── Scroll cue ───────────────────────────────────────────────────
+          Split, as in the reference: the target sits on the plate where the
+          eye already is, and the words sit out of the way on the trailing
+          edge. One `motion.div` so both halves share the entrance. */}
+      <motion.div
+        className="pointer-events-none absolute inset-x-0 bottom-6 z-10 hidden md:block"
         {...stage(1.4)}
         aria-hidden
       >
-        {t.hero.scrollCue}
-        <motion.span
-          className="grid h-8 w-8 place-items-center rounded-full border border-hairline bg-paper text-ink shadow-[var(--shadow-raised)]"
-          animate={reduce ? undefined : { y: [0, 5, 0] }}
-          transition={{ duration: 2.1, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <svg width="11" height="12" viewBox="0 0 11 12" fill="none">
-            <path d="M5.5 0v10M1 6l4.5 4.5L10 6" stroke="currentColor" strokeWidth="1.4" />
-          </svg>
-        </motion.span>
-      </motion.p>
+        <div className="shell flex items-center justify-between gap-4">
+          <span />
+          <motion.span
+            className="grid h-10 w-10 place-items-center rounded-full border border-hairline bg-paper text-ink shadow-[var(--shadow-raised)]"
+            animate={reduce ? undefined : { y: [0, 5, 0] }}
+            transition={{ duration: 2.1, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <svg width="12" height="13" viewBox="0 0 11 12" fill="none">
+              <path d="M5.5 0v10M1 6l4.5 4.5L10 6" stroke="currentColor" strokeWidth="1.4" />
+            </svg>
+          </motion.span>
+          {/* On its own backing, not on the photograph. The plate here is a
+              hazy sunrise and the label would have been white on pale sky;
+              tinting it to suit this image would only move the problem to the
+              next image an editor uploads. */}
+          <span className="rounded-full bg-paper/85 px-3.5 py-1.5 text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-graphite backdrop-blur-sm rtl:tracking-normal rtl:normal-case">
+            {t.hero.scrollCue}
+          </span>
+        </div>
+      </motion.div>
+
     </section>
   );
 }
