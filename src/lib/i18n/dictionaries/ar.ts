@@ -70,6 +70,7 @@ export const ar: Dictionary = {
     nowShowing: "معروض الآن",
     captionTitle: "بالم ريزيدنس",
     captionMeta: "نخلة جميرا، دبي · 620 م² · 4 غرف نوم",
+    scrollCue: "مرّر للاستكشاف",
     ariaLabel: "كريت روتس — استثمر فيما يبقى",
   },
 
@@ -216,6 +217,7 @@ export const ar: Dictionary = {
 
   card: {
     projectedRoi: "عائد متوقع",
+    viewDetails: "عرض التفاصيل",
     bedroomsShort: "غرفة",
     bathroomsShort: "حمّام",
     keys: "مفتاح",

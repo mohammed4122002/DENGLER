@@ -56,7 +56,7 @@ export default async function PropertiesPage({
           <>
             {t.propertiesPage.titleLineOne}
             <br />
-            <span className="italic text-gold-soft">
+            <span className="text-gold-soft">
               {t.propertiesPage.titleLineTwo}
             </span>
           </>

@@ -11,12 +11,12 @@ export function Footer({ locale, t }: { locale: Locale; t: Dictionary }) {
   const legal = legalLinks(locale, t);
 
   return (
-    <footer className="relative mt-px overflow-hidden bg-ink text-paper grain">
-      <div className="shell relative z-10 py-20 md:py-28">
-        <div className="grid gap-14 md:grid-cols-12">
+    <footer className="relative overflow-hidden bg-midnight text-paper">
+      <div className="shell relative z-10 py-14 md:py-20">
+        <div className="grid gap-12 md:grid-cols-12">
           <div className="md:col-span-5">
             <Wordmark locale={locale} size="footer" tone="light" />
-            <p className="mt-6 max-w-sm text-sm leading-relaxed text-paper/55">
+            <p className="mt-5 max-w-sm text-sm leading-relaxed text-paper/55">
               {t.meta.description}
             </p>
             <div className="mt-8">

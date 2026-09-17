@@ -263,7 +263,7 @@ export default async function PropertyDetailPage({
                 <h2 id="description-heading" className="font-display text-[1.75rem] text-ink">
                   {t.detail.aboutThisProperty}
                 </h2>
-                <p className="mt-3 font-display text-xl italic leading-snug text-gold-deep">
+                <p className="mt-3 font-display text-xl leading-snug text-gold-deep">
                   {property.tagline}
                 </p>
                 <p className="mt-6 whitespace-pre-line text-[0.9375rem] leading-[1.85] text-graphite">
@@ -332,7 +332,7 @@ export default async function PropertyDetailPage({
               <h2 id="enquiry-heading" className="mt-5 display-md text-paper">
                 {t.detail.requestPackLineOne}
                 <br />
-                <span className="italic text-gold-soft">
+                <span className="text-gold-soft">
                   {t.detail.requestPackLineTwo}
                 </span>
               </h2>
@@ -374,7 +374,7 @@ export default async function PropertyDetailPage({
                 title={
                   <>
                     {t.detail.othersIn}{" "}
-                    <span className="italic text-gold-deep">
+                    <span className="text-gold-deep">
                       {t.enums.propertyTypePlural[property.property_type]}
                     </span>
                   </>

@@ -26,7 +26,7 @@ export function SectionHeading({
 
   return (
     <header
-      className={`flex flex-col gap-8 ${
+      className={`flex flex-col gap-6 ${
         align === "center"
           ? "items-center text-center"
           : "md:flex-row md:items-end md:justify-between"
@@ -34,14 +34,12 @@ export function SectionHeading({
     >
       <Reveal className={align === "center" ? "max-w-2xl" : "max-w-2xl"}>
         <p className={`eyebrow ${isLight ? "!text-paper/45" : ""}`}>{eyebrow}</p>
-        <h2
-          className={`mt-4 display-md ${isLight ? "text-paper" : "text-ink"}`}
-        >
+        <h2 className={`mt-3 display-md ${isLight ? "text-paper" : "text-ink"}`}>
           {title}
         </h2>
         {lead && (
           <p
-            className={`mt-5 max-w-xl text-[0.9375rem] leading-relaxed ${
+            className={`mt-4 max-w-xl text-[0.9375rem] leading-relaxed ${
               isLight ? "text-paper/60" : "text-muted"
             } ${align === "center" ? "mx-auto" : ""}`}
           >
@@ -54,14 +52,16 @@ export function SectionHeading({
         <Reveal delay={0.12}>
           <Link
             href={link.href}
-            className={`group inline-flex items-center gap-3 text-xs uppercase tracking-[0.16em] ${
-              isLight ? "text-paper/75 hover:text-gold-soft" : "text-graphite hover:text-gold"
-            } nav-link rtl:tracking-normal rtl:normal-case transition-colors duration-400`}
+            className={`group inline-flex shrink-0 items-center gap-2 text-[0.8125rem] font-semibold transition-colors duration-300 ${
+              isLight
+                ? "text-paper/80 hover:text-gold-soft"
+                : "text-gold-deep hover:text-ink"
+            }`}
           >
             {link.label}
             <ArrowIcon
-              size={16}
-              className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1"
+              size={14}
+              className="rtl-flip transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1"
             />
           </Link>
         </Reveal>

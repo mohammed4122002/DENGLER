@@ -78,3 +78,30 @@ export const CalendarIcon = ({ className, size = 16 }: IconProps) => (
     <path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" />
   </svg>
 );
+
+export const SearchIcon = ({ className, size = 16 }: IconProps) => (
+  <svg {...base(size)} className={className}>
+    <circle cx="7" cy="7" r="4.75" />
+    <path d="m10.5 10.5 3.5 3.5" />
+  </svg>
+);
+
+export const HomeIcon = ({ className, size = 16 }: IconProps) => (
+  <svg {...base(size)} className={className}>
+    <path d="M2 6.75 8 2l6 4.75V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6.75Z" />
+    <path d="M6.25 14V9.5h3.5V14" />
+  </svg>
+);
+
+export const TagIcon = ({ className, size = 16 }: IconProps) => (
+  <svg {...base(size)} className={className}>
+    <path d="M8.3 1.7H14v5.7l-6.6 6.6a1 1 0 0 1-1.4 0L1.7 9.7a1 1 0 0 1 0-1.4L8.3 1.7Z" />
+    <circle cx="11.1" cy="4.9" r="1.05" />
+  </svg>
+);
+
+export const PlayIcon = ({ className, size = 16 }: IconProps) => (
+  <svg {...base(size)} className={className} fill="currentColor" stroke="none">
+    <path d="M5.5 3.4a.6.6 0 0 1 .92-.5l6.1 4.1a.6.6 0 0 1 0 1l-6.1 4.1a.6.6 0 0 1-.92-.5V3.4Z" />
+  </svg>
+);

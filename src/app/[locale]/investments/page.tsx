@@ -66,7 +66,7 @@ export default async function InvestmentsPage({
           <>
             {t.investmentsPage.titleLineOne}
             <br />
-            <span className="italic text-gold-soft">
+            <span className="text-gold-soft">
               {t.investmentsPage.titleLineTwo}
             </span>
           </>
@@ -101,7 +101,7 @@ export default async function InvestmentsPage({
             <>
               {t.investmentsPage.tableTitleLineOne}
               <br />
-              <span className="italic text-gold-deep">
+              <span className="text-gold-deep">
                 {t.investmentsPage.tableTitleLineTwo}
               </span>
             </>
@@ -204,7 +204,7 @@ export default async function InvestmentsPage({
               <>
                 {t.investmentsPage.highestTitleLineOne}
                 <br />
-                <span className="italic text-gold-deep">
+                <span className="text-gold-deep">
                   {t.investmentsPage.highestTitleLineTwo}
                 </span>
               </>

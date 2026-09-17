@@ -28,7 +28,7 @@ export function PropertyGrid({
 
   return (
     <ul
-      className={`grid gap-x-8 gap-y-16 ${
+      className={`grid gap-5 lg:gap-6 ${
         columns === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 xl:grid-cols-3"
       }`}
     >

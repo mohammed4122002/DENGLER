@@ -51,7 +51,7 @@ export async function CategoryPage({
           <>
             {copy.titleLineOne}
             <br />
-            <span className="italic text-gold-soft">{copy.titleLineTwo}</span>
+            <span className="text-gold-soft">{copy.titleLineTwo}</span>
           </>
         }
         lead={copy.lead}

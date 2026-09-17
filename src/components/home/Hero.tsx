@@ -11,31 +11,48 @@ import {
   useTransform,
 } from "framer-motion";
 
+import { HeroSearch } from "@/components/home/HeroSearch";
 import { SmartImage } from "@/components/site/SmartImage";
+import { ArrowIcon, PinIcon } from "@/components/ui/Icons";
 import { photo } from "@/lib/data/images";
 import { isRtl, localePath, type Dictionary, type Locale } from "@/lib/i18n";
 
 /**
- * The hero is staged as a short film rather than a banner.
+ * A light hero: the photograph bleeds from the trailing edge and is washed to
+ * white under the copy, which is set in the brand navy.
+ *
+ * The previous version was the opposite — a full-bleed dusk plate with white
+ * type over four scrim passes, three of which existed only to guarantee the
+ * headline stayed readable over a photograph an editor could swap at any time.
+ * Washing the copy side to near-white instead makes legibility a property of
+ * the layout rather than a bet on the image: the gradient ends at white, so
+ * the worst case is navy on white rather than navy on whatever got uploaded.
+ * `tests/e2e.mjs` still measures it off rendered pixels, now against a forced
+ * near-black photograph rather than a near-white one.
  *
  * Timeline (seconds from mount):
- *   0.0  the plate is already pushing in — a 20s scale from 1.14 → 1.00 that
+ *   0.0  the plate is already pushing in — a 20s scale from 1.10 → 1.00 that
  *        never visibly stops, so the frame is alive before anything else is
- *   0.3  grade and vignette settle
- *   0.8  Crete Roots wordmark fades up
- *   1.4  the headline reveals line by line from behind a mask
- *   2.2  a gold light sweep crosses the building
- *   2.6  sub-line and actions
- *   3.2  the property caption slides in from the trailing edge
+ *   0.15 eyebrow
+ *   0.35 the headline reveals line by line from behind a mask
+ *   0.85 lead, then the search bar, then the actions
+ *   1.15 the floating property card arrives from the trailing edge
  *
- * Depth comes from four layers moving at different rates against the pointer:
- * sky (slowest) → building → light → foreground planting (fastest, inverted).
- * Everything is spring-damped so it drifts rather than tracks.
+ * Depth is two layers drifting against the pointer at different rates, spring
+ * damped so the scene drifts rather than tracks.
  */
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-export function Hero({ locale, t }: { locale: Locale; t: Dictionary }) {
+export function Hero({
+  locale,
+  t,
+  countries,
+}: {
+  locale: Locale;
+  t: Dictionary;
+  countries: string[];
+}) {
   const reduce = useReducedMotion();
   const rtl = isRtl(locale);
   const sectionRef = useRef<HTMLElement>(null);
@@ -43,31 +60,24 @@ export function Hero({ locale, t }: { locale: Locale; t: Dictionary }) {
   // --- Pointer parallax -----------------------------------------------------
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
-  const springConfig = { stiffness: 42, damping: 22, mass: 0.9 };
-  const smoothX = useSpring(pointerX, springConfig);
-  const smoothY = useSpring(pointerY, springConfig);
+  const smoothX = useSpring(pointerX, { stiffness: 42, damping: 22, mass: 0.9 });
+  const smoothY = useSpring(pointerY, { stiffness: 42, damping: 22, mass: 0.9 });
 
-  // Each layer gets its own travel budget, in pixels. The sign flips in RTL so
-  // the scene parallaxes with the reading direction rather than against it.
+  // The sign flips in RTL so the scene parallaxes with the reading direction.
   const d = rtl ? -1 : 1;
-  const skyX = useTransform(smoothX, [-1, 1], [12 * d, -12 * d]);
-  const skyY = useTransform(smoothY, [-1, 1], [8, -8]);
-  const buildingX = useTransform(smoothX, [-1, 1], [26 * d, -26 * d]);
-  const buildingY = useTransform(smoothY, [-1, 1], [16, -16]);
-  const lightX = useTransform(smoothX, [-1, 1], [-70 * d, 70 * d]);
-  const foreX = useTransform(smoothX, [-1, 1], [-52 * d, 52 * d]);
-  const foreY = useTransform(smoothY, [-1, 1], [-14, 14]);
-  const copyX = useTransform(smoothX, [-1, 1], [8 * d, -8 * d]);
+  const plateX = useTransform(smoothX, [-1, 1], [22 * d, -22 * d]);
+  const plateY = useTransform(smoothY, [-1, 1], [14, -14]);
+  const cardX = useTransform(smoothX, [-1, 1], [-10 * d, 10 * d]);
+  const cardY = useTransform(smoothY, [-1, 1], [-7, 7]);
 
   // --- Scroll hand-off into the next section --------------------------------
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
   });
-  const plateScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
-  const copyY = useTransform(scrollYProgress, [0, 1], [0, 120]);
-  const copyOpacity = useTransform(scrollYProgress, [0, 0.62], [1, 0]);
-  const veil = useTransform(scrollYProgress, [0, 1], [0, 0.55]);
+  const plateScale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
+  const copyY = useTransform(scrollYProgress, [0, 1], [0, 80]);
+  const copyOpacity = useTransform(scrollYProgress, [0, 0.72], [1, 0]);
 
   useEffect(() => {
     if (reduce) return;
@@ -87,39 +97,26 @@ export function Hero({ locale, t }: { locale: Locale; t: Dictionary }) {
     reduce
       ? { initial: false as const, animate: { opacity: 1, y: 0 } }
       : {
-          initial: { opacity: 0, y: 26 },
+          initial: { opacity: 0, y: 22 },
           animate: { opacity: 1, y: 0 },
-          transition: { duration: 1.1, delay, ease: EASE },
+          transition: { duration: 0.9, delay, ease: EASE },
         };
 
   return (
     <section
       ref={sectionRef}
-      className="relative h-[100svh] min-h-[620px] w-full overflow-hidden bg-ink"
+      className="relative isolate w-full overflow-hidden bg-paper pt-[var(--nav-h)]"
       aria-label={t.hero.ariaLabel}
     >
-      {/* ── Layer 0 · sky ──────────────────────────────────────────────── */}
+      {/* ── The plate ──────────────────────────────────────────────────── */}
       <motion.div
-        className="absolute inset-[-4%]"
-        style={reduce ? undefined : { x: skyX, y: skyY }}
-        aria-hidden
-      >
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,#1b2a3a_0%,#41485a_38%,#a2765a_72%,#d9a06a_100%)]" />
-        {/* Two cloud banks drifting at different speeds — the slowest visual
-            cue in the scene, and the one that reads as "this is live". */}
-        <div className="cloud-bank cloud-bank--far" />
-        <div className="cloud-bank cloud-bank--near" />
-      </motion.div>
-
-      {/* ── Layer 1 · the building ─────────────────────────────────────── */}
-      <motion.div
-        className="absolute inset-[-6%]"
-        style={reduce ? undefined : { x: buildingX, y: buildingY, scale: plateScale }}
+        className="absolute inset-[-5%] -z-20"
+        style={reduce ? undefined : { x: plateX, y: plateY, scale: plateScale }}
         aria-hidden
       >
         <motion.div
           className="relative h-full w-full"
-          initial={reduce ? false : { scale: 1.14 }}
+          initial={reduce ? false : { scale: 1.1 }}
           animate={{ scale: 1 }}
           transition={{ duration: 20, ease: "linear" }}
         >
@@ -130,217 +127,153 @@ export function Hero({ locale, t }: { locale: Locale; t: Dictionary }) {
             priority
             fetchPriority="high"
             sizes="100vw"
-            quality={78}
-            className="object-cover object-[50%_58%]"
+            quality={80}
+            className="object-cover object-[65%_50%]"
           />
         </motion.div>
       </motion.div>
 
-      {/* ── Layer 2 · grade + scrim ────────────────────────────────────────
-          Three passes, and the reason there are three is legibility rather
-          than atmosphere.
+      {/* ── The wash ───────────────────────────────────────────────────────
+          What makes the copy readable, rather than the photograph being dark
+          enough. The first stop is fully opaque on purpose: a wash that only
+          reaches 85% leaves the headline sitting on a tinted photograph, which
+          is a contrast figure that moves every time the catalogue changes.
 
-          The copy is white and sits over whatever photograph is in the
-          catalogue — which an editor can change to a white villa at midday.
-          Measured against the plate, the headline was landing at 1.2:1, so
-          the scrim now guarantees contrast instead of assuming a dark image:
-
-            · vignette   — edge falloff, atmosphere
-            · bottom     — tall and weighted to cover the whole copy block
-            · reading    — a directional wash from the text edge, so the
-                           opposite corner of the photograph stays open
-
-          `tests/e2e.mjs` asserts ≥3:1 (WCAG large text) for the headline and
-          the sub-line, so this cannot silently regress. */}
+          It runs along a different axis per breakpoint, because the copy does.
+          Above `lg` the copy takes the leading half and the photograph the
+          trailing half, so the wash is horizontal. Below it the copy is
+          full-width — a horizontal wash left the last third of every line
+          sitting on raw photograph, which is exactly the bug the measured
+          contrast check exists to catch, so the small-screen wash runs top to
+          bottom and the photograph reads as a footer to the section. */}
       <div
-        className="absolute inset-0 bg-[radial-gradient(120%_85%_at_50%_32%,transparent_18%,rgba(10,9,8,0.42)_72%,rgba(10,9,8,0.8)_100%)]"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,#ffffff_0%,#ffffff_62%,rgba(255,255,255,0.88)_78%,rgba(255,255,255,0.55)_92%,rgba(255,255,255,0.3)_100%)] lg:hidden"
         aria-hidden
       />
       <div
-        className="absolute inset-x-0 bottom-0 h-[78%] bg-[linear-gradient(to_top,rgba(10,9,8,0.86)_0%,rgba(10,9,8,0.6)_30%,rgba(10,9,8,0.32)_58%,rgba(10,9,8,0.12)_80%,transparent_100%)]"
+        className="absolute inset-0 -z-10 hidden bg-[linear-gradient(to_var(--wash-to),#ffffff_0%,#ffffff_26%,rgba(255,255,255,0.92)_42%,rgba(255,255,255,0.55)_62%,rgba(255,255,255,0.12)_82%,transparent_100%)] lg:block"
+        style={{ ["--wash-to" as string]: rtl ? "left" : "right" }}
         aria-hidden
       />
       <div
-        className="absolute inset-0 bg-[linear-gradient(to_var(--scrim-to),rgba(10,9,8,0.44)_0%,rgba(10,9,8,0.2)_40%,transparent_70%)]"
-        style={{ ["--scrim-to" as string]: rtl ? "left" : "right" }}
-        aria-hidden
-      />
-
-      {/* ── Layer 3 · gold light sweep across the façade ───────────────── */}
-      {!reduce && (
-        <motion.div
-          className="absolute inset-y-0 -inset-x-1/4"
-          style={{ x: lightX }}
-          aria-hidden
-        >
-          {/* The sweep travels with the reading direction. */}
-          <motion.div
-            className="gold-sweep"
-            initial={{ x: rtl ? "65%" : "-65%", opacity: 0 }}
-            animate={{
-              x: rtl ? ["65%", "-65%"] : ["-65%", "65%"],
-              opacity: [0, 0.95, 0],
-            }}
-            transition={{
-              duration: 3.6,
-              delay: 2.2,
-              ease: [0.4, 0, 0.2, 1],
-              repeat: Infinity,
-              repeatDelay: 9,
-            }}
-          />
-        </motion.div>
-      )}
-
-      {/* ── Layer 4 · foreground planting ──────────────────────────────── */}
-      <motion.div
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[44%]"
-        style={reduce ? undefined : { x: foreX, y: foreY }}
-        aria-hidden
-      >
-        <PalmSilhouettes />
-      </motion.div>
-
-      <div className="absolute inset-0 grain" aria-hidden />
-
-      {/* Darkens on scroll so the hero dissolves into the section below
-          instead of being cut off by it. */}
-      <motion.div
-        className="pointer-events-none absolute inset-0 bg-paper"
-        style={{ opacity: veil }}
+        className="absolute inset-x-0 bottom-0 -z-10 h-32 bg-[linear-gradient(to_top,#ffffff,transparent)]"
         aria-hidden
       />
 
       {/* ── Content ────────────────────────────────────────────────────── */}
-      <motion.div
-        className="shell relative z-20 flex h-full flex-col justify-end pb-16 md:pb-24"
-        style={reduce ? undefined : { x: copyX, y: copyY, opacity: copyOpacity }}
-      >
-        <div className="relative w-full">
-          {/* The scrim that actually guarantees legibility is anchored to the
-              copy, not to the viewport.
-
-              A percentage-of-viewport gradient assumes it knows how tall the
-              text is — and it doesn't. The Arabic headline sets taller than
-              the English one (longer words, more leading), so it reached above
-              where a fixed gradient was still dense and measured 1.85:1 while
-              English measured 13:1. A blurred radial sized to this block
-              follows whatever the copy does, in any language, and leaves the
-              rest of the photograph open rather than crushing the whole
-              lower half of it. */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -inset-x-[16%] -top-[14%] -bottom-[45%] -z-10 bg-[linear-gradient(to_bottom,transparent_0%,rgba(10,9,8,0.52)_12%,rgba(10,9,8,0.7)_30%,rgba(10,9,8,0.7)_100%)] blur-2xl"
-          />
-
-        <motion.p className="eyebrow !text-white/60" {...stage(0.8)}>
-          {t.hero.eyebrow}
-        </motion.p>
-
-        <h1 className="mt-5 max-w-5xl text-white display-xl">
-          <MaskedLine delay={1.4} reduce={!!reduce}>
-            {t.hero.titleLineOne}
-          </MaskedLine>
-          <MaskedLine delay={1.58} reduce={!!reduce}>
-            <span className="italic text-gold-soft">{t.hero.titleLineTwo}</span>
-          </MaskedLine>
-        </h1>
-
-        <motion.p
-          className="mt-8 max-w-xl text-base leading-relaxed text-white/72 md:text-lg"
-          {...stage(2.6)}
-        >
-          {t.hero.lead}
-        </motion.p>
-
+      <div className="shell relative z-10 grid items-center gap-12 py-16 md:py-24 lg:grid-cols-[minmax(0,1fr)_auto] lg:py-28">
         <motion.div
-          className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center"
-          {...stage(2.78)}
+          className="w-full max-w-2xl"
+          style={reduce ? undefined : { y: copyY, opacity: copyOpacity }}
         >
-          <Link
-            href={localePath(locale, "/properties")}
-            className="btn btn-ghost-light"
-          >
-            {t.common.exploreProperties}
-            <Arrow />
-          </Link>
-          <Link
-            href={localePath(locale, "/investments")}
-            className="btn btn-ghost-light"
-          >
-            {t.common.investmentOpportunities}
-          </Link>
-        </motion.div>
-        </div>
-      </motion.div>
+          <motion.p className="eyebrow !text-gold-deep" {...stage(0.15)}>
+            {t.hero.eyebrow}
+          </motion.p>
 
-      {/* ── Property caption, trailing edge ────────────────────────────── */}
-      <motion.figure
-        className="absolute bottom-16 z-20 hidden max-w-[17rem] border-s border-white/25 ps-5 text-white/75 lg:block md:bottom-24"
-        style={{ insetInlineEnd: "clamp(1.25rem, 4vw, 4rem)" }}
-        initial={reduce ? false : { opacity: 0, x: rtl ? -32 : 32 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 1.1, delay: 3.2, ease: EASE }}
-      >
-        <figcaption>
-          <p className="eyebrow !text-gold-soft">{t.hero.nowShowing}</p>
-          <p className="mt-2 font-display text-2xl leading-tight text-white">
-            {t.hero.captionTitle}
-          </p>
-          <p className="mt-1 text-xs tracking-wide text-white/55 rtl:tracking-normal">
-            {t.hero.captionMeta}
-          </p>
+          <h1 className="mt-4 text-ink display-xl">
+            <MaskedLine delay={0.35} reduce={!!reduce}>
+              {t.hero.titleLineOne}
+            </MaskedLine>
+            <MaskedLine delay={0.48} reduce={!!reduce}>
+              {t.hero.titleLineTwo}
+            </MaskedLine>
+          </h1>
+
+          <motion.p
+            className="mt-6 max-w-lg text-base leading-relaxed text-graphite"
+            {...stage(0.85)}
+          >
+            {t.hero.lead}
+          </motion.p>
+
+          <motion.div className="mt-8" {...stage(1)}>
+            <HeroSearch countries={countries} locale={locale} t={t} />
+          </motion.div>
+
+          <motion.div
+            className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center"
+            {...stage(1.12)}
+          >
+            <Link
+              href={localePath(locale, "/properties")}
+              className="btn btn-solid group"
+            >
+              {t.common.exploreProperties}
+              <ArrowIcon size={14} className="rtl-flip transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1" />
+            </Link>
+            <Link
+              href={localePath(locale, "/investments")}
+              className="btn btn-outline"
+            >
+              {t.common.investmentOpportunities}
+            </Link>
+          </motion.div>
+        </motion.div>
+
+        {/* ── Floating property card, trailing edge ─────────────────────
+            The reference's floating rail, but pointing somewhere real: it is
+            a link to an actual listing rather than three buttons for features
+            this catalogue does not have. */}
+        <motion.div
+          className="hidden lg:block"
+          style={reduce ? undefined : { x: cardX, y: cardY }}
+          initial={reduce ? false : { opacity: 0, x: rtl ? -28 : 28 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.9, delay: 1.15, ease: EASE }}
+        >
           <Link
             href={localePath(locale, "/properties/palm-residence-dubai")}
-            className="nav-link mt-4 inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-gold-soft rtl:tracking-normal rtl:normal-case"
+            className="card card-hover group block w-[19rem] overflow-hidden"
           >
-            {t.common.viewProperty}
-            <Arrow />
+            <div className="relative aspect-[16/10] overflow-hidden bg-cream">
+              <SmartImage
+                src={photo("villaPalmModern", 900)}
+                alt=""
+                fill
+                sizes="304px"
+                className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
+              />
+              <span className="badge badge-gold absolute start-3 top-3">
+                {t.hero.nowShowing}
+              </span>
+            </div>
+            <div className="p-4">
+              <p className="flex items-center gap-1.5 text-xs text-muted">
+                <PinIcon size={12} className="shrink-0" />
+                {t.hero.captionMeta}
+              </p>
+              <p className="mt-1.5 font-display text-lg font-bold leading-tight text-ink">
+                {t.hero.captionTitle}
+              </p>
+              <span className="mt-3 inline-flex items-center gap-2 text-[0.8125rem] font-semibold text-gold-deep">
+                {t.common.viewProperty}
+                <ArrowIcon
+                  size={13}
+                  className="rtl-flip transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1"
+                />
+              </span>
+            </div>
           </Link>
-        </figcaption>
-      </motion.figure>
+        </motion.div>
+      </div>
 
-      <style jsx>{`
-        .cloud-bank {
-          position: absolute;
-          inset-inline: -50%;
-          height: 55%;
-          top: 0;
-          background-repeat: repeat-x;
-          opacity: 0.5;
-          will-change: transform;
-        }
-        .cloud-bank--far {
-          background-image: radial-gradient(
-              closest-side at 20% 60%,
-              rgba(255, 244, 228, 0.5),
-              transparent
-            ),
-            radial-gradient(closest-side at 58% 40%, rgba(255, 240, 220, 0.4), transparent),
-            radial-gradient(closest-side at 86% 66%, rgba(255, 236, 214, 0.35), transparent);
-          background-size: 48% 70%;
-          animation: drift 190s linear infinite;
-        }
-        .cloud-bank--near {
-          height: 42%;
-          opacity: 0.32;
-          background-image: radial-gradient(
-              closest-side at 34% 55%,
-              rgba(255, 228, 199, 0.55),
-              transparent
-            ),
-            radial-gradient(closest-side at 72% 38%, rgba(255, 220, 190, 0.45), transparent);
-          background-size: 62% 62%;
-          animation: drift 120s linear infinite reverse;
-        }
-        @keyframes drift {
-          from { transform: translate3d(0, 0, 0); }
-          to   { transform: translate3d(-33%, 0, 0); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .cloud-bank { animation: none; }
-        }
-      `}</style>
+      {/* ── Scroll cue ─────────────────────────────────────────────────── */}
+      <motion.p
+        className="relative z-10 hidden items-center justify-center gap-3 pb-10 text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-muted md:flex rtl:tracking-normal rtl:normal-case"
+        {...stage(1.4)}
+        aria-hidden
+      >
+        {t.hero.scrollCue}
+        <motion.span
+          className="grid h-8 w-8 place-items-center rounded-full border border-hairline bg-paper text-ink shadow-[var(--shadow-raised)]"
+          animate={reduce ? undefined : { y: [0, 5, 0] }}
+          transition={{ duration: 2.1, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <svg width="11" height="12" viewBox="0 0 11 12" fill="none">
+            <path d="M5.5 0v10M1 6l4.5 4.5L10 6" stroke="currentColor" strokeWidth="1.4" />
+          </svg>
+        </motion.span>
+      </motion.p>
     </section>
   );
 }
@@ -358,86 +291,19 @@ function MaskedLine({
   if (reduce) return <span className="block">{children}</span>;
 
   return (
-    // The mask clips at the line box, so it needs enough room below the
-    // baseline for the script's descenders — more in Arabic than in Latin,
-    // though a Kufi face needs far less of it than a Naskh one. Both values
-    // are measured: `fontcheck` compares each line's ink extents, taken from
+    // The mask clips at the line box, so it needs room below the baseline for
+    // the script's descenders — more in Arabic than in Latin. Both values are
+    // measured: `fontcheck` compares each line's ink extents, taken from
     // canvas text metrics, against this box.
-    <span className="block overflow-hidden pb-[0.08em] rtl:pb-[0.12em]">
+    <span className="block overflow-hidden pb-[0.1em] rtl:pb-[0.16em]">
       <motion.span
         className="block"
         initial={{ y: "108%" }}
         animate={{ y: "0%" }}
-        transition={{ duration: 1.25, delay, ease: EASE }}
+        transition={{ duration: 1, delay, ease: EASE }}
       >
         {children}
       </motion.span>
     </span>
-  );
-}
-
-/**
- * Foreground planting, drawn rather than photographed so it can sway
- * independently of the plate. Two fronds at each edge, each on its own
- * slightly different period so the motion never looks looped.
- */
-function PalmSilhouettes() {
-  return (
-    <svg
-      viewBox="0 0 1200 400"
-      preserveAspectRatio="xMidYMax slice"
-      className="h-full w-full"
-      aria-hidden
-    >
-      <g fill="rgba(8,7,6,0.88)">
-        <g className="frond frond--a" style={{ transformOrigin: "40px 400px" }}>
-          <path d="M40 400 C 30 300 20 240 4 196 C 60 216 96 268 112 330 C 104 358 74 392 40 400 Z" />
-          <path d="M60 400 C 76 322 120 258 186 214 C 168 292 130 356 84 400 Z" />
-        </g>
-        <g className="frond frond--b" style={{ transformOrigin: "150px 400px" }}>
-          <path d="M150 400 C 158 330 196 268 258 230 C 244 306 210 364 172 400 Z" />
-        </g>
-        <g className="frond frond--c" style={{ transformOrigin: "1160px 400px" }}>
-          <path d="M1160 400 C 1170 300 1180 240 1196 196 C 1140 216 1104 268 1088 330 C 1096 358 1126 392 1160 400 Z" />
-          <path d="M1140 400 C 1124 322 1080 258 1014 214 C 1032 292 1070 356 1116 400 Z" />
-        </g>
-        <g className="frond frond--d" style={{ transformOrigin: "1050px 400px" }}>
-          <path d="M1050 400 C 1042 330 1004 268 942 230 C 956 306 990 364 1028 400 Z" />
-        </g>
-        {/* A low bank of planting to seat the fronds on the ground plane. */}
-        <path
-          d="M0 400 C 120 372 240 388 360 378 C 500 366 640 384 780 374 C 920 364 1060 384 1200 372 L1200 400 Z"
-          opacity="0.9"
-        />
-      </g>
-      <style>{`
-        .frond { animation: sway 11s ease-in-out infinite; }
-        .frond--b { animation-duration: 8.5s;  animation-delay: -2s; }
-        .frond--c { animation-duration: 12.5s; animation-delay: -4s; }
-        .frond--d { animation-duration: 9.5s;  animation-delay: -1s; }
-        @keyframes sway {
-          0%, 100% { transform: rotate(-0.9deg); }
-          50%      { transform: rotate(1.1deg); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .frond { animation: none; }
-        }
-      `}</style>
-    </svg>
-  );
-}
-
-function Arrow() {
-  return (
-    <svg
-      width="14"
-      height="10"
-      viewBox="0 0 14 10"
-      fill="none"
-      className="rtl-flip transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1"
-      aria-hidden
-    >
-      <path d="M0 5h12M8.5 1L12.5 5l-4 4" stroke="currentColor" strokeWidth="1.2" />
-    </svg>
   );
 }

@@ -43,7 +43,7 @@ export default function NotFound() {
         <h1 className="mx-auto mt-6 max-w-2xl display-lg text-paper">
           {t.notFound.titleLineOne}
           <br />
-          <span className="italic text-gold-soft">{t.notFound.titleLineTwo}</span>
+          <span className="text-gold-soft">{t.notFound.titleLineTwo}</span>
         </h1>
         <p className="mx-auto mt-6 max-w-md text-[0.9375rem] leading-relaxed text-paper/60">
           {t.notFound.lead}

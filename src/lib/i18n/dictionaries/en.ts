@@ -59,12 +59,13 @@ export const en = {
 
   hero: {
     eyebrow: "Crete Roots Company · Villas, Hotels & Land",
-    titleLineOne: "INVEST IN",
-    titleLineTwo: "WHAT LASTS.",
+    titleLineOne: "Invest in",
+    titleLineTwo: "What Lasts.",
     lead: "Exceptional villas, hotels and land opportunities curated for ambitious investors.",
     nowShowing: "Now showing",
     captionTitle: "Palm Residence",
     captionMeta: "Palm Jumeirah, Dubai · 620 m² · 4 bedrooms",
+    scrollCue: "Scroll to explore",
     ariaLabel: "Crete Roots — invest in what lasts",
   },
 
@@ -211,6 +212,7 @@ export const en = {
 
   card: {
     projectedRoi: "projected ROI",
+    viewDetails: "View details",
     bedroomsShort: "bd",
     bathroomsShort: "ba",
     keys: "keys",

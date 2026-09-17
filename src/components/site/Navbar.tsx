@@ -11,14 +11,17 @@ import { navLinks, SITE } from "@/lib/site";
 import { localePath, type Dictionary, type Locale } from "@/lib/i18n";
 
 /**
- * The navbar starts transparent over the hero and resolves to a solid bar once
- * you scroll past it. On any page that isn't the home page it starts solid,
- * because there is no cinematic plate behind it to sit on.
+ * A solid bar on every page, at every scroll position — it only deepens its
+ * shadow once you leave the top.
+ *
+ * It used to start transparent over the hero and resolve to solid, which
+ * meant every control had two colour states and the logo had two versions,
+ * all of them contingent on a photograph nobody controls. The hero now carries
+ * its own light scrim, so the bar can simply be the bar.
  */
 export function Navbar({ locale, t }: { locale: Locale; t: Dictionary }) {
   const pathname = usePathname();
   const links = navLinks(locale, t);
-  const isHome = pathname === localePath(locale, "/");
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -46,15 +49,13 @@ export function Navbar({ locale, t }: { locale: Locale; t: Dictionary }) {
     };
   }, [menuOpen]);
 
-  const solid = scrolled || !isHome || menuOpen;
-
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          solid
-            ? "border-b border-hairline bg-paper/85 backdrop-blur-xl"
-            : "border-b border-transparent bg-transparent"
+        className={`fixed inset-x-0 top-0 z-50 border-b bg-paper/90 backdrop-blur-xl transition-shadow duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          scrolled
+            ? "border-hairline shadow-[0_10px_30px_-24px_rgba(14,42,71,0.55)]"
+            : "border-transparent"
         }`}
       >
         <nav
@@ -66,14 +67,12 @@ export function Navbar({ locale, t }: { locale: Locale; t: Dictionary }) {
             className="transition-opacity duration-500 hover:opacity-80"
             aria-label={`${SITE.name} — ${t.nav.home}`}
           >
-            <Wordmark locale={locale} tone={solid ? "dark" : "light"} />
+            <Wordmark locale={locale} />
           </Link>
 
-          <ul
-            className={`hidden items-center gap-9 text-[0.8125rem] lg:flex ${
-              solid ? "text-graphite" : "text-white/85"
-            }`}
-          >
+          {/* Centred, the way a product's nav is — the logo and the actions
+              hold the two ends and the destinations sit between them. */}
+          <ul className="hidden items-center gap-8 text-[0.875rem] font-medium text-graphite lg:flex">
             {links.map((link) => (
               <li key={link.href}>
                 <Link
@@ -90,17 +89,11 @@ export function Navbar({ locale, t }: { locale: Locale; t: Dictionary }) {
           </ul>
 
           <div className="flex items-center gap-4">
-            <LanguageSwitcher
-              locale={locale}
-              tone={solid ? "dark" : "light"}
-              label={t.common.switchLanguage}
-            />
+            <LanguageSwitcher locale={locale} label={t.common.switchLanguage} />
 
             <Link
               href={localePath(locale, "/contact")}
-              className={`btn hidden md:inline-flex ${
-                solid ? "btn-outline" : "btn-ghost-light"
-              } !py-3 !px-6 !text-[0.6875rem]`}
+              className="btn btn-gold hidden !px-5 !py-2.5 !text-[0.8125rem] md:inline-flex"
             >
               {t.common.contactUs}
             </Link>
@@ -111,18 +104,16 @@ export function Navbar({ locale, t }: { locale: Locale; t: Dictionary }) {
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"
               aria-label={menuOpen ? t.common.closeMenu : t.common.openMenu}
-              className={`relative z-50 flex h-11 w-11 flex-col items-center justify-center gap-[6px] lg:hidden ${
-                solid ? "text-ink" : "text-white"
-              }`}
+              className="relative z-50 flex h-11 w-11 flex-col items-center justify-center gap-[6px] text-ink lg:hidden"
             >
               <span
-                className={`block h-px w-6 bg-current transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                  menuOpen ? "translate-y-[3.5px] rotate-45" : ""
+                className={`block h-0.5 w-6 rounded-full bg-current transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                  menuOpen ? "translate-y-[4px] rotate-45" : ""
                 }`}
               />
               <span
-                className={`block h-px w-6 bg-current transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                  menuOpen ? "-translate-y-[3.5px] -rotate-45" : ""
+                className={`block h-0.5 w-6 rounded-full bg-current transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                  menuOpen ? "-translate-y-[4px] -rotate-45" : ""
                 }`}
               />
             </button>
@@ -157,7 +148,7 @@ export function Navbar({ locale, t }: { locale: Locale; t: Dictionary }) {
                   >
                     <Link
                       href={link.href}
-                      className="block py-5 font-display text-4xl text-ink"
+                      className="block py-5 font-display text-3xl font-bold text-ink"
                     >
                       {link.label}
                     </Link>
@@ -168,7 +159,7 @@ export function Navbar({ locale, t }: { locale: Locale; t: Dictionary }) {
               <div className="space-y-6">
                 <Link
                   href={localePath(locale, "/contact")}
-                  className="btn btn-solid w-full"
+                  className="btn btn-gold w-full"
                 >
                   {t.common.contactUs}
                 </Link>

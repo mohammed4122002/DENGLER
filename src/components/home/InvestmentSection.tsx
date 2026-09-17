@@ -28,7 +28,7 @@ export function InvestmentSection({
 
   return (
     <section className="relative overflow-hidden bg-ink text-paper grain">
-      <div className="shell relative z-10 py-24 md:py-32">
+      <div className="shell relative z-10 py-16 md:py-24">
         <SectionHeading
           tone="light"
           eyebrow={t.investmentHome.eyebrow}
@@ -36,7 +36,7 @@ export function InvestmentSection({
             <>
               {t.investmentHome.titleLineOne}
               <br />
-              <span className="italic text-gold-soft">
+              <span className="text-gold-soft">
                 {t.investmentHome.titleLineTwo}
               </span>
             </>

@@ -66,14 +66,14 @@ export function CategoryExplorer({
 
   return (
     <section className="bg-paper">
-      <div className="shell py-24 md:py-32">
+      <div className="shell py-16 md:py-24">
         <SectionHeading
           eyebrow={t.categories.eyebrow}
           title={
             <>
               {t.categories.titleLineOne}
               <br />
-              <span className="italic text-gold-deep">
+              <span className="text-gold-deep">
                 {t.categories.titleLineTwo}
               </span>
             </>
@@ -84,7 +84,7 @@ export function CategoryExplorer({
           }}
         />
 
-        <div className="mt-16 grid gap-5 lg:grid-cols-12 lg:gap-6">
+        <div className="mt-12 grid gap-5 lg:grid-cols-12 lg:gap-6">
           <Reveal className="lg:col-span-6">
             <CategoryPanel category={categories[0]} tall />
           </Reveal>
@@ -112,8 +112,8 @@ function CategoryPanel({
   return (
     <Link
       href={category.href}
-      className={`group relative block w-full overflow-hidden bg-ink ${
-        tall ? "aspect-[4/5] lg:aspect-auto lg:h-full lg:min-h-[640px]" : "aspect-[16/10] lg:aspect-[16/9]"
+      className={`group relative block w-full overflow-hidden rounded-[var(--radius-card)] bg-ink shadow-[var(--shadow-raised)] transition-shadow duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:shadow-[var(--shadow-float)] ${
+        tall ? "aspect-[4/5] lg:aspect-auto lg:h-full lg:min-h-[560px]" : "aspect-[16/10] lg:aspect-[16/9]"
       }`}
     >
       <SmartImage

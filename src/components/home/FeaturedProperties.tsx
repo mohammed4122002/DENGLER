@@ -15,14 +15,14 @@ export function FeaturedProperties({
 }) {
   return (
     <section className="bg-paper">
-      <div className="shell py-24 md:py-32">
+      <div className="shell py-16 md:py-24">
         <SectionHeading
           eyebrow={t.featured.eyebrow}
           title={
             <>
               {t.featured.titleLineOne}
               <br />
-              <span className="italic text-gold-deep">{t.featured.titleLineTwo}</span>
+              <span className="text-gold-deep">{t.featured.titleLineTwo}</span>
             </>
           }
           lead={t.featured.lead}
@@ -32,7 +32,7 @@ export function FeaturedProperties({
           }}
         />
 
-        <Reveal className="mt-16" y={16}>
+        <Reveal className="mt-12" y={16}>
           <PropertyGrid
             properties={properties}
             locale={locale}

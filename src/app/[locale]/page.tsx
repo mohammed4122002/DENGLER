@@ -6,8 +6,6 @@ import { FeaturedProperties } from "@/components/home/FeaturedProperties";
 import { Hero } from "@/components/home/Hero";
 import { InvestmentSection } from "@/components/home/InvestmentSection";
 import { PremiumCta } from "@/components/home/PremiumCta";
-import { QuickSearch } from "@/components/home/QuickSearch";
-import { Stats } from "@/components/home/Stats";
 import { WhyUs } from "@/components/home/WhyUs";
 import { store } from "@/lib/store";
 import { SITE } from "@/lib/site";
@@ -56,14 +54,12 @@ export default async function HomePage({
 
   return (
     <>
-      <Hero locale={locale} t={t} />
-      <QuickSearch countries={facets.countries} locale={locale} t={t} />
-      <Stats stats={stats} t={t} />
+      <Hero locale={locale} t={t} countries={facets.countries} />
       <FeaturedProperties properties={featured} locale={locale} t={t} />
       <CategoryExplorer counts={facets.counts} locale={locale} t={t} />
       <InvestmentSection properties={investments} locale={locale} t={t} />
       <WhyUs t={t} />
-      <PremiumCta locale={locale} t={t} />
+      <PremiumCta locale={locale} t={t} stats={stats} />
     </>
   );
 }

@@ -9,9 +9,17 @@ import { fill, localePath, type Dictionary, type Locale } from "@/lib/i18n";
 import type { LocalizedProperty } from "@/lib/types";
 
 /**
- * The card is a single anchor with the whole surface clickable. The heart
- * calls `preventDefault` rather than being nested outside — keeping one link
- * per card is what makes keyboard and screen-reader traversal sane.
+ * A raised white card: photograph, status pill, then a block of facts ending
+ * in a spec row and a "view details" affordance.
+ *
+ * The whole surface is a single anchor. The heart calls `preventDefault`
+ * rather than being nested outside — keeping one link per card is what makes
+ * keyboard and screen-reader traversal sane.
+ *
+ * The price is the loudest thing in the block on purpose. On a listing card
+ * the price is what the eye is hunting for, and the title is how you confirm
+ * you found the right one — putting the title first at display size inverts
+ * the order people actually read in.
  */
 export function PropertyCard({
   property,
@@ -44,14 +52,14 @@ export function PropertyCard({
   } = property;
 
   return (
-    <article className="group relative">
+    <article className="group relative h-full">
       <Link
         href={localePath(locale, `/properties/${slug}`)}
-        className="block outline-offset-4"
+        className="card card-hover flex h-full flex-col overflow-hidden outline-offset-4"
         aria-label={`${title} — ${location}, ${formatPrice(price, currency, locale)}`}
       >
         {/* --- Photograph --------------------------------------------------- */}
-        <div className="relative aspect-[4/3] overflow-hidden bg-cream">
+        <div className="relative aspect-[4/3] shrink-0 overflow-hidden bg-cream">
           <SmartImage
             src={cover_image}
             alt={`${title}, ${location}`}
@@ -68,15 +76,13 @@ export function PropertyCard({
             aria-hidden
           />
 
-          <div className="absolute inset-x-4 top-4 flex items-start justify-between gap-3">
+          <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-paper/90 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-ink backdrop-blur-sm rtl:tracking-normal rtl:normal-case">
+              <span className="badge badge-navy">
                 {t.enums.propertyType[property_type]}
               </span>
               {status !== "available" && (
-                <span className="rounded-full bg-ink/85 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-paper backdrop-blur-sm rtl:tracking-normal rtl:normal-case">
-                  {t.enums.status[status]}
-                </span>
+                <span className="badge badge-paper">{t.enums.status[status]}</span>
               )}
             </div>
             <FavoriteButton
@@ -89,41 +95,33 @@ export function PropertyCard({
           {/* Investment badge — the thing that separates Crete Roots from a
               conventional listing card. */}
           {roi !== null && (
-            <div className="absolute bottom-4 start-4 flex items-center gap-2 rounded-full border border-gold-soft/45 bg-ink/70 px-3.5 py-1.5 text-[11px] text-gold-soft backdrop-blur-md">
-              <TrendIcon size={13} />
-              <span className="font-medium tracking-wide rtl:tracking-normal">
-                {formatPercent(roi, locale)} {t.card.projectedRoi}
-              </span>
+            <div className="badge badge-gold absolute bottom-3 start-3 shadow-[0_8px_18px_-10px_rgba(7,22,40,0.8)]">
+              <TrendIcon size={12} />
+              {formatPercent(roi, locale)} {t.card.projectedRoi}
             </div>
           )}
         </div>
 
         {/* --- Detail ------------------------------------------------------- */}
-        <div className="pt-5">
-          <div className="flex items-baseline justify-between gap-4">
-            <h3 className="font-display text-[1.6rem] leading-tight text-ink transition-colors duration-500 group-hover:text-gold-deep">
-              {title}
-            </h3>
-            <ArrowIcon
-              size={18}
-              className="mt-1 shrink-0 text-muted transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1 group-hover:text-gold"
-            />
-          </div>
-
-          <p className="mt-2 flex items-center gap-1.5 text-[0.8125rem] text-muted">
+        <div className="flex flex-1 flex-col p-5">
+          <p className="flex items-center gap-1.5 text-[0.8125rem] text-muted">
             <PinIcon size={13} className="shrink-0" />
             {location}
           </p>
 
-          <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-graphite/85">
+          <h3 className="mt-1.5 font-display text-[1.0625rem] font-bold leading-snug text-ink transition-colors duration-300 group-hover:text-gold-deep">
+            {title}
+          </h3>
+
+          <p className="mt-2 line-clamp-2 text-[0.8125rem] leading-relaxed text-graphite/85">
             {tagline}
           </p>
 
-          <p className="mt-5 font-display text-[1.75rem] leading-none text-ink tabular-nums">
+          <p className="mt-3 font-display text-[1.375rem] font-extrabold leading-none text-ink tabular-nums">
             {formatPrice(price, currency, locale)}
           </p>
 
-          <dl className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-hairline pt-4 text-[0.8125rem] text-graphite">
+          <dl className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-[10px] bg-cream px-3 py-2.5 text-[0.75rem] text-graphite">
             {bedrooms !== null && (
               <div className="flex items-center gap-1.5">
                 <BedIcon size={14} className="text-muted" />
@@ -150,12 +148,22 @@ export function PropertyCard({
             </div>
           </dl>
 
-          <div className="mt-4 flex flex-wrap items-center gap-2">
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             <span className="text-[11px] uppercase tracking-[0.14em] text-muted rtl:tracking-normal rtl:normal-case">
               {t.enums.investmentType[investment_type]}
             </span>
             <DemoBadge label={t.demo.badge} />
           </div>
+
+          {/* `mt-auto` pins this to the bottom so a row of cards with titles of
+              different lengths still lines its actions up. */}
+          <span className="mt-auto flex items-center gap-2 border-t border-hairline pt-4 text-[0.8125rem] font-semibold text-ink transition-colors duration-300 group-hover:text-gold-deep">
+            {t.card.viewDetails}
+            <ArrowIcon
+              size={14}
+              className="rtl-flip transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1"
+            />
+          </span>
         </div>
       </Link>
     </article>

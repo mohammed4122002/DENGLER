@@ -2,9 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import {
   Cairo,
+  Manrope,
   Noto_Sans_Arabic,
   Plus_Jakarta_Sans,
-  Source_Serif_4,
 } from "next/font/google";
 
 import { Footer } from "@/components/site/Footer";
@@ -26,22 +26,18 @@ import "@/styles/globals.css";
 /* ------------------------------------------------------------------ *
  * Typefaces
  *
- * Chosen for legibility first. The four faces share the properties that make
- * type easy to read rather than merely handsome: a large x-height, open
- * apertures, sturdy stems and low stroke contrast. That rules out the Didone
- * and the geometric sans this file carried before — a hairline that thins to
- * nothing and a lowercase built from perfect circles both look expensive in a
- * specimen and cost you the sentence.
+ * Sans throughout, in both scripts. A serif heading over a soft-shadowed card
+ * reads as editorial; this interface is a product, and products set their
+ * headings in the same voice as their buttons. The display/text split is
+ * carried by weight and size rather than by a change of species.
  *
- * Source Serif 4 ↔ Cairo for display, Plus Jakarta Sans ↔ Noto Sans Arabic for
- * text. The Arabic side is the bigger change: Cairo and Noto Sans Arabic are
- * both plainly-drawn humanist faces, where a Kufi is a display idiom whose
- * geometry is read as style before it is read as words.
+ * Manrope ↔ Cairo for display, Plus Jakarta Sans ↔ Noto Sans Arabic for text.
+ * Manrope is here for its numerals as much as its headings: prices are the
+ * loudest thing on a property card, and its figures are even-width and
+ * unambiguous at 2rem.
  *
- * Source Serif 4 is loaded with its `opsz` axis and with its real italic. CSS
- * applies `font-optical-sizing: auto` by default, so the browser moves along
- * that axis with the font size on its own: the face opens up and thickens at
- * caption sizes and tightens at headline sizes, with nothing set per size.
+ * All four faces share the properties that make type legible — large x-height,
+ * open apertures, sturdy stems, low stroke contrast.
  *
  * All four variables are always defined; `globals.css` swaps which pair
  * `--font-display` and `--font-sans` point at based on `[dir]`, so a mixed
@@ -49,11 +45,9 @@ import "@/styles/globals.css";
  * scripts in their intended face rather than falling back.
  * ------------------------------------------------------------------ */
 
-const displayLatin = Source_Serif_4({
+const displayLatin = Manrope({
   subsets: ["latin"],
   weight: "variable",
-  style: ["normal", "italic"],
-  axes: ["opsz"],
   variable: "--font-display-latin",
   display: "swap",
 });
@@ -66,7 +60,7 @@ const sansLatin = Plus_Jakarta_Sans({
 
 const displayArabic = Cairo({
   subsets: ["arabic", "latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["500", "600", "700", "800"],
   variable: "--font-display-arabic",
   display: "swap",
 });

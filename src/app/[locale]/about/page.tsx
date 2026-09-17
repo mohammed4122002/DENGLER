@@ -46,7 +46,7 @@ export default async function AboutPage({
           <>
             {t.aboutPage.titleLineOne}
             <br />
-            <span className="italic text-gold-soft">
+            <span className="text-gold-soft">
               {t.aboutPage.titleLineTwo}
             </span>
           </>
@@ -98,7 +98,7 @@ export default async function AboutPage({
               <>
                 {t.aboutPage.principlesTitleLineOne}
                 <br />
-                <span className="italic text-gold-deep">
+                <span className="text-gold-deep">
                   {t.aboutPage.principlesTitleLineTwo}
                 </span>
               </>

@@ -285,10 +285,26 @@ reading `profiles` directly inside a policy on `profiles` would recurse.
 
 ## Design system
 
-`src/styles/globals.css` holds the whole system: a narrow palette (paper,
-cream, ink, one gold accent, one deep purple used sparingly), a display serif
-against a grotesk, two easing curves, and a small set of component classes
-(`.btn`, `.field`, `.eyebrow`, `.shell`, `.nav-link`).
+`src/styles/globals.css` holds the whole system: the palette, the radii, two
+elevation steps, two easing curves, and a small set of component classes
+(`.btn`, `.card`, `.badge`, `.field`, `.eyebrow`, `.shell`, `.nav-link`).
+
+**Deep navy, one gold, cool near-whites.** `--color-ink` is the brand navy and
+carries headings, prices and solid buttons; gold appears only on actions and
+emphasis, never as a third body colour; `--color-cream` is the cool tint the
+alternating section bands use, and `--color-midnight` is the band that closes
+the page and the footer under it.
+
+The token *names* are historical and deliberately kept — `paper`, `ink`,
+`cream`, `gold` — because every component already speaks them. Re-skinning the
+whole site is re-typing the `@theme` block, not re-typing fifty files. `plum`
+survives as an alias of navy so no stray reference breaks.
+
+**Surfaces are raised, not ruled.** `--radius-card` is the single number that
+decides whether the site reads as an editorial print piece or as a product;
+everything else follows it. `.card` is the resting surface, `.card-hover` adds
+the lift, and both shadows are tinted navy rather than black so a shadow over a
+cool surface does not go grey.
 
 Two conventions worth knowing before editing:
 
@@ -301,10 +317,21 @@ Two conventions worth knowing before editing:
 
 ### Motion
 
-The hero is staged as a short film: a 20-second plate push-in, drifting cloud
-banks, a gold light sweep across the façade, masked headline reveals, and four
-depth layers that drift against the pointer at different rates (sky → building
-→ light → foreground planting, which also sways on its own timers).
+The hero is a 20-second plate push-in, masked headline reveals staged over the
+first second and a half, and two depth layers drifting against the pointer at
+different rates, spring-damped so the scene drifts rather than tracks. The
+parallax sign flips in RTL so it moves with the reading direction. Everything
+else is a reveal on scroll and a lift on hover.
+
+Legibility over the plate is a property of the layout rather than a bet on the
+photograph: the hero washes to **solid** white under the copy, on a different
+axis per breakpoint, so the worst case is navy on white rather than navy on
+whatever an editor uploaded. `tests/e2e.mjs` measures it off rendered pixels
+at both breakpoints, against a photograph forced to pure white *and* one forced
+to pure black. That check is direction-agnostic — it takes the minimum
+per-pixel contrast rather than assuming light type — because the version that
+assumed white type reported a flat 1.00:1 the moment the hero inverted, which
+looks exactly like a design regression and is not one.
 
 Every effect degrades to a static composition under `prefers-reduced-motion`,
 which is honoured in CSS and re-checked in JavaScript via `useReducedMotion`.

@@ -44,7 +44,7 @@ export default async function ContactPage({
           <>
             {t.contactPage.titleLineOne}
             <br />
-            <span className="italic text-gold-soft">
+            <span className="text-gold-soft">
               {t.contactPage.titleLineTwo}
             </span>
           </>

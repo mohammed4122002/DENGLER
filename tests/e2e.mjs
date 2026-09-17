@@ -439,67 +439,79 @@ for (const [width, height, label] of [
 /* ------------------------------------------------------------------ *
  * 8. Hero contrast, measured off the rendered pixels
  * ------------------------------------------------------------------ *
- * The hero sets white type over a photograph an editor can swap at any time.
- * This hides every glyph in the section, screenshots the boxes the text
- * actually occupies, and reads the pixels back through a canvas — so the
- * assertion is about what is painted, not about what the CSS intends.
+ * The hero sets type over a photograph an editor can swap at any time. This
+ * reads the text colour off the computed style, hides every glyph in the
+ * section, screenshots the boxes the text actually occupies, and compares the
+ * text luminance against every remaining pixel — so the assertion is about
+ * what is painted, not about what the CSS intends.
  *
- * It runs twice: as published, and with every hero image forced to pure white,
- * which is the brightest photograph anyone could realistically upload.
+ * It is deliberately direction-agnostic. It used to assume white type and look
+ * for the brightest background pixel, which meant that when the hero flipped
+ * to navy type on a white wash the whole check silently reported 1.00:1 — a
+ * measurement bug that looked exactly like a design regression. Taking the
+ * minimum per-pixel contrast instead works for light type on a dark plate and
+ * dark type on a light one without being told which it is looking at.
+ *
+ * It runs three times: as published, with every hero image forced to pure
+ * white, and forced to pure black — the two brightest and darkest photographs
+ * anyone could realistically upload.
  *
  * This regressed once already — the headline measured 1.2:1 — so the numbers
  * are checked rather than eyeballed.
  * ------------------------------------------------------------------ */
 {
   const MIN_CONTRAST = 3; // WCAG AA, large text.
-  const chan = (c) => {
-    const v = c / 255;
-    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
-  };
-  const relLum = ([r, g, b]) => 0.2126 * chan(r) + 0.7152 * chan(g) + 0.0722 * chan(b);
-  const contrast = (a, b) => {
-    const [hi, lo] = a > b ? [a, b] : [b, a];
-    return (hi + 0.05) / (lo + 0.05);
-  };
-  const WHITE = relLum([255, 255, 255]);
 
-  for (const bright of [false, true]) {
-    for (const [label, path, selector] of [
-      ["en hero headline", "/en", "h1"],
-      ["en hero lead", "/en", "h1 ~ p"],
-      ["en page header", "/en/properties", "h1"],
-      ["ar hero headline", "/ar", "h1"],
-      ["ar hero lead", "/ar", "h1 ~ p"],
-      ["ar page header", "/ar/properties", "h1"],
+  /* The hero is checked at both widths on purpose: its wash runs along a
+     different axis per breakpoint, so a desktop-only check would pass while
+     the last third of every mobile line sat on raw photograph. */
+  for (const force of [null, "white", "black"]) {
+    for (const [label, path, selector, width] of [
+      ["en hero headline", "/en", "h1", 1440],
+      ["en hero lead", "/en", "h1 ~ p", 1440],
+      ["en hero headline @390", "/en", "h1", 390],
+      ["en hero lead @390", "/en", "h1 ~ p", 390],
+      ["en page header", "/en/properties", "h1", 1440],
+      ["ar hero headline", "/ar", "h1", 1440],
+      ["ar hero lead", "/ar", "h1 ~ p", 1440],
+      ["ar hero headline @390", "/ar", "h1", 390],
+      ["ar hero lead @390", "/ar", "h1 ~ p", 390],
+      ["ar page header", "/ar/properties", "h1", 1440],
     ]) {
       const page = await (
-        await browser.newContext({ viewport: { width: 1440, height: 900 } })
+        await browser.newContext({ viewport: { width, height: 900 } })
       ).newPage();
       await page.goto(BASE + path, { waitUntil: "domcontentloaded", timeout: 45000 });
       await page.waitForTimeout(5200);
 
-      if (bright) {
-        await page.evaluate(() => {
+      if (force) {
+        await page.evaluate((mode) => {
           document.querySelectorAll("section img").forEach((img) => {
-            img.style.filter = "brightness(0) invert(1)";
+            img.style.filter =
+              mode === "white" ? "brightness(0) invert(1)" : "brightness(0)";
             img.style.opacity = "1";
           });
-        });
+        }, force);
         await page.waitForTimeout(300);
       }
 
-      const rects = await page.evaluate((sel) => {
+      const measured = await page.evaluate((sel) => {
         const root = document.querySelector(sel);
-        if (!root) return [];
+        if (!root) return null;
+
+        // The colour actually painted, read before anything is cleared. A
+        // heading can inherit its colour from four levels up; asking the
+        // element is the only way to know what landed.
+        const colour = getComputedStyle(root).color;
         const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-        const found = [];
+        const rects = [];
         for (let node = walker.nextNode(); node; node = walker.nextNode()) {
           if (!node.textContent.trim()) continue;
           const range = document.createRange();
           range.selectNodeContents(node);
           for (const r of range.getClientRects()) {
             if (r.width > 8 && r.height > 8 && r.top >= 0 && r.bottom <= innerHeight) {
-              found.push({
+              rects.push({
                 x: Math.round(r.x),
                 y: Math.round(r.y),
                 width: Math.round(r.width),
@@ -508,6 +520,7 @@ for (const [width, height, label] of [
             }
           }
         }
+
         // A line box is taller than its ink, so a heading's rect overlaps the
         // element above it. Clearing every glyph in the section — rather than
         // just this one — stops the eyebrow's own pixels being read as
@@ -517,10 +530,10 @@ for (const [width, height, label] of [
           el.style.textShadow = "none";
           el.style.webkitTextFillColor = "transparent";
         });
-        return found;
+        return { colour, rects };
       }, selector);
 
-      if (rects.length === 0) {
+      if (!measured || measured.rects.length === 0) {
         fail(`contrast: no text found for ${label}`);
         await page.close();
         continue;
@@ -528,35 +541,50 @@ for (const [width, height, label] of [
       await page.waitForTimeout(150);
 
       let worst = Infinity;
-      for (const rect of rects) {
+      for (const rect of measured.rects) {
         const encoded = (await page.screenshot({ clip: rect })).toString("base64");
-        const maxLum = await page.evaluate(async (data) => {
-          const img = new Image();
-          img.src = `data:image/png;base64,${data}`;
-          await img.decode();
-          const canvas = document.createElement("canvas");
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0);
-          const px = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-          const f = (v) => {
-            const n = v / 255;
-            return n <= 0.03928 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4;
-          };
-          let max = 0;
-          for (let i = 0; i < px.length; i += 4) {
-            const L = 0.2126 * f(px[i]) + 0.7152 * f(px[i + 1]) + 0.0722 * f(px[i + 2]);
-            if (L > max) max = L;
-          }
-          return max;
-        }, encoded);
-        worst = Math.min(worst, contrast(WHITE, maxLum));
+        const lowest = await page.evaluate(
+          async ({ data, colour }) => {
+            const chan = (v) => {
+              const n = v / 255;
+              return n <= 0.03928 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4;
+            };
+            const lum = (r, g, b) =>
+              0.2126 * chan(r) + 0.7152 * chan(g) + 0.0722 * chan(b);
+            const [tr, tg, tb] = colour.match(/[\d.]+/g).map(Number);
+            const text = lum(tr, tg, tb);
+            const ratio = (a, b) => {
+              const [hi, lo] = a > b ? [a, b] : [b, a];
+              return (hi + 0.05) / (lo + 0.05);
+            };
+
+            const img = new Image();
+            img.src = `data:image/png;base64,${data}`;
+            await img.decode();
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            const px = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+            // The worst pixel is the one nearest the text in luminance,
+            // whichever side of it that is.
+            let min = Infinity;
+            for (let i = 0; i < px.length; i += 4) {
+              const c = ratio(text, lum(px[i], px[i + 1], px[i + 2]));
+              if (c < min) min = c;
+            }
+            return min;
+          },
+          { data: encoded, colour: measured.colour },
+        );
+        worst = Math.min(worst, lowest);
       }
 
       if (worst < MIN_CONTRAST) {
         fail(
-          `contrast: ${label}${bright ? " (near-white photo)" : ""} is ${worst.toFixed(2)}:1, below ${MIN_CONTRAST}:1`,
+          `contrast: ${label}${force ? ` (${force} photo)` : ""} is ${worst.toFixed(2)}:1, below ${MIN_CONTRAST}:1`,
         );
       }
       await page.close();
