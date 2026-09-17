@@ -37,7 +37,8 @@ export function FeaturedProperties({
             properties={properties}
             locale={locale}
             t={t}
-            priorityCount={3}
+            columns={4}
+            priorityCount={4}
           />
         </Reveal>
       </div>

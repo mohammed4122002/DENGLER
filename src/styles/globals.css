@@ -36,15 +36,16 @@
   --color-plum-soft: #3d4f63;
 
   /* --- Typography ---
-     `--font-display` / `--font-sans` are indirections: `[dir]` below decides
-     which script's pairing they resolve to. Both stacks always list the other
-     script's face as a fallback, so a mixed line — "CRETE ROOTS" inside an Arabic
-     sentence, or a city name inside an English one — never drops to a system
-     font mid-phrase. */
-  --font-display: var(--font-display-latin), var(--font-display-arabic),
-    "Times New Roman", serif;
-  --font-sans: var(--font-sans-latin), var(--font-sans-arabic), ui-sans-serif,
-    system-ui, sans-serif;
+     One family, both scripts, every role. `--font-display` and `--font-sans`
+     stay as separate tokens even though they now resolve to the same stack:
+     they are the names components use, and keeping them means a future split
+     back into two families is one edit here rather than fifty in components.
+     Tajawal draws Arabic and Latin as one design, so a mixed line never
+     changes voice mid-phrase. */
+  --font-display: var(--font-tajawal), "Segoe UI", ui-sans-serif, system-ui,
+    sans-serif;
+  --font-sans: var(--font-tajawal), "Segoe UI", ui-sans-serif, system-ui,
+    sans-serif;
 
   /* --- Motion --- */
   --ease-luxe: cubic-bezier(0.22, 1, 0.36, 1);
@@ -402,6 +403,14 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
+  /* The tour plate cross-fades when the thumbnail strip changes the shot.
+     Keyed on the URL in the component, so React swaps the element and the
+     animation restarts rather than the browser reusing a finished one. */
+  @keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { scrollbar-width: none; }
 }
@@ -439,18 +448,15 @@
 /* ---------------------------------------------------------------------
    Arabic
    ---------------------------------------------------------------------
-   Cairo and Noto Sans Arabic lead the stacks, and the whole page gains a
-   touch more line-height: Arabic ascenders and descenders reach further than
-   Latin ones, so type set at the Latin leading reads cramped. Both are plain
-   humanist faces rather than display Kufis, which is the point — in Arabic the
-   clearest face is the one whose shapes are not doing anything else. */
-[dir="rtl"] {
-  --font-display: var(--font-display-arabic), var(--font-display-latin),
-    "Times New Roman", serif;
-  --font-sans: var(--font-sans-arabic), var(--font-sans-latin), ui-sans-serif,
-    system-ui, sans-serif;
-}
+   There is no font swap here any more: one family serves both scripts, so the
+   stack is the same in either direction. What remains are the corrections that
+   are about the script rather than about the file — leading, tracking, case,
+   slant and bidi — each one undoing a Latin typographic convention that
+   actively damages Arabic.
 
+   The page gains a touch more line-height in Arabic: its ascenders and
+   descenders reach further than Latin ones, so type set at the Latin leading
+   reads cramped. */
 [dir="rtl"] body {
   line-height: 1.7;
 }
@@ -476,9 +482,8 @@
   text-transform: none;
 }
 
-/* The display faces are optically different sizes at the same point size;
-   Cairo runs larger than Source Serif 4, so the Arabic headings need less
-   leading than the ratio suggests, and no negative tracking at all. */
+/* Negative tracking is a Latin display convention. Arabic is cursive: pulling
+   the letters together does not tighten a word, it collides the joins. */
 [dir="rtl"] h1,
 [dir="rtl"] h2,
 [dir="rtl"] h3,
@@ -493,14 +498,14 @@
   letter-spacing: 0;
 }
 
-/* Cairo still sets below the baseline — the tail of ى or ج from one line
-   lands in the next at Latin leading — though far less deeply than a Naskh
-   face. These are the smallest values that clear it at every clamp size. */
+/* Tajawal sets below the baseline — the tail of ى or ج from one line lands in
+   the next at Latin leading. These are the smallest values that clear it at
+   every clamp size. */
 [dir="rtl"] .display-lg { line-height: 1.34; }
 [dir="rtl"] .display-md { line-height: 1.42; }
 
-/* The hero headline is also stepped down: Cairo reads optically larger than
-   Source Serif 4 at the same point size, and with the extra leading the
+/* The hero headline is also stepped down: Arabic reads optically larger than
+   Latin at the same point size, and with the extra leading the
    Arabic copy block runs taller than the English one — enough, unchecked, to
    push the headline up into the part of the frame the scrim does not reach.
    `tests/e2e.mjs` measures the resulting contrast off rendered pixels, so
@@ -516,8 +521,9 @@
   font-style: normal;
 }
 
-/* Latin runs inside Arabic text (prices, "m²", ISO codes) keep the Latin
-   text face rather than Cairo's Latin, which is a display cut.
+/* Latin runs inside Arabic text — prices, "m²", ISO codes — need no face
+   change now that one family draws both scripts, but they still need their
+   direction resolved.
 
    `unicode-bidi: plaintext` resolves each run's direction from its own first
    strong character instead of inheriting RTL from the page. Without it a
@@ -527,7 +533,7 @@
    resolved on its own terms. */
 [dir="rtl"] .tabular-nums,
 [dir="rtl"] .font-mono {
-  font-family: var(--font-sans-latin), ui-monospace, monospace;
+  font-family: var(--font-tajawal), ui-monospace, monospace;
   unicode-bidi: plaintext;
 }
 

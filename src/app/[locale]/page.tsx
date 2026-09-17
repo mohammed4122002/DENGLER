@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { CategoryExplorer } from "@/components/home/CategoryExplorer";
 import { FeaturedProperties } from "@/components/home/FeaturedProperties";
 import { Hero } from "@/components/home/Hero";
-import { InvestmentSection } from "@/components/home/InvestmentSection";
+import { PhotoTour } from "@/components/home/PhotoTour";
 import { PremiumCta } from "@/components/home/PremiumCta";
 import { WhyUs } from "@/components/home/WhyUs";
 import { store } from "@/lib/store";
@@ -45,9 +44,9 @@ export default async function HomePage({
   const locale: Locale = raw;
   const t = getDictionary(locale);
 
-  const [featured, investments, facets, stats] = await Promise.all([
-    store.listProperties({ featuredOnly: true, limit: 6, sort: "newest" }, locale),
-    store.listProperties({ sort: "roi_desc", limit: 4 }, locale),
+  const [featured, tourProperty, facets, stats] = await Promise.all([
+    store.listProperties({ featuredOnly: true, limit: 4, sort: "newest" }, locale),
+    store.getPropertyBySlug("palm-residence-dubai", locale),
     store.getFacets(locale),
     store.listStats(),
   ]);
@@ -56,9 +55,12 @@ export default async function HomePage({
     <>
       <Hero locale={locale} t={t} countries={facets.countries} />
       <FeaturedProperties properties={featured} locale={locale} t={t} />
-      <CategoryExplorer counts={facets.counts} locale={locale} t={t} />
-      <InvestmentSection properties={investments} locale={locale} t={t} />
-      <WhyUs t={t} />
+      {/* Dropped if an editor deletes the listing this band walks through —
+          better an absent section than one rendering an empty gallery. */}
+      {tourProperty && (
+        <PhotoTour property={tourProperty} locale={locale} t={t} />
+      )}
+      <WhyUs locale={locale} t={t} />
       <PremiumCta locale={locale} t={t} stats={stats} />
     </>
   );

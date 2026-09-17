@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Manrope, Plus_Jakarta_Sans } from "next/font/google";
+import { Tajawal } from "next/font/google";
 
 import { Logomark } from "@/components/site/Logomark";
 import "@/styles/globals.css";
@@ -11,20 +11,12 @@ import "@/styles/globals.css";
  * so has no layout above it — which also means it cannot know a language.
  * Rather than guess, it says it in both, and offers a door into each site.
  */
-/* This page is outside the `[locale]` tree, so it loads its own fonts. Only
-   the Latin pair: the Arabic line here is one sentence, and pulling two more
-   font files onto a 404 to set it is not a trade worth making — it falls back
-   to the system Arabic face. */
-const display = Manrope({
-  subsets: ["latin"],
-  weight: "variable",
-  variable: "--font-display-latin",
-  display: "swap",
-});
-
-const sans = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-sans-latin",
+/* This page is outside the `[locale]` tree, so it declares the typeface
+   itself. One family covers both of the languages it greets you in. */
+const tajawal = Tajawal({
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "700", "800"],
+  variable: "--font-tajawal",
   display: "swap",
 });
 
@@ -35,7 +27,7 @@ export const metadata: Metadata = {
 
 export default function GlobalNotFound() {
   return (
-    <html lang="en" dir="ltr" className={`${display.variable} ${sans.variable}`}>
+    <html lang="en" dir="ltr" className={tajawal.variable}>
       <body>
         <main className="grid min-h-screen place-items-center bg-paper px-5 text-center">
           <div>

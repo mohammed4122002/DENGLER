@@ -12,7 +12,7 @@ export function PropertyGrid({
   properties: LocalizedProperty[];
   locale: Locale;
   t: Dictionary;
-  columns?: 2 | 3;
+  columns?: 2 | 3 | 4;
   priorityCount?: number;
 }) {
   if (properties.length === 0) {
@@ -29,7 +29,11 @@ export function PropertyGrid({
   return (
     <ul
       className={`grid gap-5 lg:gap-6 ${
-        columns === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 xl:grid-cols-3"
+        columns === 2
+          ? "sm:grid-cols-2"
+          : columns === 4
+            ? "sm:grid-cols-2 xl:grid-cols-4"
+            : "sm:grid-cols-2 xl:grid-cols-3"
       }`}
     >
       {properties.map((property, index) => (
@@ -42,7 +46,9 @@ export function PropertyGrid({
             sizes={
               columns === 2
                 ? "(min-width:768px) 45vw, 92vw"
-                : "(min-width:1280px) 30vw, (min-width:640px) 45vw, 92vw"
+                : columns === 4
+                  ? "(min-width:1280px) 23vw, (min-width:640px) 45vw, 92vw"
+                  : "(min-width:1280px) 30vw, (min-width:640px) 45vw, 92vw"
             }
           />
         </li>

@@ -13,7 +13,7 @@ import {
 
 import { HeroSearch } from "@/components/home/HeroSearch";
 import { SmartImage } from "@/components/site/SmartImage";
-import { ArrowIcon, PinIcon } from "@/components/ui/Icons";
+import { AreaIcon, ArrowIcon, HomeIcon, PinIcon } from "@/components/ui/Icons";
 import { photo } from "@/lib/data/images";
 import { isRtl, localePath, type Dictionary, type Locale } from "@/lib/i18n";
 
@@ -67,8 +67,6 @@ export function Hero({
   const d = rtl ? -1 : 1;
   const plateX = useTransform(smoothX, [-1, 1], [22 * d, -22 * d]);
   const plateY = useTransform(smoothY, [-1, 1], [14, -14]);
-  const cardX = useTransform(smoothX, [-1, 1], [-10 * d, 10 * d]);
-  const cardY = useTransform(smoothY, [-1, 1], [-7, 7]);
 
   // --- Scroll hand-off into the next section --------------------------------
   const { scrollYProgress } = useScroll({
@@ -161,9 +159,13 @@ export function Hero({
       />
 
       {/* ── Content ────────────────────────────────────────────────────── */}
-      <div className="shell relative z-10 grid items-center gap-12 py-16 md:py-24 lg:grid-cols-[minmax(0,1fr)_auto] lg:py-28">
+      {/* The copy takes the leading half and the photograph the trailing
+          half, which is what the wash is cut to. The column is a grid track
+          rather than a `max-w`, so the two always meet at the same seam
+          whatever the headline does in either language. */}
+      <div className="shell relative z-10 grid items-center gap-12 py-16 md:py-24 lg:grid-cols-[minmax(0,32rem)_minmax(0,1fr)] lg:py-28">
         <motion.div
-          className="w-full max-w-2xl"
+          className="w-full"
           style={reduce ? undefined : { y: copyY, opacity: copyOpacity }}
         >
           <motion.p className="eyebrow !text-gold-deep" {...stage(0.15)}>
@@ -210,52 +212,36 @@ export function Hero({
           </motion.div>
         </motion.div>
 
-        {/* ── Floating property card, trailing edge ─────────────────────
-            The reference's floating rail, but pointing somewhere real: it is
-            a link to an actual listing rather than three buttons for features
-            this catalogue does not have. */}
-        <motion.div
-          className="hidden lg:block"
-          style={reduce ? undefined : { x: cardX, y: cardY }}
-          initial={reduce ? false : { opacity: 0, x: rtl ? -28 : 28 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.9, delay: 1.15, ease: EASE }}
-        >
-          <Link
-            href={localePath(locale, "/properties/palm-residence-dubai")}
-            className="card card-hover group block w-[19rem] overflow-hidden"
-          >
-            <div className="relative aspect-[16/10] overflow-hidden bg-cream">
-              <SmartImage
-                src={photo("villaPalmModern", 900)}
-                alt=""
-                fill
-                sizes="304px"
-                className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
-              />
-              <span className="badge badge-gold absolute start-3 top-3">
-                {t.hero.nowShowing}
-              </span>
-            </div>
-            <div className="p-4">
-              <p className="flex items-center gap-1.5 text-xs text-muted">
-                <PinIcon size={12} className="shrink-0" />
-                {t.hero.captionMeta}
-              </p>
-              <p className="mt-1.5 font-display text-lg font-bold leading-tight text-ink">
-                {t.hero.captionTitle}
-              </p>
-              <span className="mt-3 inline-flex items-center gap-2 text-[0.8125rem] font-semibold text-gold-deep">
-                {t.common.viewProperty}
-                <ArrowIcon
-                  size={13}
-                  className="rtl-flip transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1"
-                />
-              </span>
-            </div>
-          </Link>
-        </motion.div>
       </div>
+
+      {/* ── Category rail, trailing edge ─────────────────────────────────
+          The reference's floating pill stack, pointing at the three things
+          this catalogue actually holds rather than at three features it does
+          not. `-translate-y-1/2` off the section's own midpoint keeps it
+          centred on the plate whatever the copy does in either language. */}
+      <motion.nav
+        aria-label={t.nav.properties}
+        className="absolute top-1/2 z-10 hidden -translate-y-1/2 flex-col gap-1.5 rounded-[16px] border border-white/20 bg-[rgba(7,22,40,0.55)] p-1.5 backdrop-blur-md lg:flex"
+        style={{ insetInlineEnd: "clamp(1rem, 2.2vw, 2rem)" }}
+        initial={reduce ? false : { opacity: 0, x: rtl ? -20 : 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8, delay: 1.3, ease: EASE }}
+      >
+        {[
+          { href: "/villas", label: t.nav.villas, icon: <HomeIcon size={15} /> },
+          { href: "/hotels", label: t.nav.hotels, icon: <AreaIcon size={15} /> },
+          { href: "/land", label: t.nav.land, icon: <PinIcon size={15} /> },
+        ].map((item) => (
+          <Link
+            key={item.href}
+            href={localePath(locale, item.href)}
+            className="flex w-[4.75rem] flex-col items-center gap-1 rounded-[11px] px-2 py-2.5 text-[0.6875rem] font-semibold text-white/85 transition-colors duration-300 hover:bg-white/15 hover:text-white"
+          >
+            <span aria-hidden>{item.icon}</span>
+            {item.label}
+          </Link>
+        ))}
+      </motion.nav>
 
       {/* ── Scroll cue ─────────────────────────────────────────────────── */}
       <motion.p

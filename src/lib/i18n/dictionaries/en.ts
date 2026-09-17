@@ -127,6 +127,22 @@ export const en = {
     roiShort: "ROI",
   },
 
+
+  tour: {
+    eyebrow: "Explore in",
+    title: "Full Photo Tours",
+    lead: "Step through the property before you step on a plane. Every listing carries a complete set — exterior, every principal room, the grounds and the view from the terrace — shot in one visit so the light is consistent across the set.",
+    features: [
+      "Room-by-room photo set",
+      "Floor area and layout stated",
+      "High-resolution photography",
+      "Location and neighbourhood map",
+    ],
+    cta: "Open the tour",
+    counter: "{index} of {total}",
+    thumbLabel: "Show photograph {index}",
+    mapLabel: "View location",
+  },
   why: {
     eyebrow: "Why Crete Roots",
     titleLineOne: "A shorter list,",
@@ -149,6 +165,12 @@ export const en = {
         copy: "Every listing carries its yield, occupancy and development upside. You should be able to decide whether an asset is worth a conversation without having one.",
       },
     ],
+    aside: {
+      title: "More than a property.",
+      titleAccent: "It is a position.",
+      copy: "Every listing states its yield, its occupancy and its development upside.",
+      cta: "See the numbers",
+    },
   },
 
   cta: {

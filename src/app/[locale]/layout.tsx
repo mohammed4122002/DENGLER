@@ -1,11 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
-import {
-  Cairo,
-  Manrope,
-  Noto_Sans_Arabic,
-  Plus_Jakarta_Sans,
-} from "next/font/google";
+import { Tajawal } from "next/font/google";
 
 import { Footer } from "@/components/site/Footer";
 import { Navbar } from "@/components/site/Navbar";
@@ -24,60 +19,35 @@ import {
 import "@/styles/globals.css";
 
 /* ------------------------------------------------------------------ *
- * Typefaces
+ * Typeface
  *
- * Sans throughout, in both scripts. A serif heading over a soft-shadowed card
- * reads as editorial; this interface is a product, and products set their
- * headings in the same voice as their buttons. The display/text split is
- * carried by weight and size rather than by a change of species.
+ * Tajawal, and only Tajawal — headings, body, fields, buttons, figures, both
+ * scripts. It is one of the few families that draws Arabic and Latin as one
+ * design rather than bolting a Latin fallback onto an Arabic face, which is
+ * what makes a single-family site possible here at all: a mixed line —
+ * "CRETE ROOTS" inside an Arabic sentence — stays in one voice instead of
+ * switching mid-phrase.
  *
- * Manrope ↔ Cairo for display, Plus Jakarta Sans ↔ Noto Sans Arabic for text.
- * Manrope is here for its numerals as much as its headings: prices are the
- * loudest thing on a property card, and its figures are even-width and
- * unambiguous at 2rem.
+ * Four weights are loaded and no more. Every distinction the page needs is
+ * made with those four plus size: 400 for body, 500 for labels and controls,
+ * 700 for headings, 800 for the wordmark and the figures. A fifth weight would
+ * be another file on the critical path for a difference nobody can name.
  *
- * All four faces share the properties that make type legible — large x-height,
- * open apertures, sturdy stems, low stroke contrast.
- *
- * All four variables are always defined; `globals.css` swaps which pair
- * `--font-display` and `--font-sans` point at based on `[dir]`, so a mixed
- * paragraph — an Arabic sentence containing "CRETE ROOTS" — renders both
- * scripts in their intended face rather than falling back.
+ * This replaced a four-family system (Manrope ↔ Cairo, Plus Jakarta Sans ↔
+ * Noto Sans Arabic). One family is two fewer font files on the wire and, more
+ * to the point, removes the whole class of bug where the two scripts drift out
+ * of step — different x-heights, different optical sizes, different amounts of
+ * leading needed for the same block of copy.
  * ------------------------------------------------------------------ */
 
-const displayLatin = Manrope({
-  subsets: ["latin"],
-  weight: "variable",
-  variable: "--font-display-latin",
-  display: "swap",
-});
-
-const sansLatin = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-sans-latin",
-  display: "swap",
-});
-
-const displayArabic = Cairo({
+const tajawal = Tajawal({
   subsets: ["arabic", "latin"],
-  weight: ["500", "600", "700", "800"],
-  variable: "--font-display-arabic",
+  weight: ["400", "500", "700", "800"],
+  variable: "--font-tajawal",
   display: "swap",
 });
 
-const sansArabic = Noto_Sans_Arabic({
-  subsets: ["arabic"],
-  weight: "variable",
-  variable: "--font-sans-arabic",
-  display: "swap",
-});
-
-const FONT_VARIABLES = [
-  displayLatin.variable,
-  sansLatin.variable,
-  displayArabic.variable,
-  sansArabic.variable,
-].join(" ");
+const FONT_VARIABLES = tajawal.variable;
 
 /** Pre-render both language trees at build time. */
 export function generateStaticParams() {

@@ -223,30 +223,29 @@ quarter larger, because it has no small-capital convention to fall back on.
 In running prose both dictionaries use the short form — a company calls itself
 "Crete Roots" in a sentence and "Crete Roots Company" on the door.
 
-**Typography.** Sans throughout, in both scripts: Manrope ↔ Cairo for display,
-Plus Jakarta Sans ↔ Noto Sans Arabic for text. A serif heading over a
-soft-shadowed card reads as editorial; this interface is a product, and
-products set their headings in the same voice as their buttons. The
-display/text split is carried by weight and size rather than by a change of
-species.
+**Typography.** Tajawal, and only Tajawal — headings, body, fields, buttons,
+figures, both scripts. It is one of the few families that draws Arabic and
+Latin as one design rather than bolting a Latin fallback onto an Arabic face,
+which is what makes a single-family site possible here at all: a mixed line —
+"CRETE ROOTS" inside an Arabic sentence — stays in one voice instead of
+switching mid-phrase.
 
-Manrope is here for its numerals as much as its headings: the price is the
-loudest thing on a property card, and its figures are even-width and
-unambiguous at 2rem.
+Four weights, no more. Every distinction the page needs is made with those four
+plus size: 400 body, 500 labels and controls, 700 headings, 800 wordmark and
+figures. A fifth would be another file on the critical path for a difference
+nobody can name.
 
-All four were chosen for legibility first — large x-height, open apertures,
-sturdy stems, low stroke contrast. That ruled out the Didone and the geometric
-sans an earlier revision carried: a hairline that thins to nothing and a
-lowercase built from perfect circles both look expensive in a specimen and cost
-you the sentence. On the Arabic side it ruled out the Kufi, which is a display
-idiom whose geometry gets read as style before it gets read as words.
+`--font-display` and `--font-sans` stay as separate tokens even though they now
+resolve to the same stack. They are the names components use, so splitting back
+into two families later is one edit in `@theme` rather than fifty in
+components.
 
-All four load always, and each stack lists the other script's face, so
-"CRETE ROOTS" inside an Arabic sentence doesn't drop to a system font.
-
-Headings are set at 700. A serif can hold a heading at regular weight — its
-stroke contrast does the work — but a sans at regular weight is body copy set
-large, and the hierarchy collapses.
+This replaced a four-family system. One family is two fewer font files on the
+wire and, more to the point, removes the whole class of bug where the two
+scripts drift out of step — different x-heights, different optical sizes,
+different amounts of leading needed for the same block of copy. What survives
+in the RTL block is only what is about the *script* rather than about the file:
+leading, tracking, case, slant and bidi.
 
 The RTL corrections at the bottom of `globals.css` are **deliberately
 unlayered**. Tailwind's cascade runs base → components → utilities and layer

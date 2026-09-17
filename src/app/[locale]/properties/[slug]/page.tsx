@@ -296,8 +296,11 @@ export default async function PropertyDetailPage({
               </Reveal>
             )}
 
+            {/* Anchored: the home page's tour band links straight here. */}
             <Reveal>
-              <LocationMap property={property} locale={locale} t={t} />
+              <div id="location" className="scroll-mt-[calc(var(--nav-h)+1.5rem)]">
+                <LocationMap property={property} locale={locale} t={t} />
+              </div>
             </Reveal>
           </div>
 
