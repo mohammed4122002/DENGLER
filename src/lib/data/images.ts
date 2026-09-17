@@ -6,19 +6,27 @@
  * Supabase Storage, a different stock library) by editing this map alone —
  * no component and no seed row needs to change.
  *
- * The defaults are Unsplash CDN URLs, which are free to use commercially
- * under the Unsplash licence. They are transformed server-side by Unsplash
- * (`w`, `q`, `fm`) so we never ship a 6000px original, and Next.js re-encodes
- * them to AVIF/WebP on top of that.
+ * The defaults are Pexels CDN URLs. The Pexels licence permits commercial use
+ * without attribution, but each entry carries its photographer anyway: an
+ * image whose provenance isn't recorded is an image nobody can safely reuse
+ * later. `note` is the photographer's own description, kept so a human picking
+ * a replacement can see what the slot is meant to show.
+ *
+ * Pexels transforms server-side (`w`, `auto=compress`), so we never ship a
+ * 7000px original, and Next.js re-encodes to AVIF/WebP on top of that. Every
+ * id here was resolved through the Pexels API rather than typed from memory.
  *
  * Run `npm run verify:images` to confirm every URL in this file resolves.
  */
 
-const UNSPLASH = "https://images.unsplash.com";
+const PEXELS = "https://images.pexels.com/photos";
 
-/** Build a bandwidth-sane Unsplash URL. */
-export function unsplash(id: string, width = 1600): string {
-  return `${UNSPLASH}/${id}?auto=format&fit=crop&w=${width}&q=72`;
+/** Build a bandwidth-sane Pexels URL. Width only, so the native aspect ratio
+ *  survives — every consumer crops with `object-fit`, and cropping twice
+ *  (once at the CDN, once in the browser) is how faces and horizons get cut
+ *  off. All ids are landscape originals. */
+export function pexels(id: number, width = 1600): string {
+  return `${PEXELS}/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=${width}`;
 }
 
 /**
@@ -41,62 +49,67 @@ export const BLUR_DATA_URL =
     `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="7"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#23262c"/><stop offset="60%" stop-color="#4a4038"/><stop offset="100%" stop-color="#7d6248"/></linearGradient></defs><rect width="10" height="7" fill="url(#g)"/></svg>`,
   ).toString("base64");
 
-/** Semantic keys → Unsplash photo ids. Swap the ids, keep the keys. */
+/** Semantic keys → Pexels photos. Swap the ids, keep the keys. */
 export const PHOTO_IDS = {
-  // --- Hero plates (cinematic, wide) ---
-  heroVillaDusk: "photo-1613490493576-7fde63acd811",
-  heroSky: "photo-1500673922987-e212871fec22",
-  heroCoastal: "photo-1512917774080-9991f1c4c750",
+  // --- Hero plates (cinematic, wide, dark enough to carry white type) ---
+  heroVillaDusk: { id: 36676879, by: "aksinfo7 universe", note: "Stunning modern villa with outdoor seating and pool, captured at sunset." },
+  heroSky: { id: 613316, by: "Jay Lamping", note: "A dramatic city skyline silhouette under a vibrant sunset sky with orange hues." },
+  heroCoastal: { id: 18771874, by: "Alina Chernii", note: "Dramatic aerial view of hillside villages on the rocky Amalfi Coast in Italy with stunning su…" },
 
   // --- Villas ---
-  villaPalmModern: "photo-1600596542815-ffad4c1539a9",
-  villaGlassPool: "photo-1600607687920-4e2a09cf159d",
-  villaMediterranean: "photo-1580587771525-78b9dba3b914",
-  villaCliff: "photo-1512915922686-57c11dde9b6b",
-  villaDesertStone: "photo-1600566753086-00f18fb6b3ea",
-  villaTropical: "photo-1582268611958-ebfd161ef9cf",
-  villaWhiteMinimal: "photo-1600585154340-be6161a56a0c",
-  villaLakeside: "photo-1613977257363-707ba9348227",
-  villaAlpine: "photo-1449158743715-0a90ebb6d2d8",
-  villaMarina: "photo-1600047509807-ba8f99d2cdde",
+  villaPalmModern: { id: 36134146, by: "Vika Glitter", note: "A breathtaking aerial perspective of Dubai's iconic Palm Jumeirah and luxury resorts." },
+  villaGlassPool: { id: 31817160, by: "Ahmet ÇÖTÜR", note: "Stunning luxury villa overlooking the ocean with an infinity pool at sunset." },
+  villaMediterranean: { id: 5720658, by: "Daniel Dorfer", note: "Minimalist terrace with wooden table and stools overlooking the Aegean Sea in Santorini." },
+  villaCliff: { id: 30310508, by: "✰ Saul Bandera Brotheridge", note: "Elegant villa perched on a cliff in Costa Brava, framed by trees against a clear sky." },
+  villaDesertStone: { id: 10610733, by: "alleksana", note: "Stunning modern villa with glass facade and unique olive tree landscape." },
+  villaTropical: { id: 36418268, by: "Mark Direen", note: "Luxurious villa pool surrounded by lush tropical greenery in Bali, Indonesia." },
+  villaWhiteMinimal: { id: 8134816, by: "Max Vakhtbovych", note: "Contemporary two-story house with clean lines surrounded by green grass and blue sky." },
+  villaLakeside: { id: 7114136, by: "cottonbro studio", note: "Wooden deck with seating and plants, offering a serene view over a tranquil body of water." },
+  villaAlpine: { id: 7746555, by: "Max Vakhtbovych", note: "Beautiful snow-covered chalet nestled in the winter mountains, surrounded by nature." },
+  villaMarina: { id: 38261371, by: "Magda Ehlers", note: "Waterfront view of luxury yachts in a scenic marina with hilly backdrop and modern apartments." },
 
   // --- Hotels ---
-  hotelResortPool: "photo-1566073771259-6a8506099945",
-  hotelLobby: "photo-1551882547-ff40c63fe5fa",
-  hotelBoutique: "photo-1445019980597-93fa8acb246c",
-  hotelUrbanTower: "photo-1542314831-068cd1dbfeeb",
-  hotelIslandRetreat: "photo-1520250497591-112f2f40a3f4",
+  hotelResortPool: { id: 261101, by: "Pixabay", note: "Relaxing tropical poolside scene with palm trees, gazebo, and clear blue water at a luxury re…" },
+  hotelLobby: { id: 14011664, by: "Quang Nguyen Vinh", note: "Elegant hotel foyer featuring a grand staircase, marble floors, and a dazzling chandelier." },
+  hotelBoutique: { id: 10573397, by: "Zakaria HANIF", note: "Charming pool courtyard of a traditional riad in Ouarzazate, Morocco, with lush plants and in…" },
+  hotelUrbanTower: { id: 38166214, by: "Денис Нагайцев", note: "View of towering glass skyscrapers and Novotel under a dramatic cloudy sky." },
+  hotelIslandRetreat: { id: 3293192, by: "Asad Photo Maldives", note: "Splendid overwater villas in Maldives offering a serene and luxurious vacation experience." },
 
   // --- Land ---
-  landCoastalPlot: "photo-1500382017468-9049fed747ef",
-  landDesertParcel: "photo-1509316785289-025f5b846b35",
-  landHillside: "photo-1441974231531-c6227db76b6e",
-  landVineyard: "photo-1506905925346-21bda4d32df4",
-  landIsland: "photo-1507525428034-b723cf961d3e",
-  landUrbanLot: "photo-1486406146926-c627a92ad1ab",
-  landForest: "photo-1470071459604-3b5ec3a7fe05",
-  landRiverfront: "photo-1439066615861-d1af74d74000",
-  landPlateau: "photo-1472396961693-142e6e269027",
-  landMountain: "photo-1454496522488-7a8e488e8606",
+  landCoastalPlot: { id: 1459508, by: "Felix Mittermeier", note: "A stunning view of a dramatic coastal cliff overlooking the calm sea and cloudy sky." },
+  landDesertParcel: { id: 31415641, by: "Denys Gromov", note: "Peaceful desert scene with golden sand dunes and soft mist at sunrise." },
+  landHillside: { id: 28080408, by: "Levent Simsek", note: "Tranquil rural landscape featuring open fields, rolling hills, and a distant village under a…" },
+  landVineyard: { id: 23441099, by: "Wolfgang Weiser", note: "A scenic vineyard in Siena, Tuscany, showcasing lush vines under a dramatic cloudy sky." },
+  landIsland: { id: 32737290, by: "Septimiu Lupea", note: "Stunning aerial view of rocky shoreline with clear turquoise waters in Greece." },
+  landUrbanLot: { id: 7519198, by: "Ollie Craig", note: "Drone shot of a large vacant lot in Scotland, showcasing concrete and debris." },
+  landForest: { id: 38712295, by: "Radoslaw Sikorski", note: "Captivating aerial view of a dense pine forest segmented by a straight road under clear skies." },
+  landRiverfront: { id: 20378874, by: "Helena Jankovičová Kováčová", note: "Aerial view of a peaceful autumn landscape featuring a winding river through rural fields at…" },
+  landPlateau: { id: 37684071, by: "pierre matile", note: "Stunning view of the Atlas Mountains under a cloudy sky in Morocco's rugged terrain." },
+  landMountain: { id: 27539299, by: "Marco Milanesi", note: "Majestic view of rugged Dolomites in summer evening light, perfect for travel inspiration." },
 
   // --- Interiors / detail (gallery filler) ---
-  interiorLiving: "photo-1618221195710-dd6b41faaea6",
-  interiorKitchen: "photo-1556911220-bff31c812dba",
-  interiorBedroom: "photo-1616594039964-ae9021a400a0",
-  interiorBath: "photo-1552321554-5fefe8c9ef14",
-  interiorStair: "photo-1600210492486-724fe5c67fb0",
-  interiorTerrace: "photo-1600607687644-c7171b42498b",
-  detailPool: "photo-1571003123894-1f0594d2b5d9",
-  detailGarden: "photo-1558618666-fcd25c85cd64",
-  detailFacade: "photo-1487958449943-2429e8be8625",
-  detailSunset: "photo-1470770841072-f978cf4d019e",
+  interiorLiving: { id: 37126401, by: "Waqas ilyas", note: "Spacious and bright minimalist living room with a city view, featuring large windows and a co…" },
+  interiorKitchen: { id: 7587864, by: "Max Vakhtbovych", note: "Contemporary blue kitchen featuring a sleek granite island and modern decor." },
+  interiorBedroom: { id: 8135118, by: "Max Vakhtbovych", note: "Spacious bedroom featuring luxurious design elements like plush pillows, chandelier, and dres…" },
+  interiorBath: { id: 8146153, by: "Max Vakhtbovych", note: "Luxurious marble bathroom featuring a sleek freestanding bathtub and modern design elements." },
+  interiorStair: { id: 36272645, by: "Jan van der Wolf", note: "Minimalist concrete staircase featuring terrazzo texture and sleek metal railings." },
+  interiorTerrace: { id: 19084169, by: "Ahmet ÇÖTÜR", note: "Relax on a luxurious terrace with infinity pool and breathtaking sea view." },
+  detailPool: { id: 9399997, by: "Engin Akyurt", note: "Bright blue swimming pool surface with sunlight reflecting in ripples and waves." },
+  detailGarden: { id: 7174115, by: "Max Vakhtbovych", note: "Modern house near backyard with wooden path near green grass and plants with trees under blue…" },
+  detailFacade: { id: 13762561, by: "Nothing Ahead", note: "Close-up of a contemporary building facade with vertical geometric design." },
+  detailSunset: { id: 12376868, by: "Serg Alesenko", note: "A breathtaking view of the sun setting over the ocean, creating an orange sky." },
 } as const;
 
 export type PhotoKey = keyof typeof PHOTO_IDS;
 
 /** Resolve a semantic key to a ready-to-render URL. */
 export function photo(key: PhotoKey, width = 1600): string {
-  return unsplash(PHOTO_IDS[key], width);
+  return pexels(PHOTO_IDS[key].id, width);
+}
+
+/** Photographer credits, keyed the same way — for a credits page or an audit. */
+export function credit(key: PhotoKey): { by: string; url: string } {
+  return { by: PHOTO_IDS[key].by, url: `https://www.pexels.com/photo/${PHOTO_IDS[key].id}/` };
 }
 
 export const ALL_PHOTO_KEYS = Object.keys(PHOTO_IDS) as PhotoKey[];

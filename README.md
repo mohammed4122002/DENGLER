@@ -321,9 +321,21 @@ on these pages needs a 3D renderer, and the bundle cost would be real.
 Every demo image resolves through `src/lib/data/images.ts` — one registry of
 semantic keys to URLs. Repoint the whole catalogue by editing that file alone.
 
-The defaults are Unsplash CDN URLs, transformed server-side (`w`, `q`, `fm`)
-and re-encoded to AVIF/WebP by Next. `SmartImage` adds a blur-up, a fade on decode, and a fallback plate so a dead
-URL reads as intentional rather than broken.
+The defaults are Pexels CDN URLs, transformed server-side (`w`, `auto=compress`)
+and re-encoded to AVIF/WebP by Next. `SmartImage` adds a blur-up, a fade on
+decode, and a fallback plate so a dead URL reads as intentional rather than
+broken.
+
+Every id was resolved through the Pexels API against a query written for that
+slot, not typed from memory, and each entry records its photographer. The
+Pexels licence permits commercial use without attribution; the credits are
+there because an image whose provenance isn't recorded is an image nobody can
+safely reuse later. `credit(key)` returns the photographer and the source page
+if you want to surface them.
+
+The URL builder passes a width and no crop. Every consumer already crops with
+`object-fit`, and cropping twice — once at the CDN, once in the browser — is
+how horizons and facades get cut in half.
 
 Both the blur and the plate are graded **dark-to-warm, not cream**. That is not
 decoration: the hero sets white type over the image, so a pale placeholder made
@@ -331,9 +343,10 @@ every heading unreadable for as long as the photograph was missing — which,
 if a URL is wrong, is forever. The plate is a dusk composition that the same
 type sits on correctly.
 
-> **Please run `npm run verify:images` once.** The sandbox this project was
-> scaffolded in blocks outbound requests to image CDNs, so the registry could
-> not be checked there. The script reports any id that needs replacing.
+> **`npm run verify:images` checks every id resolves.** The sandbox this
+> project is developed in blocks outbound requests to image CDNs, so the
+> registry cannot be checked from there — run it once from a normal machine.
+> The script reports any id that needs replacing.
 
 Admin-uploaded photography goes to the `property-images` Supabase Storage
 bucket, which the migration creates with public read and admin-only write.

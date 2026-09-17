@@ -9,14 +9,14 @@
  *   npm run verify:images
  *
  * Any id reported as FAIL should be replaced in src/lib/data/images.ts with a
- * working Unsplash photo id (the `photo-...` segment of any unsplash.com URL),
+ * working Pexels photo id (the number in any pexels.com/photo/.../<id>/ URL),
  * or with a URL of your own.
  */
 import { readFileSync } from "node:fs";
 
 const src = readFileSync(new URL("../src/lib/data/images.ts", import.meta.url), "utf8");
 const block = src.slice(src.indexOf("export const PHOTO_IDS"), src.indexOf("} as const;"));
-const entries = [...block.matchAll(/(\w+):\s*"(photo-[\w-]+)"/g)].map((m) => [m[1], m[2]]);
+const entries = [...block.matchAll(/(\w+):\s*\{\s*id:\s*(\d+)/g)].map((m) => [m[1], m[2]]);
 
 if (entries.length === 0) {
   console.error("No photo ids found — has the registry format changed?");
@@ -28,7 +28,7 @@ console.log(`Checking ${entries.length} images…\n`);
 let failed = 0;
 await Promise.all(
   entries.map(async ([key, id]) => {
-    const url = `https://images.unsplash.com/${id}?w=80&q=40`;
+    const url = `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&w=80`;
     try {
       const res = await fetch(url, { method: "GET", redirect: "follow" });
       if (res.ok) {
