@@ -2,9 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { Tajawal } from "next/font/google";
 
-import { Footer } from "@/components/site/Footer";
-import { Navbar } from "@/components/site/Navbar";
-import { PageTransition } from "@/components/site/PageTransition";
+import { SiteChrome } from "@/components/site/SiteChrome";
 import { SITE } from "@/lib/site";
 import {
   getDictionary,
@@ -136,11 +134,9 @@ export default async function LocaleLayout({
         >
           {t.common.skipToContent}
         </a>
-        <Navbar locale={locale} t={t} />
-        <PageTransition>
-          <main id="main">{children}</main>
-        </PageTransition>
-        <Footer locale={locale} t={t} />
+        <SiteChrome locale={locale} t={t}>
+          {children}
+        </SiteChrome>
       </body>
     </html>
   );

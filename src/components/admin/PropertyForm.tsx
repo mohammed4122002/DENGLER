@@ -383,7 +383,7 @@ export function PropertyForm({
 
         <Link
           href={`/${locale}/admin/properties`}
-          className="nav-link text-xs uppercase tracking-[0.16em] text-muted hover:text-gold rtl:tracking-normal rtl:normal-case"
+          className="text-xs font-semibold text-muted hover:text-gold rtl:tracking-normal rtl:normal-case"
         >
           {t.admin.backToList}
         </Link>
@@ -419,7 +419,7 @@ function SaveButton({
     <button
       type="submit"
       disabled={pending}
-      className="btn btn-solid !py-3 !px-7 disabled:opacity-60"
+      className="btn btn-gold disabled:opacity-60"
     >
       {pending ? saving : isEdit ? save : create}
     </button>

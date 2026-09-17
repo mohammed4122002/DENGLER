@@ -28,7 +28,7 @@ export function DeletePropertyButton({
       <button
         type="button"
         onClick={() => setArmed(true)}
-        className="nav-link text-xs uppercase tracking-[0.16em] text-muted transition-colors hover:text-plum rtl:tracking-normal rtl:normal-case"
+        className="text-xs font-semibold text-muted transition-colors hover:text-plum rtl:tracking-normal rtl:normal-case"
       >
         {t.admin.delete}
       </button>
@@ -53,7 +53,7 @@ export function DeletePropertyButton({
       <button
         type="button"
         onClick={() => setArmed(false)}
-        className="nav-link uppercase tracking-[0.14em] text-muted hover:text-ink rtl:tracking-normal rtl:normal-case"
+        className="font-semibold text-muted hover:text-ink rtl:tracking-normal rtl:normal-case"
       >
         {t.admin.cancel}
       </button>

@@ -23,11 +23,11 @@ export default async function AdminPropertiesPage({
   );
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-5">
         <div>
           <p className="eyebrow">{t.admin.inventory}</p>
-          <h1 className="mt-3 font-display text-4xl leading-none text-ink">
+          <h1 className="mt-1.5 font-display text-[1.75rem] font-bold leading-none text-ink">
             {t.admin.properties}
           </h1>
           <p className="mt-3 text-sm text-muted">
@@ -37,19 +37,19 @@ export default async function AdminPropertiesPage({
         </div>
         <Link
           href={localePath(locale, "/admin/properties/new")}
-          className="btn btn-solid !py-3 !px-6"
+          className="btn btn-gold"
         >
           {t.admin.addProperty}
         </Link>
       </header>
 
-      <ul className="divide-y divide-hairline border-y border-hairline">
+      <ul className="card divide-y divide-hairline overflow-hidden">
         {properties.map((property) => (
           <li
             key={property.id}
-            className="flex flex-wrap items-center gap-x-6 gap-y-4 py-5"
+            className="flex flex-wrap items-center gap-x-5 gap-y-4 px-5 py-4 transition-colors duration-200 hover:bg-cream/60"
           >
-            <div className="relative h-16 w-24 shrink-0 overflow-hidden bg-cream">
+            <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-[8px] bg-cream">
               {property.cover_image && (
                 <SmartImage
                   src={property.cover_image}
@@ -64,7 +64,7 @@ export default async function AdminPropertiesPage({
             <div className="min-w-[14rem] flex-1">
               <Link
                 href={localePath(locale, `/admin/properties/${property.id}`)}
-                className="nav-link font-display text-xl text-ink hover:text-gold-deep"
+                className="font-display text-[1.0625rem] font-bold text-ink transition-colors hover:text-gold-deep"
               >
                 {property.title}
               </Link>
@@ -78,7 +78,7 @@ export default async function AdminPropertiesPage({
               </p>
             </div>
 
-            <p className="w-28 shrink-0 text-end font-display text-xl text-ink tabular-nums">
+            <p className="w-28 shrink-0 text-end font-display text-[1.0625rem] font-extrabold text-ink tabular-nums">
               {formatPriceCompact(property.price, property.currency, locale)}
             </p>
 
@@ -95,7 +95,7 @@ export default async function AdminPropertiesPage({
       </ul>
 
       {properties.length === 0 && (
-        <p className="border border-dashed border-hairline p-10 text-center text-sm text-muted">
+        <p className="card p-10 text-center text-sm text-muted">
           {t.admin.noProperties}
         </p>
       )}

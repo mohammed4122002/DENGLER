@@ -59,32 +59,32 @@ export default async function AdminOverviewPage({
   ];
 
   return (
-    <div className="space-y-14">
-      <header className="flex flex-wrap items-end justify-between gap-5">
+    <div className="space-y-6">
+      <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="eyebrow">{t.admin.overview}</p>
-          <h1 className="mt-3 font-display text-4xl leading-none text-ink">
+          <h1 className="mt-1.5 font-display text-[1.75rem] font-bold leading-none text-ink">
             {t.admin.today}
           </h1>
         </div>
         <Link
           href={localePath(locale, "/admin/properties/new")}
-          className="btn btn-solid !py-3 !px-6"
+          className="btn btn-gold"
         >
           {t.admin.addProperty}
         </Link>
       </header>
 
+      {/* Separate cards rather than one bordered block split by `gap-px`.
+          The old grid drew its dividers with the container's background
+          showing through a one-pixel gap, which meant the tiles could not
+          take a radius or a shadow without the seams reappearing. */}
       <section aria-label={t.admin.overview}>
-        <dl className="grid grid-cols-2 gap-px overflow-hidden border border-hairline bg-hairline lg:grid-cols-4">
+        <dl className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {tiles.map((tile) => (
-            <Link
-              key={tile.label}
-              href={tile.href}
-              className="group bg-paper p-6 transition-colors duration-300 hover:bg-cream/50"
-            >
+            <Link key={tile.label} href={tile.href} className="card card-hover group p-5">
               <dt className="eyebrow">{tile.label}</dt>
-              <dd className="mt-3 font-display text-4xl leading-none text-ink tabular-nums transition-colors group-hover:text-gold-deep">
+              <dd className="mt-2.5 font-display text-[1.75rem] font-extrabold leading-none text-ink tabular-nums transition-colors group-hover:text-gold-deep">
                 {tile.value}
               </dd>
             </Link>
@@ -92,33 +92,26 @@ export default async function AdminOverviewPage({
         </dl>
       </section>
 
-      <section aria-labelledby="recent-leads">
-        <div className="flex items-end justify-between gap-4">
-          <h2 id="recent-leads" className="font-display text-2xl text-ink">
-            {t.admin.recentLeads}
-          </h2>
-          <Link
-            href={localePath(locale, "/admin/leads")}
-            className="nav-link inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-graphite hover:text-gold rtl:tracking-normal rtl:normal-case"
-          >
-            {t.admin.allLeads} <ArrowIcon size={14} />
-          </Link>
-        </div>
-
+      <Panel
+        id="recent-leads"
+        title={t.admin.recentLeads}
+        link={{ href: localePath(locale, "/admin/leads"), label: t.admin.allLeads }}
+      >
         {inquiries.length === 0 ? (
-          <p className="mt-6 border border-dashed border-hairline p-8 text-sm text-muted">
-            {t.admin.noEnquiries}
-          </p>
+          <p className="px-5 py-8 text-sm text-muted">{t.admin.noEnquiries}</p>
         ) : (
-          <ul className="mt-6 divide-y divide-hairline border-y border-hairline">
+          <ul className="divide-y divide-hairline">
             {inquiries.slice(0, 5).map((inquiry) => (
-              <li key={inquiry.id} className="flex flex-wrap items-baseline gap-x-5 gap-y-1 py-4">
-                <span className="font-display text-lg text-ink">{inquiry.name}</span>
-                <span className="text-sm text-muted">{inquiry.email}</span>
+              <li
+                key={inquiry.id}
+                className="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3.5 transition-colors duration-200 hover:bg-cream/60"
+              >
+                <span className="font-semibold text-ink">{inquiry.name}</span>
+                <span className="text-[0.8125rem] text-muted">{inquiry.email}</span>
                 <span className="text-xs text-muted">
                   {inquiry.property_title ?? t.admin.generalEnquiry}
                 </span>
-                <span className="ms-auto flex items-center gap-4 text-xs text-muted">
+                <span className="ms-auto flex items-center gap-3 text-xs text-muted">
                   <StatusPill status={inquiry.status} t={t} />
                   {formatDate(inquiry.created_at, locale)}
                 </span>
@@ -126,36 +119,34 @@ export default async function AdminOverviewPage({
             ))}
           </ul>
         )}
-      </section>
+      </Panel>
 
-      <section aria-labelledby="recent-properties">
-        <div className="flex items-end justify-between gap-4">
-          <h2 id="recent-properties" className="font-display text-2xl text-ink">
-            {t.admin.recentlyAdded}
-          </h2>
-          <Link
-            href={localePath(locale, "/admin/properties")}
-            className="nav-link inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-graphite hover:text-gold rtl:tracking-normal rtl:normal-case"
-          >
-            {t.admin.allProperties} <ArrowIcon size={14} />
-          </Link>
-        </div>
-
-        <ul className="mt-6 divide-y divide-hairline border-y border-hairline">
+      <Panel
+        id="recent-properties"
+        title={t.admin.recentlyAdded}
+        link={{
+          href: localePath(locale, "/admin/properties"),
+          label: t.admin.allProperties,
+        }}
+      >
+        <ul className="divide-y divide-hairline">
           {properties.slice(0, 5).map((property) => (
-            <li key={property.id} className="flex flex-wrap items-baseline gap-x-5 gap-y-1 py-4">
+            <li
+              key={property.id}
+              className="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3.5 transition-colors duration-200 hover:bg-cream/60"
+            >
               <Link
                 href={localePath(locale, `/admin/properties/${property.id}`)}
-                className="nav-link font-display text-lg text-ink hover:text-gold-deep"
+                className="font-semibold text-ink transition-colors hover:text-gold-deep"
               >
                 {property.title}
               </Link>
               <span className="text-xs uppercase tracking-[0.14em] text-muted rtl:tracking-normal rtl:normal-case">
                 {t.enums.propertyType[property.property_type]}
               </span>
-              <span className="ms-auto flex items-center gap-4 text-xs text-muted">
+              <span className="ms-auto flex items-center gap-3 text-xs text-muted">
                 {!property.published && (
-                  <span className="rounded-full bg-ink/8 px-2.5 py-0.5 text-graphite">
+                  <span className="badge bg-cream-deep text-graphite">
                     {t.admin.draft}
                   </span>
                 )}
@@ -166,22 +157,54 @@ export default async function AdminOverviewPage({
             </li>
           ))}
         </ul>
-      </section>
+      </Panel>
     </div>
+  );
+}
+
+/** A titled white card with a trailing link — the dashboard's only container. */
+function Panel({
+  id,
+  title,
+  link,
+  children,
+}: {
+  id: string;
+  title: string;
+  link: { href: string; label: string };
+  children: React.ReactNode;
+}) {
+  return (
+    <section aria-labelledby={id} className="card overflow-hidden">
+      <div className="flex items-center justify-between gap-4 border-b border-hairline px-5 py-4">
+        <h2 id={id} className="font-display text-[1.0625rem] font-bold text-ink">
+          {title}
+        </h2>
+        <Link
+          href={link.href}
+          className="group inline-flex items-center gap-2 text-[0.8125rem] font-semibold text-gold-deep transition-colors hover:text-ink"
+        >
+          {link.label}
+          <ArrowIcon
+            size={14}
+            className="rtl-flip transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1"
+          />
+        </Link>
+      </div>
+      {children}
+    </section>
   );
 }
 
 function StatusPill({ status, t }: { status: InquiryStatus; t: Dictionary }) {
   const tone =
     status === "new"
-      ? "bg-gold/15 text-gold-deep"
+      ? "bg-gold/18 text-gold-deep"
       : status === "contacted"
-        ? "bg-plum/10 text-plum"
-        : "bg-ink/8 text-graphite";
+        ? "bg-ink/10 text-ink"
+        : "bg-cream-deep text-graphite";
 
   return (
-    <span className={`rounded-full px-2.5 py-0.5 ${tone}`}>
-      {t.enums.inquiryStatus[status]}
-    </span>
+    <span className={`badge ${tone}`}>{t.enums.inquiryStatus[status]}</span>
   );
 }

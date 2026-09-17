@@ -35,16 +35,18 @@ export default async function AdminLoginPage({
   if (access.ok) redirect(localePath(locale, "/admin"));
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-cream/40 px-5 pt-[var(--nav-h)]">
-      <div className="w-full max-w-md border border-hairline bg-paper p-9 md:p-11">
+    /* No top padding for a navbar: `SiteChrome` keeps the marketing bar off
+       the whole `/admin` branch, this page included. */
+    <div className="flex min-h-screen items-center justify-center bg-cream px-5 py-12">
+      <div className="card w-full max-w-md p-8 shadow-[var(--shadow-float)] md:p-10">
         <Wordmark locale={locale} size="footer" />
-        <h1 className="mt-6 font-display text-4xl leading-none text-ink">
+        <h1 className="mt-6 font-display text-[1.75rem] font-bold leading-none text-ink">
           {t.admin.dashboard}
         </h1>
 
         {access.reason === "not-configured" ? (
-          <div className="mt-8 border border-plum/30 bg-plum/[0.05] p-5 text-sm leading-relaxed text-graphite">
-            <p className="font-medium text-plum">{t.admin.notConfigured}</p>
+          <div className="mt-8 rounded-[var(--radius-sm)] border border-gold/30 bg-gold/[0.07] p-5 text-sm leading-relaxed text-graphite">
+            <p className="font-semibold text-gold-deep">{t.admin.notConfigured}</p>
             <p className="mt-2">{t.admin.notConfiguredBody}</p>
           </div>
         ) : (
@@ -57,7 +59,7 @@ export default async function AdminLoginPage({
                   : t.admin.passwordPrompt}
             </p>
 
-            <div className="mt-9">
+            <div className="mt-7">
               <LoginForm withEmail={isSupabaseConfigured} locale={locale} t={t} />
             </div>
           </>

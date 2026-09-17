@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { AdminNav } from "@/components/admin/AdminNav";
+import { Wordmark } from "@/components/site/Wordmark";
+import { ArrowIcon } from "@/components/ui/Icons";
 import { checkAdminAccess } from "@/lib/auth";
 import { isDemoMode } from "@/lib/store";
 import { getDictionary, isLocale, localePath, type Locale } from "@/lib/i18n";
@@ -42,20 +44,46 @@ export default async function AdminLayout({
   if (!access.ok) redirect(localePath(locale, "/admin/login"));
 
   return (
-    <div className="min-h-screen bg-paper pt-[var(--nav-h)]">
+    /* `bg-cream` rather than `bg-paper`: every panel in here is a white card,
+       and white cards on a white page are invisible. */
+    <div className="min-h-screen bg-cream">
+      {/* The dashboard's own bar. The marketing navigation does not belong on
+          a tool — `SiteChrome` keeps it off this branch — but the wordmark and
+          a way back to the public site do. */}
+      <header className="sticky top-0 z-40 border-b border-hairline bg-paper/90 backdrop-blur-xl">
+        <div className="shell flex h-16 items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Wordmark locale={locale} />
+            <span className="badge badge-paper hidden border border-hairline sm:inline-flex">
+              {t.admin.dashboard}
+            </span>
+          </div>
+          <Link
+            href={localePath(locale, "/")}
+            className="group inline-flex items-center gap-2 text-[0.8125rem] font-semibold text-graphite transition-colors hover:text-ink"
+          >
+            {t.admin.viewSite}
+            <ArrowIcon
+              size={14}
+              className="rtl-flip text-gold-deep transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1"
+            />
+          </Link>
+        </div>
+      </header>
+
       {access.via === "dev-open" && (
-        <p className="bg-plum px-5 py-2.5 text-center text-xs text-paper">
-          <strong className="font-medium">{t.admin.devBannerStrong}</strong>{" "}
+        <p className="bg-ink px-5 py-2.5 text-center text-xs text-paper">
+          <strong className="font-semibold">{t.admin.devBannerStrong}</strong>{" "}
           {t.admin.devBanner}
         </p>
       )}
 
       {isDemoMode && (
-        <p className="border-b border-hairline bg-cream px-5 py-2.5 text-center text-xs text-graphite">
+        <p className="border-b border-hairline bg-gold/12 px-5 py-2.5 text-center text-xs text-graphite">
           {t.admin.demoBanner}{" "}
           <Link
             href={localePath(locale, "/admin/settings")}
-            className="nav-link text-gold-deep"
+            className="font-semibold text-gold-deep underline underline-offset-2"
           >
             {t.admin.demoBannerLink}
           </Link>{" "}
@@ -63,7 +91,7 @@ export default async function AdminLayout({
         </p>
       )}
 
-      <div className="shell flex flex-col gap-10 py-10 lg:flex-row lg:gap-16 lg:py-14">
+      <div className="shell flex flex-col gap-6 py-6 lg:flex-row lg:gap-8 lg:py-8">
         <AdminNav locale={locale} t={t} />
         <div className="min-w-0 flex-1">{children}</div>
       </div>

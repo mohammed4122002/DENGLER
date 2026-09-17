@@ -65,7 +65,7 @@ function SubmitButton({ label, checking }: { label: string; checking: string }) 
     <button
       type="submit"
       disabled={pending}
-      className="btn btn-solid w-full disabled:opacity-60"
+      className="btn btn-gold w-full disabled:opacity-60"
     >
       {pending ? checking : label}
     </button>

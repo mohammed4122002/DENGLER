@@ -31,7 +31,7 @@ export function StatsForm({
               name={`value_${stat.id}`}
               defaultValue={stat.value}
               maxLength={40}
-              className="field mt-1 font-display text-xl"
+              className="field mt-1 font-display text-lg font-bold"
             />
           </label>
           <label className="block">
@@ -69,7 +69,7 @@ function SubmitButton({ label, saving }: { label: string; saving: string }) {
     <button
       type="submit"
       disabled={pending}
-      className="btn btn-solid !py-3 !px-7 disabled:opacity-60"
+      className="btn btn-gold disabled:opacity-60"
     >
       {pending ? saving : label}
     </button>

@@ -24,37 +24,37 @@ export default async function AdminLeadsPage({
   }));
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6">
       <header>
         <p className="eyebrow">{t.admin.enquiries}</p>
-        <h1 className="mt-3 font-display text-4xl leading-none text-ink">
+        <h1 className="mt-1.5 font-display text-[1.75rem] font-bold leading-none text-ink">
           {t.admin.leads}
         </h1>
 
-        <dl className="mt-6 flex flex-wrap gap-x-10 gap-y-3">
+        <dl className="mt-5 grid grid-cols-3 gap-4">
           {counts.map(({ status, count }) => (
-            <div key={status} className="flex items-baseline gap-2">
-              <dt className="text-xs uppercase tracking-[0.14em] text-muted rtl:tracking-normal rtl:normal-case">
-                {t.enums.inquiryStatus[status]}
-              </dt>
-              <dd className="font-display text-2xl text-ink tabular-nums">{count}</dd>
+            <div key={status} className="card p-4">
+              <dt className="eyebrow">{t.enums.inquiryStatus[status]}</dt>
+              <dd className="mt-2 font-display text-[1.5rem] font-extrabold leading-none text-ink tabular-nums">
+                {count}
+              </dd>
             </div>
           ))}
         </dl>
       </header>
 
       {inquiries.length === 0 ? (
-        <p className="border border-dashed border-hairline p-12 text-center text-sm text-muted">
+        <p className="card p-12 text-center text-sm text-muted">
           {t.admin.noEnquiries}{" "}
           <Link
             href={localePath(locale, "/contact")}
-            className="nav-link text-gold-deep"
+            className="font-semibold text-gold-deep underline underline-offset-2"
           >
             {t.contactPage.sendEnquiry}
           </Link>
         </p>
       ) : (
-        <ul className="divide-y divide-hairline border-y border-hairline">
+        <ul className="card divide-y divide-hairline overflow-hidden">
           {inquiries.map((inquiry) => (
             <LeadRow key={inquiry.id} inquiry={inquiry} locale={locale} t={t} />
           ))}

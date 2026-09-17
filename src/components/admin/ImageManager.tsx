@@ -24,7 +24,7 @@ export function ImageManager({
     <section className="border border-hairline p-6 md:p-8" aria-labelledby="images-heading">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 id="images-heading" className="font-display text-2xl text-ink">
+          <h2 id="images-heading" className="font-display text-[1.0625rem] font-bold text-ink">
             {t.admin.images}
           </h2>
           <p className="mt-2 text-xs text-muted">
@@ -54,7 +54,7 @@ export function ImageManager({
       </div>
 
       {images.length === 0 ? (
-        <p className="mt-7 border border-dashed border-hairline p-8 text-center text-sm text-muted">
+        <p className="mt-7 rounded-[var(--radius-sm)] border border-dashed border-hairline p-8 text-center text-sm text-muted">
           {t.admin.noImages}
         </p>
       ) : (

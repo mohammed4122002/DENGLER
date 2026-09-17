@@ -23,11 +23,11 @@ export function LeadRow({
     <li className={`py-5 transition-opacity ${isPending ? "opacity-50" : ""}`}>
       <div className="flex flex-wrap items-start gap-x-6 gap-y-3">
         <div className="min-w-[13rem] flex-1">
-          <p className="font-display text-xl text-ink">{inquiry.name}</p>
+          <p className="font-display text-[1.0625rem] font-bold text-ink">{inquiry.name}</p>
           <p className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
             <a
               href={`mailto:${inquiry.email}`}
-              className="nav-link hover:text-gold"
+              className="transition-colors hover:text-gold-deep"
               dir="ltr"
             >
               {inquiry.email}
@@ -35,7 +35,7 @@ export function LeadRow({
             {inquiry.phone && (
               <a
                 href={`tel:${inquiry.phone.replace(/\s/g, "")}`}
-                className="nav-link hover:text-gold"
+                className="transition-colors hover:text-gold-deep"
                 dir="ltr"
               >
                 {inquiry.phone}
