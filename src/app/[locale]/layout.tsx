@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import {
-  Bodoni_Moda,
-  Jost,
-  Reem_Kufi,
-  Tajawal,
+  Cairo,
+  Noto_Sans_Arabic,
+  Plus_Jakarta_Sans,
+  Source_Serif_4,
 } from "next/font/google";
 
 import { Footer } from "@/components/site/Footer";
@@ -26,23 +26,22 @@ import "@/styles/globals.css";
 /* ------------------------------------------------------------------ *
  * Typefaces
  *
- * Each script gets a display face and a text face, and the two pairings are
- * chosen to sit at the same weight on the page: Bodoni Moda ↔ Reem Kufi (both
- * high-contrast and geometric — a Didone and a modern Kufi, which are the same
- * idea worked out in two scripts), Jost ↔ Tajawal (both geometric sans faces
- * built on the circle and the straight stem).
+ * Chosen for legibility first. The four faces share the properties that make
+ * type easy to read rather than merely handsome: a large x-height, open
+ * apertures, sturdy stems and low stroke contrast. That rules out the Didone
+ * and the geometric sans this file carried before — a hairline that thins to
+ * nothing and a lowercase built from perfect circles both look expensive in a
+ * specimen and cost you the sentence.
  *
- * Bodoni Moda is loaded with its `opsz` axis. CSS applies `font-optical-sizing:
- * auto` by default, so the browser moves along that axis with the font size on
- * its own: hairlines thicken in a 1rem card title and thin out again in an
- * 8rem headline. That is the whole reason to choose a Didone with real optical
- * sizing over one without — an unsized Didone either disappears at small sizes
- * or looks blunt at large ones.
+ * Source Serif 4 ↔ Cairo for display, Plus Jakarta Sans ↔ Noto Sans Arabic for
+ * text. The Arabic side is the bigger change: Cairo and Noto Sans Arabic are
+ * both plainly-drawn humanist faces, where a Kufi is a display idiom whose
+ * geometry is read as style before it is read as words.
  *
- * Its lightest weight is 400, and `font-synthesis-weight: none` means the
- * `font-weight: 300` on headings resolves to it rather than being faked
- * thinner. That is intentional: the headings carry more presence than the
- * previous pairing gave them.
+ * Source Serif 4 is loaded with its `opsz` axis and with its real italic. CSS
+ * applies `font-optical-sizing: auto` by default, so the browser moves along
+ * that axis with the font size on its own: the face opens up and thickens at
+ * caption sizes and tightens at headline sizes, with nothing set per size.
  *
  * All four variables are always defined; `globals.css` swaps which pair
  * `--font-display` and `--font-sans` point at based on `[dir]`, so a mixed
@@ -50,36 +49,31 @@ import "@/styles/globals.css";
  * scripts in their intended face rather than falling back.
  * ------------------------------------------------------------------ */
 
-const displayLatin = Bodoni_Moda({
+const displayLatin = Source_Serif_4({
   subsets: ["latin"],
   weight: "variable",
-  /* The real italic, not a synthesised one. A Didone italic is a separate
-     design — a sloped cursive with different letterforms — so shearing the
-     roman, which is what the browser does when the italic is absent, reads as
-     a rendering fault rather than as emphasis. The hero's accent line is set
-     in it. */
   style: ["normal", "italic"],
   axes: ["opsz"],
   variable: "--font-display-latin",
   display: "swap",
 });
 
-const sansLatin = Jost({
+const sansLatin = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-sans-latin",
   display: "swap",
 });
 
-const displayArabic = Reem_Kufi({
+const displayArabic = Cairo({
   subsets: ["arabic", "latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-display-arabic",
   display: "swap",
 });
 
-const sansArabic = Tajawal({
-  subsets: ["arabic", "latin"],
-  weight: ["300", "400", "500", "700"],
+const sansArabic = Noto_Sans_Arabic({
+  subsets: ["arabic"],
+  weight: "variable",
   variable: "--font-sans-arabic",
   display: "swap",
 });

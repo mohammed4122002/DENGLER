@@ -197,26 +197,30 @@ quarter larger, because it has no small-capital convention to fall back on.
 In running prose both dictionaries use the short form — a company calls itself
 "Crete Roots" in a sentence and "Crete Roots Company" on the door.
 
-**Typography.** Bodoni Moda ↔ Reem Kufi for display, Jost ↔ Tajawal for text.
-The pairings are the same idea worked out in two scripts: a Didone beside a
-modern Kufi, both high-contrast and geometric; a geometric sans beside an
-Arabic one built on the same circle-and-stem logic. All four load always, and
-each stack lists the other script's face, so "CRETE ROOTS" inside an Arabic
-sentence doesn't drop to a system font.
+**Typography.** Source Serif 4 ↔ Cairo for display, Plus Jakarta Sans ↔ Noto
+Sans Arabic for text. Chosen for legibility first: all four share a large
+x-height, open apertures, sturdy stems and low stroke contrast. That rules out
+the Didone and the geometric sans this file carried in an earlier revision — a
+hairline that thins to nothing and a lowercase built from perfect circles both
+look expensive in a specimen and cost you the sentence.
 
-Bodoni Moda is loaded with its `opsz` axis and with its real italic. CSS
-applies `font-optical-sizing: auto` by default, so hairlines thicken in a 1rem
-card title and thin out again in an 8rem headline without anything being set
-per size — which is the whole reason to pick a Didone that has the axis. The
-italic matters for the same reason: a Didone italic is a separate design, and
-the sheared roman a browser synthesises in its absence reads as a rendering
-fault rather than as emphasis.
+The Arabic side is the bigger change. Cairo and Noto Sans Arabic are plainly
+drawn humanist faces, where a Kufi is a display idiom whose geometry gets read
+as style before it gets read as words.
 
-Its lightest weight is 400 and `font-synthesis-weight` is off, so the
-`font-weight: 300` on headings resolves to it rather than being faked thinner.
-Display tracking is much looser than the previous humanist serif took: a Didone
-is vertical stems joined by hairlines, and pulled tight the hairlines of one
-letter touch the stems of the next.
+All four load always, and each stack lists the other script's face, so
+"CRETE ROOTS" inside an Arabic sentence doesn't drop to a system font.
+
+Source Serif 4 is loaded with its `opsz` axis and with its real italic. CSS
+applies `font-optical-sizing: auto` by default, so the face opens up and
+thickens at caption sizes and tightens at headline sizes with nothing set per
+size. The italic matters for the same reason a real weight does: the sheared
+roman a browser synthesises in its absence reads as a rendering fault rather
+than as emphasis.
+
+Headings are set at 400, not at the 300 an earlier revision used. Source Serif
+goes down to 200, and a heading thinner than the body copy under it reads as
+faded rather than as restrained — especially in white over a photograph.
 
 The RTL corrections at the bottom of `globals.css` are **deliberately
 unlayered**. Tailwind's cascade runs base → components → utilities and layer

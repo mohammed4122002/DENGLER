@@ -78,17 +78,15 @@
        table) clips itself instead. */
   }
 
-  /* `font-weight: 300` resolves to Bodoni Moda's lightest cut, 400, because
-     `font-synthesis-weight` is off — the declaration stays as the design
-     intent ("the lightest available") rather than a number to chase.
-
-     The tracking is much looser than a humanist serif would take. A Didone is
-     built from vertical stems and hairline joins; pulled tight, the hairlines
-     of one letter touch the stems of the next and the word fills in. */
+  /* Regular, not light. Source Serif 4 goes down to 200, and a heading set
+     there is thinner than the body copy under it — which reads as faded
+     rather than as restrained, especially in white over a photograph. The
+     weight is what carries a heading at a distance; the size carries it up
+     close. */
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    font-weight: 300;
-    letter-spacing: -0.008em;
+    font-weight: 400;
+    letter-spacing: -0.012em;
     text-wrap: balance;
   }
 
@@ -258,24 +256,24 @@
     .shell { padding-inline: 4rem; }
   }
 
-  /* Line heights are set below 1 on purpose — display type is measured from
-     cap-height to baseline, not from the em box, and the em box of a Didone is
-     mostly air. The values are the tightest that clear Bodoni Moda's
-     ascenders at every clamp size. */
+  /* Display type is measured from cap-height to baseline, not from the em box,
+     so the leading can sit at or below 1 without the lines touching. These are
+     the tightest values that clear Source Serif 4's ascenders at every clamp
+     size — `fontcheck` measures the ink, so they are not guesses. */
   .display-xl {
     font-size: clamp(2.75rem, 9vw, 8.5rem);
-    line-height: 0.96;
-    letter-spacing: -0.015em;
+    line-height: 1;
+    letter-spacing: -0.02em;
   }
   .display-lg {
     font-size: clamp(2.25rem, 6vw, 5rem);
-    line-height: 1;
-    letter-spacing: -0.012em;
+    line-height: 1.04;
+    letter-spacing: -0.018em;
   }
   .display-md {
     font-size: clamp(1.75rem, 3.6vw, 3rem);
-    line-height: 1.08;
-    letter-spacing: -0.008em;
+    line-height: 1.12;
+    letter-spacing: -0.014em;
   }
 
   .text-balance-tight { text-wrap: balance; }
@@ -326,11 +324,11 @@
 /* ---------------------------------------------------------------------
    Arabic
    ---------------------------------------------------------------------
-   Reem Kufi and Tajawal lead the stacks, and the whole page gains a touch
-   more line-height: Arabic ascenders and descenders reach further than Latin
-   ones, so type set at the Latin leading reads cramped. Both faces sit much
-   shallower below the baseline than a Naskh face does, which is why these
-   values are smaller than the ones this file carried before. */
+   Cairo and Noto Sans Arabic lead the stacks, and the whole page gains a
+   touch more line-height: Arabic ascenders and descenders reach further than
+   Latin ones, so type set at the Latin leading reads cramped. Both are plain
+   humanist faces rather than display Kufis, which is the point — in Arabic the
+   clearest face is the one whose shapes are not doing anything else. */
 [dir="rtl"] {
   --font-display: var(--font-display-arabic), var(--font-display-latin),
     "Times New Roman", serif;
@@ -364,8 +362,8 @@
 }
 
 /* The display faces are optically different sizes at the same point size;
-   Reem Kufi runs larger than Bodoni Moda, so the Arabic headings need less
-   leading, not more, and no negative tracking at all. */
+   Cairo runs larger than Source Serif 4, so the Arabic headings need less
+   leading than the ratio suggests, and no negative tracking at all. */
 [dir="rtl"] h1,
 [dir="rtl"] h2,
 [dir="rtl"] h3,
@@ -380,21 +378,21 @@
   letter-spacing: 0;
 }
 
-/* Reem Kufi still sets below the baseline — the tail of ى or ج from one line
-   lands in the next at Latin leading — but far less deeply than a Naskh face.
-   These are the smallest values that clear it at every clamp size. */
-[dir="rtl"] .display-lg { line-height: 1.18; }
-[dir="rtl"] .display-md { line-height: 1.22; }
+/* Cairo still sets below the baseline — the tail of ى or ج from one line
+   lands in the next at Latin leading — though far less deeply than a Naskh
+   face. These are the smallest values that clear it at every clamp size. */
+[dir="rtl"] .display-lg { line-height: 1.22; }
+[dir="rtl"] .display-md { line-height: 1.26; }
 
-/* The hero headline is also stepped down: Reem Kufi reads optically larger
-   than Bodoni Moda at the same point size, and with the extra leading the
+/* The hero headline is also stepped down: Cairo reads optically larger than
+   Source Serif 4 at the same point size, and with the extra leading the
    Arabic copy block runs taller than the English one — enough, unchecked, to
    push the headline up into the part of the frame the scrim does not reach.
    `tests/e2e.mjs` measures the resulting contrast off rendered pixels, so
    this number is verified rather than eyeballed. */
 [dir="rtl"] .display-xl {
   font-size: clamp(2.4rem, 7.4vw, 6.75rem);
-  line-height: 1.16;
+  line-height: 1.2;
 }
 /* Italic is a Latin convention. Arabic has no italic form, so browsers
    synthesise one by shearing the glyphs — which looks broken. The accent
@@ -404,7 +402,7 @@
 }
 
 /* Latin runs inside Arabic text (prices, "m²", ISO codes) keep the Latin
-   text face rather than Reem Kufi's Latin, which is a display cut.
+   text face rather than Cairo's Latin, which is a display cut.
 
    `unicode-bidi: plaintext` resolves each run's direction from its own first
    strong character instead of inheriting RTL from the page. Without it a
