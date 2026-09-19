@@ -159,14 +159,25 @@ export function Hero({
           opaque any more: the plate reads edge to edge, and the copy sits on
           the sky rather than on a white column that happens to touch it.
 
-          It runs along a different axis per breakpoint, because the copy does.
-          Above `lg` the copy takes the leading half and the photograph the
-          trailing half, so the wash is horizontal. Below it the copy is
-          full-width — a horizontal wash left the last third of every line
-          sitting on raw photograph, which is exactly the bug the measured
-          contrast check exists to catch, so the small-screen wash runs top to
-          bottom. The search bar is frosted rather than opaque precisely so it
-          can sit over the skyline rather than hiding it.
+          Both are anchored to the top leading corner — top-left in English,
+          top-right in Arabic — because that is where the copy starts. A
+          gradient with one axis puts its white along a whole edge; this one
+          puts it in the corner the eye enters from and lets it fall away in
+          every other direction, so the bottom of the section is photograph
+          rather than fog. `--wash-x` is the only thing the two directions
+          differ by.
+
+          The two ellipses are shaped very differently, and that is not a
+          styling flourish. Above `lg` the copy takes the leading half and the
+          photograph the trailing half, so the ellipse can be roughly as wide as
+          it is tall and the corner reads as a corner. Below `lg` the copy runs
+          the full width, and a corner-shaped falloff left the last third of
+          every line sitting on raw photograph — the exact bug the measured
+          contrast check exists to catch. Stretching the mobile ellipse to 250%
+          of the viewport keeps the ramp almost horizontal across a line while
+          still leaning into the leading corner. The search bar is frosted
+          rather than opaque precisely so it can sit over the skyline rather
+          than hiding it.
 
           What sets the numbers is one measurement: with the wash switched off
           entirely, the darkest pixel behind the copy is #b6 under the headline
@@ -192,16 +203,13 @@ export function Hero({
           `src/lib/data/images.ts`, not something an editor can upload. The
           suite now measures this plate and a white one instead, and says so. */}
       <div
-        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.88)_0%,rgba(255,255,255,0.72)_16%,rgba(255,255,255,0.56)_34%,rgba(255,255,255,0.32)_50%,rgba(255,255,255,0.1)_68%,transparent_84%)] lg:hidden"
+        className="absolute inset-0 -z-10 bg-[radial-gradient(250%_92%_at_var(--wash-x)_0%,rgba(255,255,255,0.95)_0%,rgba(255,255,255,0.78)_28%,rgba(255,255,255,0.56)_45%,rgba(255,255,255,0.3)_62%,rgba(255,255,255,0.1)_78%,transparent_92%)] lg:hidden"
+        style={{ ["--wash-x" as string]: rtl ? "100%" : "0%" }}
         aria-hidden
       />
       <div
-        className="absolute inset-0 -z-10 hidden bg-[linear-gradient(to_var(--wash-to),rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.74)_16%,rgba(255,255,255,0.58)_30%,rgba(255,255,255,0.46)_42%,rgba(255,255,255,0.2)_56%,rgba(255,255,255,0.05)_70%,transparent_82%)] lg:block"
-        style={{ ["--wash-to" as string]: rtl ? "left" : "right" }}
-        aria-hidden
-      />
-      <div
-        className="absolute inset-x-0 bottom-0 -z-10 h-32 bg-[linear-gradient(to_top,#ffffff,transparent)]"
+        className="absolute inset-0 -z-10 hidden bg-[radial-gradient(100%_140%_at_var(--wash-x)_0%,rgba(255,255,255,0.93)_0%,rgba(255,255,255,0.75)_28%,rgba(255,255,255,0.58)_46%,rgba(255,255,255,0.46)_58%,rgba(255,255,255,0.18)_72%,transparent_88%)] lg:block"
+        style={{ ["--wash-x" as string]: rtl ? "100%" : "0%" }}
         aria-hidden
       />
 
