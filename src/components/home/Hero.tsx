@@ -126,7 +126,19 @@ export function Hero({
             fetchPriority="high"
             sizes="100vw"
             quality={80}
-            className="object-cover object-[62%_46%]"
+            /* The plate is 2.53:1 and the section is near enough the same, so
+               there is almost nothing to crop; centring is right.
+
+               `rtl:-scale-x-100` mirrors it in Arabic. The layout mirrors —
+               copy to the right, photograph to the left — but a photograph
+               does not, so unmirrored the terrace ended up under the wash and
+               the hero read as a plain hazy skyline with its subject erased.
+               Flipping the plate puts the terrace back on the photo side and
+               the sun back under the copy, which is the composition the wash
+               is cut for. It is applied to the image rather than to either
+               wrapper because both of those carry motion transforms, and a
+               className transform would be overwritten by the inline one. */
+            className="object-cover object-center rtl:-scale-x-100"
           />
         </motion.div>
       </motion.div>
@@ -143,7 +155,10 @@ export function Hero({
           full-width — a horizontal wash left the last third of every line
           sitting on raw photograph, which is exactly the bug the measured
           contrast check exists to catch, so the small-screen wash runs top to
-          bottom and the photograph reads as a footer to the section.
+          bottom. Solid white ends at 40% — just past the lead, which is the
+          last thing that has to be read off it — and the rest of the column
+          keeps the skyline behind it. The search bar is frosted rather than
+          opaque precisely so it can sit there.
 
           The desktop wash hands over to the photograph earlier than it looks
           like it should. The plate is a hazy sunrise, so the handover lands on
@@ -151,7 +166,7 @@ export function Hero({
           start well inside the copy column instead of being pushed off the
           trailing edge. */}
       <div
-        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,#ffffff_0%,#ffffff_62%,rgba(255,255,255,0.88)_78%,rgba(255,255,255,0.55)_92%,rgba(255,255,255,0.3)_100%)] lg:hidden"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,#ffffff_0%,#ffffff_40%,rgba(255,255,255,0.85)_56%,rgba(255,255,255,0.5)_74%,rgba(255,255,255,0.2)_90%,rgba(255,255,255,0.08)_100%)] lg:hidden"
         aria-hidden
       />
       <div

@@ -351,7 +351,14 @@ else is a reveal on scroll and a lift on hover.
 Legibility over the plate is a property of the layout rather than a bet on the
 photograph: the hero washes to **solid** white under the copy, on a different
 axis per breakpoint, so the worst case is navy on white rather than navy on
-whatever an editor uploaded. `tests/e2e.mjs` measures it off rendered pixels
+whatever an editor uploaded.
+
+The plate is also mirrored in RTL (`rtl:-scale-x-100` on the image). The layout
+mirrors and a photograph does not, so without it the hero's subject — the
+terrace, on the trailing edge — ended up under the wash in Arabic and the
+section read as a bare skyline. The flip goes on the image rather than either
+wrapper because both of those carry motion transforms that a className
+transform would lose to. `tests/e2e.mjs` measures it off rendered pixels
 at both breakpoints, against a photograph forced to pure white *and* one forced
 to pure black. That check is direction-agnostic — it takes the minimum
 per-pixel contrast rather than assuming light type — because the version that
