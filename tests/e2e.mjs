@@ -20,6 +20,8 @@
  *     Arabic rather than an untranslated fallback
  *   · hero copy contrast, measured off the rendered pixels — including
  *     against a forced near-white photograph
+ *   · the scrolled navbar's links, measured through its glass over the
+ *     darkest thing the site can put behind them
  *
  * Set BASE_URL to point at a different server (default http://127.0.0.1:3100).
  * The admin section runs only when ADMIN_PASSWORD is set, matching the server.
@@ -208,9 +210,14 @@ const browser = await chromium.launch({ executablePath: EXECUTABLE });
   // The rail should hold at nav height (76px) + 24px across a run of samples,
   // then release once its container's bottom passes — which is why this counts
   // pinned samples rather than taking a minimum.
+  //
+  // The step is 100 rather than 200 because the rail only reaches its pinned
+  // position in the last screen of a 4,000px page: at 200 it produced exactly
+  // three pinned samples against a threshold of three, so a single sample lost
+  // to a reveal animation resizing the page read as a sticky regression.
   const PIN_TOP = 100;
   let pinnedSamples = 0;
-  for (let y = 0; ; y += 200) {
+  for (let y = 0; ; y += 100) {
     await page.evaluate((value) => window.scrollTo(0, value), y);
     await page.waitForTimeout(110);
     const state = await page.evaluate(() => ({
@@ -589,6 +596,115 @@ for (const [width, height, label] of [
       }
       await page.close();
     }
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * 8b. The scrolled navbar, measured through its own glass
+ * ------------------------------------------------------------------ *
+ * Once you scroll, the bar stops being opaque and becomes a translucent pane
+ * with a blur behind it. That is a deliberate trade — and the thing it trades
+ * against is legibility, because whatever the page is scrolled to shows
+ * through. The worst case is not the home page but an interior one: those open
+ * on `PageHeader`, a near-black photograph, and that is what sits behind the
+ * glass for the first half-screen of scrolling.
+ *
+ * Measured the same way as the hero: read the painted link colour, clear every
+ * glyph in the header, screenshot the box the link occupied, and take the
+ * closest pixel. Nav links are small text, so the bar is 4.5:1, not 3:1.
+ * ------------------------------------------------------------------ */
+{
+  const MIN_NAV_CONTRAST = 4.5; // WCAG AA, body-size text.
+
+  for (const [label, path] of [
+    ["en nav over the portfolio header", "/en/properties"],
+    ["ar nav over the portfolio header", "/ar/properties"],
+  ]) {
+    const page = await (
+      await browser.newContext({ viewport: { width: 1440, height: 900 } })
+    ).newPage();
+    await page.goto(BASE + path, { waitUntil: "domcontentloaded", timeout: 45000 });
+    await page.waitForTimeout(4200);
+    await page.evaluate(() => window.scrollTo({ top: 140, behavior: "instant" }));
+    // Long enough for the spring that brings the glass in to have settled.
+    await page.waitForTimeout(1600);
+
+    const measured = await page.evaluate(() => {
+      const link = document.querySelector("header nav ul a");
+      if (!link) return null;
+      const colour = getComputedStyle(link).color;
+      const rects = [];
+      const range = document.createRange();
+      range.selectNodeContents(link);
+      for (const r of range.getClientRects()) {
+        if (r.width > 8 && r.height > 8) {
+          rects.push({
+            x: Math.round(r.x),
+            y: Math.round(r.y),
+            width: Math.round(r.width),
+            height: Math.round(r.height),
+          });
+        }
+      }
+      document.querySelectorAll("header *").forEach((el) => {
+        el.style.color = "transparent";
+        el.style.textShadow = "none";
+        el.style.webkitTextFillColor = "transparent";
+      });
+      return { colour, rects };
+    });
+
+    if (!measured || measured.rects.length === 0) {
+      fail(`nav contrast: no link found for ${label}`);
+      await page.close();
+      continue;
+    }
+    await page.waitForTimeout(150);
+
+    let worst = Infinity;
+    for (const rect of measured.rects) {
+      const encoded = (await page.screenshot({ clip: rect })).toString("base64");
+      const lowest = await page.evaluate(
+        async ({ data, colour }) => {
+          const chan = (v) => {
+            const n = v / 255;
+            return n <= 0.03928 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4;
+          };
+          const lum = (r, g, b) =>
+            0.2126 * chan(r) + 0.7152 * chan(g) + 0.0722 * chan(b);
+          const [tr, tg, tb] = colour.match(/[\d.]+/g).map(Number);
+          const text = lum(tr, tg, tb);
+          const ratio = (a, b) => {
+            const [hi, lo] = a > b ? [a, b] : [b, a];
+            return (hi + 0.05) / (lo + 0.05);
+          };
+          const img = new Image();
+          img.src = `data:image/png;base64,${data}`;
+          await img.decode();
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+          const px = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+          let min = Infinity;
+          for (let i = 0; i < px.length; i += 4) {
+            const c = ratio(text, lum(px[i], px[i + 1], px[i + 2]));
+            if (c < min) min = c;
+          }
+          return min;
+        },
+        { data: encoded, colour: measured.colour },
+      );
+      worst = Math.min(worst, lowest);
+    }
+
+    if (worst < MIN_NAV_CONTRAST) {
+      fail(
+        `nav contrast: ${label} is ${worst.toFixed(2)}:1 through the glass, below ${MIN_NAV_CONTRAST}:1`,
+      );
+    }
+    await page.close();
   }
 }
 
