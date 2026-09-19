@@ -20,8 +20,8 @@
  *     Arabic rather than an untranslated fallback
  *   · hero copy contrast, measured off the rendered pixels — including
  *     against a forced near-white photograph
- *   · the scrolled navbar's links, measured through its glass over the
- *     darkest thing the site can put behind them
+ *   · every navigation control, in both of the bar's states — bare over the
+ *     page's opening section, and through its glass after scrolling
  *
  * Set BASE_URL to point at a different server (default http://127.0.0.1:3100).
  * The admin section runs only when ADMIN_PASSWORD is set, matching the server.
@@ -624,84 +624,125 @@ for (const [width, height, label] of [
 }
 
 /* ------------------------------------------------------------------ *
- * 8b. The scrolled navbar, measured through its own glass
+ * 8b. The navigation bar, in both of its states
  * ------------------------------------------------------------------ *
- * Once you scroll, the bar stops being opaque and becomes a translucent pane
- * with a blur behind it. That is a deliberate trade — and the thing it trades
- * against is legibility, because whatever the page is scrolled to shows
- * through. The worst case is not the home page but an interior one: those open
- * on `PageHeader`, a near-black photograph, and that is what sits behind the
- * glass for the first half-screen of scrolling.
+ * The bar has no background of its own at the top of a page and a translucent
+ * one after that, so in neither state is its legibility a property of the bar.
+ * It is a property of whatever the page happens to put behind it.
  *
- * Measured the same way as the hero: read the painted link colour, clear every
- * glyph in the header, screenshot the box the link occupied, and take the
- * closest pixel. Nav links are small text, so the bar is 4.5:1, not 3:1.
+ * At the top that is the route's opening section, and which colour the
+ * controls take is decided by `navSurface` — a rule about layout, not a guess
+ * about styling. This measures both kinds of route, so a new page that breaks
+ * the rule fails here instead of shipping with an invisible bar. It has caught
+ * two things already: the trailing end of the bar sitting on the hero's terrace
+ * soffit at 1.39:1, and a language switcher whose current item was marked in
+ * gold alone — 3.14:1 on pure white at its theoretical best.
+ *
+ * Scrolled, the bar is glass over whatever is passing underneath, and the worst
+ * case is an interior page's near-black header photograph.
+ *
+ * Colours are resolved by painting them over black and over white and solving
+ * for alpha, rather than by parsing the computed string. Half these controls
+ * are `text-paper/85` or `oklab(…)`, and a regex over the numbers in that
+ * reports a contrast of 1.14:1 for white-on-black — a bug that looks exactly
+ * like the failure it is hiding.
  * ------------------------------------------------------------------ */
 {
-  const MIN_NAV_CONTRAST = 4.5; // WCAG AA, body-size text.
+  const MIN_NAV_CONTRAST = 4.5; // WCAG AA — every one of these is small text.
 
-  for (const [label, path] of [
-    ["en nav over the portfolio header", "/en/properties"],
-    ["ar nav over the portfolio header", "/ar/properties"],
+  /** Paints `colour` over black and over white to recover premultiplied rgb
+      and alpha, which is the only way to composite it over a real pixel. */
+  const RESOLVE = `(colour) => {
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 1;
+    const ctx = canvas.getContext("2d");
+    const over = (backdrop) => {
+      ctx.fillStyle = backdrop;
+      ctx.fillRect(0, 0, 1, 1);
+      ctx.fillStyle = colour;
+      ctx.fillRect(0, 0, 1, 1);
+      return [...ctx.getImageData(0, 0, 1, 1).data].slice(0, 3);
+    };
+    const onBlack = over("#000");
+    const onWhite = over("#fff");
+    return { alpha: 1 - (onWhite[0] - onBlack[0]) / 255, premultiplied: onBlack };
+  }`;
+
+  for (const [label, path, scrollTo] of [
+    ["en nav over the hero", "/en", 0],
+    ["ar nav over the hero", "/ar", 0],
+    ["en nav over a page header", "/en/properties", 0],
+    ["ar nav over a page header", "/ar/properties", 0],
+    ["en nav over a property", "/en/properties/cap-ferrat-villa", 0],
+    ["en nav through its glass", "/en/properties", 140],
+    ["ar nav through its glass", "/ar/properties", 140],
   ]) {
     const page = await (
       await browser.newContext({ viewport: { width: 1440, height: 900 } })
     ).newPage();
     await page.goto(BASE + path, { waitUntil: "domcontentloaded", timeout: 45000 });
     await page.waitForTimeout(4200);
-    await page.evaluate(() => window.scrollTo({ top: 140, behavior: "instant" }));
-    // Long enough for the spring that brings the glass in to have settled.
-    await page.waitForTimeout(1600);
+    if (scrollTo) {
+      await page.evaluate((y) => window.scrollTo({ top: y, behavior: "instant" }), scrollTo);
+      // Long enough for the spring that brings the glass in to have settled.
+      await page.waitForTimeout(1600);
+    }
 
-    const measured = await page.evaluate(() => {
-      const link = document.querySelector("header nav ul a");
-      if (!link) return null;
-      const colour = getComputedStyle(link).color;
-      const rects = [];
-      const range = document.createRange();
-      range.selectNodeContents(link);
-      for (const r of range.getClientRects()) {
-        if (r.width > 8 && r.height > 8) {
-          rects.push({
-            x: Math.round(r.x),
-            y: Math.round(r.y),
-            width: Math.round(r.width),
-            height: Math.round(r.height),
-          });
-        }
-      }
+    const controls = await page.evaluate((resolveSource) => {
+      const resolve = eval(resolveSource);
+      const found = [];
+      document
+        .querySelectorAll("header nav ul a, header [role=group] a")
+        .forEach((el) => {
+          const { alpha, premultiplied } = resolve(getComputedStyle(el).color);
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          for (const r of range.getClientRects()) {
+            if (r.width > 6 && r.height > 6) {
+              found.push({
+                alpha,
+                premultiplied,
+                label: el.textContent.trim().slice(0, 14),
+                rect: {
+                  x: Math.round(r.x),
+                  y: Math.round(r.y),
+                  width: Math.max(8, Math.round(r.width)),
+                  height: Math.max(8, Math.round(r.height)),
+                },
+              });
+            }
+          }
+        });
       document.querySelectorAll("header *").forEach((el) => {
         el.style.color = "transparent";
         el.style.textShadow = "none";
         el.style.webkitTextFillColor = "transparent";
       });
-      return { colour, rects };
-    });
+      return found;
+    }, RESOLVE);
 
-    if (!measured || measured.rects.length === 0) {
-      fail(`nav contrast: no link found for ${label}`);
+    if (controls.length === 0) {
+      fail(`nav contrast: no controls found for ${label}`);
       await page.close();
       continue;
     }
     await page.waitForTimeout(150);
 
-    let worst = Infinity;
-    for (const rect of measured.rects) {
-      const encoded = (await page.screenshot({ clip: rect })).toString("base64");
-      const lowest = await page.evaluate(
-        async ({ data, colour }) => {
+    for (const control of controls) {
+      const encoded = (await page.screenshot({ clip: control.rect })).toString("base64");
+      const worst = await page.evaluate(
+        async ({ data, alpha, premultiplied }) => {
           const chan = (v) => {
             const n = v / 255;
             return n <= 0.03928 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4;
           };
           const lum = (r, g, b) =>
             0.2126 * chan(r) + 0.7152 * chan(g) + 0.0722 * chan(b);
-          const [tr, tg, tb] = colour.match(/[\d.]+/g).map(Number);
-          const text = lum(tr, tg, tb);
           const ratio = (a, b) => {
             const [hi, lo] = a > b ? [a, b] : [b, a];
             return (hi + 0.05) / (lo + 0.05);
           };
+
           const img = new Image();
           img.src = `data:image/png;base64,${data}`;
           await img.decode();
@@ -711,22 +752,29 @@ for (const [width, height, label] of [
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0);
           const px = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
           let min = Infinity;
           for (let i = 0; i < px.length; i += 4) {
+            // A translucent glyph paints to a different colour over every
+            // pixel it covers, so the text luminance is per-pixel too.
+            const text = lum(
+              premultiplied[0] + (1 - alpha) * px[i],
+              premultiplied[1] + (1 - alpha) * px[i + 1],
+              premultiplied[2] + (1 - alpha) * px[i + 2],
+            );
             const c = ratio(text, lum(px[i], px[i + 1], px[i + 2]));
             if (c < min) min = c;
           }
           return min;
         },
-        { data: encoded, colour: measured.colour },
+        { data: encoded, alpha: control.alpha, premultiplied: control.premultiplied },
       );
-      worst = Math.min(worst, lowest);
-    }
 
-    if (worst < MIN_NAV_CONTRAST) {
-      fail(
-        `nav contrast: ${label} is ${worst.toFixed(2)}:1 through the glass, below ${MIN_NAV_CONTRAST}:1`,
-      );
+      if (worst < MIN_NAV_CONTRAST) {
+        fail(
+          `nav contrast: "${control.label}" in ${label} is ${worst.toFixed(2)}:1, below ${MIN_NAV_CONTRAST}:1`,
+        );
+      }
     }
     await page.close();
   }

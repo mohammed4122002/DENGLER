@@ -6,6 +6,7 @@ import { Footer } from "@/components/site/Footer";
 import { Navbar } from "@/components/site/Navbar";
 import { PageTransition } from "@/components/site/PageTransition";
 import { localePath, type Dictionary, type Locale } from "@/lib/i18n";
+import { navSurface } from "@/lib/nav-surface";
 
 /**
  * The public site's chrome — marketing navigation and footer — around
@@ -39,7 +40,7 @@ export function SiteChrome({
 
   return (
     <>
-      <Navbar locale={locale} t={t} />
+      <Navbar locale={locale} t={t} surface={navSurface(pathname)} />
       <PageTransition>
         <main id="main">{children}</main>
       </PageTransition>

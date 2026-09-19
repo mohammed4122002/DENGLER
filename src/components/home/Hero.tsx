@@ -213,6 +213,24 @@ export function Hero({
         aria-hidden
       />
 
+      {/* The band the navigation stands on.
+          The bar has no background of its own, so on this page the hero is what
+          its controls are read against — and the corner wash does not reach
+          them. It is anchored to the leading corner; the trailing end of the
+          bar, where the language switcher sits, is 82% across, where the wash
+          has nothing left. Measured there, the photograph is the terrace
+          soffit at #5f–#83 and the switcher came out at 1.39:1.
+
+          Graphite needs #be for 4.5:1, so this lifts the worst of it past #d4
+          and is gone by the time the eyebrow starts. It is a gradient over
+          the photograph rather than a bar behind the navigation: no edge, no
+          border, and on the leading half it is invisible because that half is
+          already white. */}
+      <div
+        className="absolute inset-x-0 top-0 -z-10 h-[calc(var(--nav-h)+1.25rem)] bg-[linear-gradient(to_bottom,rgba(255,255,255,0.78)_0%,rgba(255,255,255,0.64)_50%,transparent_100%)]"
+        aria-hidden
+      />
+
       {/* ── Aurora ───────────────────────────────────────────────────────
           Two blurred blooms under the copy and over the plate. They do the job
           a grey scrim used to do — lift the headline off the photograph — but

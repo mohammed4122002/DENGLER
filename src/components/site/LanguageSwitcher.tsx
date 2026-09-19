@@ -94,11 +94,16 @@ function Switcher({
               onClick={() => {
                 document.cookie = `${LOCALE_COOKIE}=${target};path=/;max-age=31536000;samesite=lax`;
               }}
+              /* The current language is marked by weight and full-strength
+                 colour, with gold only underlining it. It used to *be* gold,
+                 which is 3.14:1 on pure white at best and measured 1.14:1 over
+                 the hero photograph once the bar lost its background — an
+                 11px control that was, in the literal sense, not there. */
               className={`text-xs transition-colors duration-300 ${
                 current
-                  ? isLight
-                    ? "text-gold-soft"
-                    : "text-gold-deep"
+                  ? `font-semibold underline decoration-gold decoration-2 underline-offset-4 ${
+                      isLight ? "text-white" : "text-ink"
+                    }`
                   : "hover:text-gold"
               }`}
             >

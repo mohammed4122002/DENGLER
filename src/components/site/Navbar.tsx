@@ -15,35 +15,46 @@ import { LanguageSwitcher } from "@/components/site/LanguageSwitcher";
 import { Wordmark } from "@/components/site/Wordmark";
 import { navLinks, SITE } from "@/lib/site";
 import { isRtl, localePath, type Dictionary, type Locale } from "@/lib/i18n";
+import type { NavSurface } from "@/lib/nav-surface";
 
 /**
- * Solid and edge-to-edge at the top of a page; a floating pane of glass once
- * you scroll.
+ * No background at all at the top of a page; a floating pane of glass once you
+ * scroll.
  *
- * The direction matters, and it is the opposite of the usual pattern. It
- * cannot start transparent: every interior page opens with `PageHeader`, which
- * is a dark photograph, and a transparent bar there would put graphite links
- * on someone else's dark sky — two colour states for every control, contingent
- * on a photograph nobody controls. Starting solid and *becoming* glass has no
- * such problem: the glass is 78% paper, so the worst thing that can ever sit
- * behind it — that same near-black header — lands at #cdcdce measured, which
- * leaves the links at 5.30:1 without their colour changing at all. `tests/
- * e2e.mjs` measures exactly that case and holds it to 4.5:1.
+ * The page shows through the bar, which means the bar has two colour states
+ * and something has to decide between them. That decision is `navSurface`, and
+ * it is a fact about layout rather than a guess: interior pages open with
+ * `PageHeader`, a photograph under a near-black scrim, so the controls go
+ * white; the home page and a property's own page open light, so they stay
+ * navy. Get it wrong and the navigation is not dim, it is invisible — which is
+ * why `tests/e2e.mjs` measures the links at the top of both kinds of route and
+ * not only over the glass.
  *
- * Both states are painted by two stacked plates that cross-fade, rather than
- * by one plate whose background is animated. A `backdrop-filter` element is
- * promoted to its own layer anyway, so two of them cost no more than one, and
- * the cross-fade means the blur is never half-applied mid-transition — which
- * is what makes an animated `backdrop-blur` flicker on Safari.
+ * Scrolling collapses the distinction. The glass is 78% paper, so the darkest
+ * thing that can sit behind it lands at #cdcdce measured and the links read at
+ * 5.30:1 as navy — there is no light state once the pane is there, on any
+ * route.
  *
  * Everything that moves is a transform or an opacity, so none of it can cost
  * the page a reflow: the glass springs in on `scale` and `y`, the wordmark
  * settles a little smaller on `scale`, and the reading line is a `scaleX`.
- * The bar's own height is the single exception, and it is transitioned rather
- * than sprung — a fixed element is out of flow, so its height reflows its own
- * ten nodes and nothing else on the page.
+ * Colour is the one thing that cross-fades on its own clock — a 300ms tint
+ * rather than a spring, because type that springs between two colours reads as
+ * a glitch.
+ *
+ * The bar's own height is the single exception to transform-only, and it is
+ * transitioned rather than sprung — a fixed element is out of flow, so its
+ * height reflows its own ten nodes and nothing else on the page.
  */
-export function Navbar({ locale, t }: { locale: Locale; t: Dictionary }) {
+export function Navbar({
+  locale,
+  t,
+  surface = "dark",
+}: {
+  locale: Locale;
+  t: Dictionary;
+  surface?: NavSurface;
+}) {
   const pathname = usePathname();
   const links = navLinks(locale, t);
   const rtl = isRtl(locale);
@@ -72,9 +83,14 @@ export function Navbar({ locale, t }: { locale: Locale; t: Dictionary }) {
     restDelta: 0.001,
   });
 
-  // The drawer covers the page, so the bar above it has to be opaque
-  // regardless of where the page happens to be scrolled to.
+  // The drawer covers the page in paper, so while it is open the bar is over a
+  // light surface whatever the route is and wherever the page is scrolled to.
   const glass = scrolled && !menuOpen;
+
+  /* White controls, and the only state that has them. Both the glass and the
+     open drawer put paper behind the bar, so either one ends it. */
+  const onDark = surface === "dark" && !scrolled && !menuOpen;
+  const tone = onDark ? ("light" as const) : ("dark" as const);
 
   const spring = reduce
     ? { duration: 0 }
@@ -103,15 +119,7 @@ export function Navbar({ locale, t }: { locale: Locale; t: Dictionary }) {
         className="fixed inset-x-0 top-0 z-50 transition-[height] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
         style={{ height: glass ? "calc(var(--nav-h) - 0.5rem)" : "var(--nav-h)" }}
       >
-        {/* Plate one: the solid bar, which is what the top of every page gets. */}
-        <motion.div
-          className="absolute inset-0 border-b border-hairline bg-paper"
-          animate={{ opacity: glass ? 0 : 1 }}
-          transition={{ duration: reduce ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
-          aria-hidden
-        />
-
-        {/* Plate two: the glass, which is what scrolling gets. It is inset on
+        {/* The glass, which is the bar's only background. It is inset on
             all four sides so the bar stops touching the viewport — that gap is
             most of what reads as "floating", more than the shadow does. The
             width is over-constrained on purpose: `inset-x` sets both edges and
@@ -158,13 +166,17 @@ export function Navbar({ locale, t }: { locale: Locale; t: Dictionary }) {
               animate={{ scale: glass ? 0.92 : 1 }}
               transition={spring}
             >
-              <Wordmark locale={locale} />
+              <Wordmark locale={locale} tone={tone} />
             </motion.span>
           </Link>
 
           {/* Centred, the way a product's nav is — the logo and the actions
               hold the two ends and the destinations sit between them. */}
-          <ul className="hidden items-center gap-8 text-[0.875rem] font-medium text-graphite lg:flex">
+          <ul
+            className={`hidden items-center gap-8 text-[0.875rem] font-medium transition-colors duration-300 lg:flex ${
+              onDark ? "text-paper/85" : "text-graphite"
+            }`}
+          >
             {links.map((link) => (
               <li key={link.href}>
                 <Link
@@ -181,7 +193,11 @@ export function Navbar({ locale, t }: { locale: Locale; t: Dictionary }) {
           </ul>
 
           <div className="flex items-center gap-4">
-            <LanguageSwitcher locale={locale} label={t.common.switchLanguage} />
+            <LanguageSwitcher
+              locale={locale}
+              tone={tone}
+              label={t.common.switchLanguage}
+            />
 
             <Link
               href={localePath(locale, "/contact")}
@@ -196,7 +212,9 @@ export function Navbar({ locale, t }: { locale: Locale; t: Dictionary }) {
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"
               aria-label={menuOpen ? t.common.closeMenu : t.common.openMenu}
-              className="relative z-50 flex h-11 w-11 flex-col items-center justify-center gap-[6px] text-ink lg:hidden"
+              className={`relative z-50 flex h-11 w-11 flex-col items-center justify-center gap-[6px] transition-colors duration-300 lg:hidden ${
+                onDark ? "text-paper" : "text-ink"
+              }`}
             >
               <span
                 className={`block h-0.5 w-6 rounded-full bg-current transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
