@@ -52,7 +52,7 @@ export const BLUR_DATA_URL =
 /** Semantic keys → Pexels photos. Swap the ids, keep the keys. */
 export const PHOTO_IDS = {
   // --- Hero plates (cinematic, wide, dark enough to carry white type) ---
-  heroVillaDusk: { id: 38430927, by: "Holger Raukamp", note: "Infinity pool overlooking the Burj Khalifa and the Dubai skyline at sunrise." },
+  heroVillaDusk: { id: 15533154, by: "Imthiyaz Syed", note: "Dubai skyline at sunset, the Burj Khalifa in silhouette over a calm sea." },
   heroSky: { id: 5577693, by: "Aleksandar Pasaric", note: "Nighttime view of Dubai's skyline with the iconic Burj Khalifa lit up." },
   heroCoastal: { id: 28350363, by: "Fabio Oliveira", note: "The towering skyscrapers of Dubai Marina reflecting in the water." },
 

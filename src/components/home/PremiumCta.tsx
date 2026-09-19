@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { CountUp } from "@/components/site/CountUp";
 import { DemoBadge } from "@/components/site/DemoBadge";
 import { Reveal, RevealGroup } from "@/components/site/Reveal";
 import { SmartImage } from "@/components/site/SmartImage";
@@ -90,7 +91,7 @@ export function PremiumCta({
                 {stats.map((stat) => (
                   <div key={stat.id} className="border-s border-white/15 ps-4">
                     <p className="font-display text-[clamp(1.75rem,3vw,2.25rem)] font-extrabold leading-none text-paper tabular-nums">
-                      {stat.value}
+                      <CountUp value={stat.value} />
                     </p>
                     <p className="mt-2 text-[0.75rem] leading-snug text-paper/55">
                       {stat.label}

@@ -47,7 +47,11 @@ export function HeroSearch({
     <form
       onSubmit={submit}
       aria-label={t.quickSearch.ariaLabel}
-      className="card flex flex-col gap-1 p-2 shadow-[var(--shadow-float)] md:flex-row md:items-stretch"
+      /* Frosted rather than opaque. At 88% the plate reads faintly through
+         the bar, which is what stops a white slab sitting on a photograph and
+         reads as glass instead — and the values stay on near-white, so nothing
+         is traded for it. */
+      className="flex flex-col gap-1 rounded-[var(--radius-card)] border border-white/70 bg-paper/88 p-2 shadow-[var(--shadow-float)] backdrop-blur-xl md:flex-row md:items-stretch"
     >
       {/* The dividers are borders on the segments rather than separate rules,
           so they disappear with the row when the bar stacks on mobile. */}

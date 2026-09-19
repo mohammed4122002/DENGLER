@@ -363,6 +363,28 @@ which is honoured in CSS and re-checked in JavaScript via `useReducedMotion`.
 Page transitions are a 340ms fade with 8px of drift — long enough to read as
 craft, short enough not to read as latency.
 
+**The flourishes, and what each one costs.** Four, and all four are composited
+transforms or opacity — nothing animates a layout property, so none of them can
+cause a reflow:
+
+- **Aurora.** Two blurred colour blooms behind the hero copy, drifting on 45-
+  and 60-second periods. The periods are coprime on purpose: the pair never
+  returns to the same arrangement, so the motion cannot be read as a loop. They
+  do the job a grey scrim used to do — lift the headline off the plate — in the
+  brand's own colours, and a `filter: blur()` on a radial gradient composites
+  on the GPU where the same effect as a PNG would be another request.
+- **Gold shine.** A skewed band of light crossing the primary button on hover,
+  one pseudo-element and one transition. Only on `.btn-gold`: a shine on every
+  button is not a highlight, it is a texture.
+- **Frosted search bar.** 88% opacity over `backdrop-blur`, so the plate reads
+  faintly through it and it looks like glass rather than a white slab dropped
+  on a photograph. The values still sit on near-white, so nothing is traded.
+- **Counting figures.** The closing band's statistics count up when they scroll
+  into view, once. Two rules keep them from ever showing a wrong number:
+  targets below 10 are not animated (a "7" counting from zero is four frames of
+  "0 yrs", which reads as a broken stat), and a two-second fallback snaps to
+  the target if the observer never fires.
+
 Framer Motion is the only animation dependency. There is no Three.js: nothing
 on these pages needs a 3D renderer, and the bundle cost would be real.
 

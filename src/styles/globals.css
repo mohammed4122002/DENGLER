@@ -169,6 +169,34 @@
   .btn:hover { transform: translateY(-2px); }
   .btn:active { transform: translateY(0); }
 
+  /* A band of light crossing the primary button on hover. `overflow: hidden`
+     plus a skewed pseudo-element, so it costs one composited transform and no
+     JavaScript. Only on the gold button: a shine on every button is not a
+     highlight, it is a texture. */
+  .btn-gold {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .btn-gold::after {
+    content: "";
+    position: absolute;
+    top: -60%;
+    bottom: -60%;
+    width: 38%;
+    left: -60%;
+    z-index: -1;
+    transform: skewX(-18deg);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, #fff 60%, transparent),
+      transparent
+    );
+    transition: left 0.7s var(--ease-luxe);
+  }
+  .btn-gold:hover::after { left: 130%; }
+
   .btn-gold {
     background: var(--color-gold);
     color: var(--color-ink);
@@ -233,7 +261,7 @@
   .card-hover:hover {
     box-shadow: var(--shadow-float);
     transform: translateY(-4px);
-    border-color: color-mix(in srgb, var(--color-ink) 12%, transparent);
+    border-color: color-mix(in srgb, var(--color-gold) 55%, transparent);
   }
 
   /* --- Pill badge, as worn by "For Sale" / "Villa" over a photograph --- */
@@ -339,6 +367,50 @@
     border-radius: 3px;
   }
 
+  /* --- Aurora ----------------------------------------------------------
+     Two soft blooms drifting behind the hero copy on a very long period —
+     45 and 60 seconds, deliberately coprime so the pair never returns to the
+     same arrangement and the motion cannot be read as a loop.
+
+     They are blurred colour, not an image: a `filter: blur()` on a radial
+     gradient composites on the GPU and costs nothing to animate, where the
+     same effect as a PNG would be another request and another 200KB. It sits
+     under the copy and over the photograph, which is what lifts the headline
+     off the plate without another grey scrim. */
+  .aurora {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.55;
+    will-change: transform;
+    pointer-events: none;
+  }
+  .aurora--gold {
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--color-gold) 55%, transparent),
+      transparent 70%
+    );
+    animation: drift-a 45s ease-in-out infinite;
+  }
+  .aurora--navy {
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--color-charcoal) 42%, transparent),
+      transparent 70%
+    );
+    animation: drift-b 60s ease-in-out infinite;
+  }
+
+  @keyframes drift-a {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50%      { transform: translate3d(7%, -9%, 0) scale(1.14); }
+  }
+  @keyframes drift-b {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1.08); }
+    50%      { transform: translate3d(-9%, 7%, 0) scale(1); }
+  }
+
   /* --- Gold sweep, used on the hero and on section reveals -------------- */
   .gold-sweep {
     position: absolute;
@@ -420,6 +492,7 @@
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .aurora { animation: none !important; }
   *,
   *::before,
   *::after {

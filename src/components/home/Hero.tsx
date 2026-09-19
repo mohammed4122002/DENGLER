@@ -164,6 +164,16 @@ export function Hero({
         aria-hidden
       />
 
+      {/* ── Aurora ───────────────────────────────────────────────────────
+          Two blurred blooms under the copy and over the plate. They do the job
+          a grey scrim used to do — lift the headline off the photograph — but
+          in the brand's own colours and while moving, so the frame reads as
+          alive before anything animates into it. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-[5] overflow-hidden">
+        <span className="aurora aurora--gold start-[-8%] top-[-18%] h-[46rem] w-[46rem]" />
+        <span className="aurora aurora--navy start-[18%] top-[34%] h-[34rem] w-[34rem]" />
+      </div>
+
       {/* ── Content ────────────────────────────────────────────────────── */}
       {/* The copy takes the leading half and the photograph the trailing
           half, which is what the wash is cut to. The column is a grid track
