@@ -126,7 +126,7 @@ export function Hero({
             fetchPriority="high"
             sizes="100vw"
             quality={80}
-            /* The plate is 2.53:1 and the section is near enough the same, so
+            /* The plate is 2.16:1 and the section is near enough the same, so
                there is almost nothing to crop; centring is right.
 
                `rtl:-scale-x-100` mirrors it in Arabic. The layout mirrors —
@@ -155,22 +155,31 @@ export function Hero({
           full-width — a horizontal wash left the last third of every line
           sitting on raw photograph, which is exactly the bug the measured
           contrast check exists to catch, so the small-screen wash runs top to
-          bottom. Solid white ends at 40% — just past the lead, which is the
-          last thing that has to be read off it — and the rest of the column
-          keeps the skyline behind it. The search bar is frosted rather than
-          opaque precisely so it can sit there.
+          bottom. The search bar is frosted rather than opaque precisely so it
+          can sit over the skyline rather than hiding it.
 
           The desktop wash hands over to the photograph earlier than it looks
           like it should. The plate is a hazy sunrise, so the handover lands on
           pale sky rather than on a subject — which is what lets the skyline
           start well inside the copy column instead of being pushed off the
-          trailing edge. */}
+          trailing edge.
+
+          Both ramps are thinner than they were, and the stop that is not free
+          to move is the desktop one near 42%. At 1440 the copy column ends at
+          41% of the viewport, so that is where the last glyph of the lead
+          lands, and `tests/e2e.mjs` measures the result off rendered pixels
+          against a photograph forced to pure black — the darkest one an editor
+          could upload. Thinning that stop alone took the check to 2.60:1 on a
+          3:1 bar, so it sits at 0.7 for that reason and no other; measured, the
+          worst point is now 3.54:1. Everything after it falls away faster than
+          it used to, and that is where the white was actually given back to
+          the photograph — not at the point that has to stay readable. */}
       <div
-        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,#ffffff_0%,#ffffff_40%,rgba(255,255,255,0.85)_56%,rgba(255,255,255,0.5)_74%,rgba(255,255,255,0.2)_90%,rgba(255,255,255,0.08)_100%)] lg:hidden"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,#ffffff_0%,rgba(255,255,255,0.92)_18%,rgba(255,255,255,0.72)_38%,rgba(255,255,255,0.35)_58%,rgba(255,255,255,0.1)_80%,transparent_100%)] lg:hidden"
         aria-hidden
       />
       <div
-        className="absolute inset-0 -z-10 hidden bg-[linear-gradient(to_var(--wash-to),#ffffff_0%,#ffffff_20%,rgba(255,255,255,0.9)_34%,rgba(255,255,255,0.55)_50%,rgba(255,255,255,0.15)_70%,transparent_88%)] lg:block"
+        className="absolute inset-0 -z-10 hidden bg-[linear-gradient(to_var(--wash-to),#ffffff_0%,rgba(255,255,255,0.97)_16%,rgba(255,255,255,0.86)_32%,rgba(255,255,255,0.7)_42%,rgba(255,255,255,0.28)_58%,rgba(255,255,255,0.08)_74%,transparent_86%)] lg:block"
         style={{ ["--wash-to" as string]: rtl ? "left" : "right" }}
         aria-hidden
       />
