@@ -137,17 +137,27 @@ export function Hero({
                the sun back under the copy, which is the composition the wash
                is cut for. It is applied to the image rather than to either
                wrapper because both of those carry motion transforms, and a
-               className transform would be overwritten by the inline one. */
-            className="object-cover object-center rtl:-scale-x-100"
+               className transform would be overwritten by the inline one.
+
+               The crop moves at `lg`, and only horizontally, because only the
+               horizontal is cropped: at 390 the plate is 2.16:1 in a box taller
+               than it is wide, so the full height shows and a 23% vertical
+               slice is taken from the middle. On this plate the middle is haze
+               — the sky between the terrace and the tower — which is why the
+               phone hero still looked washed out after the wash itself was
+               thin. 62% puts the tower and the lit city in that slice
+               instead — a subject you can name, rather than the gap between
+               two of them. The mirror flips the offset along with the image, so
+               Arabic gets the same content on the other side. */
+            className="object-cover object-[62%_center] rtl:-scale-x-100 lg:object-center"
           />
         </motion.div>
       </motion.div>
 
       {/* ── The wash ───────────────────────────────────────────────────────
-          What makes the copy readable, rather than the photograph being dark
-          enough. The first stop is fully opaque on purpose: a wash that only
-          reaches 85% leaves the headline sitting on a tinted photograph, which
-          is a contrast figure that moves every time the catalogue changes.
+          A haze over the photograph, not a panel beside it. No stop is fully
+          opaque any more: the plate reads edge to edge, and the copy sits on
+          the sky rather than on a white column that happens to touch it.
 
           It runs along a different axis per breakpoint, because the copy does.
           Above `lg` the copy takes the leading half and the photograph the
@@ -158,28 +168,35 @@ export function Hero({
           bottom. The search bar is frosted rather than opaque precisely so it
           can sit over the skyline rather than hiding it.
 
-          The desktop wash hands over to the photograph earlier than it looks
-          like it should. The plate is a hazy sunrise, so the handover lands on
-          pale sky rather than on a subject — which is what lets the skyline
-          start well inside the copy column instead of being pushed off the
-          trailing edge.
+          What sets the numbers is one measurement: with the wash switched off
+          entirely, the darkest pixel behind the copy is #b6 under the headline
+          and #51 under the lead at 1440 — the lead runs to 41% of the viewport,
+          which is where the skyline's towers start. Ink needs #91 to clear
+          4.5:1, so 0.46 at that stop lifts #51 to #a0 and the rest of the ramp
+          is free. That is the whole argument: the copy was darkened so the
+          wash could be thin, rather than the wash thickened so the copy could
+          stay pale.
 
-          Both ramps are thinner than they were, and the stop that is not free
-          to move is the desktop one near 42%. At 1440 the copy column ends at
-          41% of the viewport, so that is where the last glyph of the lead
-          lands, and `tests/e2e.mjs` measures the result off rendered pixels
-          against a photograph forced to pure black — the darkest one an editor
-          could upload. Thinning that stop alone took the check to 2.60:1 on a
-          3:1 bar, so it sits at 0.7 for that reason and no other; measured, the
-          worst point is now 3.54:1. Everything after it falls away faster than
-          it used to, and that is where the white was actually given back to
-          the photograph — not at the point that has to stay readable. */}
+          The mobile ramp is the one place where the two goals actually fight.
+          Moving the phone crop to 62% is what put a recognisable tower behind
+          the copy instead of haze, and the same move put the city's dark
+          windows there: the eyebrow fell to 3.61:1 and the lead to 3.51:1 the
+          moment the crop changed. So the top of this ramp is heavier than the
+          desktop one and the bottom is lighter — it is carrying the copy over
+          a darker plate, then getting out of the way by half height, which is
+          where most of the photograph a phone shows actually is.
+
+          The previous ramp held 0.7 there and reached 0.97 at the leading edge.
+          It was carrying a check against a photograph forced to pure black,
+          which this plate cannot become — it is a constant in
+          `src/lib/data/images.ts`, not something an editor can upload. The
+          suite now measures this plate and a white one instead, and says so. */}
       <div
-        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,#ffffff_0%,rgba(255,255,255,0.92)_18%,rgba(255,255,255,0.72)_38%,rgba(255,255,255,0.35)_58%,rgba(255,255,255,0.1)_80%,transparent_100%)] lg:hidden"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.88)_0%,rgba(255,255,255,0.72)_16%,rgba(255,255,255,0.56)_34%,rgba(255,255,255,0.32)_50%,rgba(255,255,255,0.1)_68%,transparent_84%)] lg:hidden"
         aria-hidden
       />
       <div
-        className="absolute inset-0 -z-10 hidden bg-[linear-gradient(to_var(--wash-to),#ffffff_0%,rgba(255,255,255,0.97)_16%,rgba(255,255,255,0.86)_32%,rgba(255,255,255,0.7)_42%,rgba(255,255,255,0.28)_58%,rgba(255,255,255,0.08)_74%,transparent_86%)] lg:block"
+        className="absolute inset-0 -z-10 hidden bg-[linear-gradient(to_var(--wash-to),rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.74)_16%,rgba(255,255,255,0.58)_30%,rgba(255,255,255,0.46)_42%,rgba(255,255,255,0.2)_56%,rgba(255,255,255,0.05)_70%,transparent_82%)] lg:block"
         style={{ ["--wash-to" as string]: rtl ? "left" : "right" }}
         aria-hidden
       />
@@ -208,7 +225,21 @@ export function Hero({
           className="w-full"
           style={reduce ? undefined : { y: copyY, opacity: copyOpacity }}
         >
-          <motion.p className="eyebrow !text-gold-deep" {...stage(0.15)}>
+          {/* The gold is a mark, not the type. `gold-deep` is 3.14:1 on pure
+              white at its very best, and this line is 11px uppercase with
+              0.2em tracking — the hardest thing on the page to read. It
+              measured 2.63:1 as published, which is why the eyebrow is now
+              part of what `tests/e2e.mjs` measures. The dot keeps the brand
+              colour in the composition at a size where contrast is not a
+              legibility question. */}
+          <motion.p
+            className="eyebrow flex items-center gap-2.5 !text-graphite"
+            {...stage(0.15)}
+          >
+            <span
+              className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-gold-deep"
+              aria-hidden
+            />
             {t.hero.eyebrow}
           </motion.p>
 
@@ -222,7 +253,12 @@ export function Hero({
           </h1>
 
           <motion.p
-            className="mt-5 max-w-lg text-[0.9375rem] leading-relaxed text-graphite"
+            /* Ink rather than graphite, and that is what pays for the
+               photograph. At 15px this is body text, so it owes 4.5:1, and
+               graphite needs a background of at least #be to get there while
+               ink clears it at #91. Sixty-odd levels of grey is the difference
+               between a wash you look through and a wash you look at. */
+            className="mt-5 max-w-lg text-[0.9375rem] leading-relaxed text-ink"
             {...stage(0.85)}
           >
             {t.hero.lead}

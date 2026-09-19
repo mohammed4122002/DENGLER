@@ -65,6 +65,12 @@ export const BLUR_DATA_URL =
  */
 export const PHOTO_IDS = {
   // --- Hero plates (cinematic, wide, dark enough to carry white type) ---
+  /* Changing this one re-opens a measurement. The home hero's wash is cut for
+     this exact frame — thin enough to see through, which it can only be because
+     the sky behind the copy is bright and the towers reach no further than 41%
+     of the viewport. `tests/e2e.mjs` measures the hero against this plate and a
+     white one, not a black one, precisely because swapping it is a code change
+     and not an upload. Swap it and re-run the suite before shipping. */
   heroVillaDusk: { file: "/media/hero-dubai.webp", by: "Supplied by the site owner", note: "Penthouse terrace at golden hour, the Burj Khalifa and downtown Dubai beyond." },
   heroSky: { id: 5577693, by: "Aleksandar Pasaric", note: "Nighttime view of Dubai's skyline with the iconic Burj Khalifa lit up." },
   heroCoastal: { id: 28350363, by: "Fabio Oliveira", note: "The towering skyscrapers of Dubai Marina reflecting in the water." },

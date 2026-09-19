@@ -446,7 +446,7 @@ for (const [width, height, label] of [
 /* ------------------------------------------------------------------ *
  * 8. Hero contrast, measured off the rendered pixels
  * ------------------------------------------------------------------ *
- * The hero sets type over a photograph an editor can swap at any time. This
+ * The hero and every page header set type over a photograph. This
  * reads the text colour off the computed style, hides every glyph in the
  * section, screenshots the boxes the text actually occupies, and compares the
  * text luminance against every remaining pixel — so the assertion is about
@@ -459,32 +459,56 @@ for (const [width, height, label] of [
  * minimum per-pixel contrast instead works for light type on a dark plate and
  * dark type on a light one without being told which it is looking at.
  *
- * It runs three times: as published, with every hero image forced to pure
- * white, and forced to pure black — the two brightest and darkest photographs
- * anyone could realistically upload.
+ * Which photographs it forces depends on whose photograph it is, and the two
+ * cases are genuinely different:
+ *
+ *   · A page header's image is catalogue content. An editor uploads it, so the
+ *     scrim there has to survive anything — forced white and forced black both.
+ *   · The home hero's plate is not. It is one constant in
+ *     `src/lib/data/images.ts`; changing it is a code change, and a code change
+ *     is where the wash gets re-measured anyway. Forcing it black was asserting
+ *     against a photograph that cannot exist without this file being rerun, and
+ *     the cost was real: it was the only thing holding the wash at an opacity
+ *     that buried the plate it was protecting. The hero is measured as
+ *     published, and forced white — the direction a lighter wash actually makes
+ *     worse.
+ *
+ * The bar differs by role, not by taste. The headline is large text at 3:1; the
+ * lead is 15px, and the eyebrow 11px uppercase, so both owe the full 4.5:1.
+ *
+ * The eyebrow is measured because it was the one thing here that never was: it
+ * shipped gold-on-white at 2.63:1, which no amount of looking at it caught.
  *
  * This regressed once already — the headline measured 1.2:1 — so the numbers
  * are checked rather than eyeballed.
  * ------------------------------------------------------------------ */
 {
-  const MIN_CONTRAST = 3; // WCAG AA, large text.
+  const LARGE = 3; // WCAG AA, large text.
+  const BODY = 4.5; // WCAG AA, everything else.
 
   /* The hero is checked at both widths on purpose: its wash runs along a
      different axis per breakpoint, so a desktop-only check would pass while
      the last third of every mobile line sat on raw photograph. */
-  for (const force of [null, "white", "black"]) {
-    for (const [label, path, selector, width] of [
-      ["en hero headline", "/en", "h1", 1440],
-      ["en hero lead", "/en", "h1 ~ p", 1440],
-      ["en hero headline @390", "/en", "h1", 390],
-      ["en hero lead @390", "/en", "h1 ~ p", 390],
-      ["en page header", "/en/properties", "h1", 1440],
-      ["ar hero headline", "/ar", "h1", 1440],
-      ["ar hero lead", "/ar", "h1 ~ p", 1440],
-      ["ar hero headline @390", "/ar", "h1", 390],
-      ["ar hero lead @390", "/ar", "h1 ~ p", 390],
-      ["ar page header", "/ar/properties", "h1", 1440],
-    ]) {
+  const HERO_FORCES = [null, "white"];
+  const EDITORIAL_FORCES = [null, "white", "black"];
+
+  for (const [label, path, selector, width, MIN_CONTRAST, forces] of [
+    ["en hero eyebrow", "/en", "section p.eyebrow", 1440, BODY, HERO_FORCES],
+    ["en hero headline", "/en", "h1", 1440, LARGE, HERO_FORCES],
+    ["en hero lead", "/en", "h1 ~ p", 1440, BODY, HERO_FORCES],
+    ["en hero eyebrow @390", "/en", "section p.eyebrow", 390, BODY, HERO_FORCES],
+    ["en hero headline @390", "/en", "h1", 390, LARGE, HERO_FORCES],
+    ["en hero lead @390", "/en", "h1 ~ p", 390, BODY, HERO_FORCES],
+    ["en page header", "/en/properties", "h1", 1440, LARGE, EDITORIAL_FORCES],
+    ["ar hero eyebrow", "/ar", "section p.eyebrow", 1440, BODY, HERO_FORCES],
+    ["ar hero headline", "/ar", "h1", 1440, LARGE, HERO_FORCES],
+    ["ar hero lead", "/ar", "h1 ~ p", 1440, BODY, HERO_FORCES],
+    ["ar hero eyebrow @390", "/ar", "section p.eyebrow", 390, BODY, HERO_FORCES],
+    ["ar hero headline @390", "/ar", "h1", 390, LARGE, HERO_FORCES],
+    ["ar hero lead @390", "/ar", "h1 ~ p", 390, BODY, HERO_FORCES],
+    ["ar page header", "/ar/properties", "h1", 1440, LARGE, EDITORIAL_FORCES],
+  ]) {
+    for (const force of forces) {
       const page = await (
         await browser.newContext({ viewport: { width, height: 900 } })
       ).newPage();
