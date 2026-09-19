@@ -49,7 +49,20 @@ export const BLUR_DATA_URL =
     `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="7"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#23262c"/><stop offset="60%" stop-color="#4a4038"/><stop offset="100%" stop-color="#7d6248"/></linearGradient></defs><rect width="10" height="7" fill="url(#g)"/></svg>`,
   ).toString("base64");
 
-/** Semantic keys → Pexels photos. Swap the ids, keep the keys. */
+/**
+ * Semantic keys → photographs. Swap the values, keep the keys.
+ *
+ * An entry is either a Pexels id or a file you own:
+ *
+ *     heroVillaDusk: { id: 15533154, by: "…", note: "…" }
+ *     heroVillaDusk: { file: "/media/hero.jpg", by: "…", note: "…" }
+ *
+ * The `file` form exists so that buying or shooting a photograph is a drop —
+ * put the file in `public/media/`, change one line here — rather than a code
+ * change. A local file is served as-is: it is not resized or re-encoded by a
+ * CDN, so export it at about 2400px wide and compress it before committing.
+ * Next still re-encodes it to AVIF/WebP and serves it at the right size.
+ */
 export const PHOTO_IDS = {
   // --- Hero plates (cinematic, wide, dark enough to carry white type) ---
   heroVillaDusk: { id: 15533154, by: "Imthiyaz Syed", note: "Dubai skyline at sunset, the Burj Khalifa in silhouette over a calm sea." },
@@ -102,14 +115,25 @@ export const PHOTO_IDS = {
 
 export type PhotoKey = keyof typeof PHOTO_IDS;
 
-/** Resolve a semantic key to a ready-to-render URL. */
+type PhotoEntry =
+  | { readonly id: number; readonly by: string; readonly note: string }
+  | { readonly file: string; readonly by: string; readonly note: string };
+
+/** Resolve a semantic key to a ready-to-render URL.
+ *
+ *  A local file ignores `width`: there is no CDN in front of it to resize it,
+ *  and appending a width it cannot honour would be a URL that lies. */
 export function photo(key: PhotoKey, width = 1600): string {
-  return pexels(PHOTO_IDS[key].id, width);
+  const entry = PHOTO_IDS[key] as PhotoEntry;
+  if ("file" in entry) return entry.file;
+  return pexels(entry.id, width);
 }
 
 /** Photographer credits, keyed the same way — for a credits page or an audit. */
-export function credit(key: PhotoKey): { by: string; url: string } {
-  return { by: PHOTO_IDS[key].by, url: `https://www.pexels.com/photo/${PHOTO_IDS[key].id}/` };
+export function credit(key: PhotoKey): { by: string; url: string | null } {
+  const entry = PHOTO_IDS[key] as PhotoEntry;
+  if ("file" in entry) return { by: entry.by, url: null };
+  return { by: entry.by, url: `https://www.pexels.com/photo/${entry.id}/` };
 }
 
 export const ALL_PHOTO_KEYS = Object.keys(PHOTO_IDS) as PhotoKey[];

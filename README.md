@@ -411,6 +411,29 @@ The URL builder passes a width and no crop. Every consumer already crops with
 `object-fit`, and cropping twice — once at the CDN, once in the browser — is
 how horizons and facades get cut in half.
 
+### Using your own photograph
+
+A registry entry is either a Pexels id or a file you own:
+
+```ts
+heroVillaDusk: { id: 15533154, by: "Imthiyaz Syed", note: "…" },
+heroVillaDusk: { file: "/media/hero.jpg", by: "Licensed — Adobe Stock #…", note: "…" },
+```
+
+Put the file in `public/media/`, change that one line, done. Nothing else in
+the codebase needs to know: `photo()` returns the path as-is and `credit()`
+returns a null source URL rather than inventing a Pexels one.
+
+A local file is **not** resized by a CDN — there is nothing in front of it —
+so `photo()` ignores the `width` argument for it rather than appending a
+parameter it cannot honour. Export at roughly 2400px wide and compress before
+committing; Next still re-encodes to AVIF/WebP and serves the right size per
+device.
+
+Record the licence in `by`. An image whose provenance is not written down is
+an image nobody can safely reuse, and a stock licence is exactly the kind of
+thing that is obvious today and unrecoverable in a year.
+
 Both the blur and the plate are graded **dark-to-warm, not cream**. That is not
 decoration: the hero sets white type over the image, so a pale placeholder made
 every heading unreadable for as long as the photograph was missing — which,
